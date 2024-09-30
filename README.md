@@ -1,6 +1,6 @@
 # Easy Model
 
-![Easy Model](https://github.com/user-attachments/assets/af1e2e30-9ed0-4624-b211-1e50cb26d2cf "Easy Model")
+![Easy Model](https://github.com/user-attachments/assets/5516ee0d-5cfc-49af-9435-8a7a26a942b2 "Easy Model")
 
 ![License](https://img.shields.io/packagist/l/ramadan/easy-model "License")
 ![Latest Version on Packagist](https://img.shields.io/packagist/v/ramadan/easy-model "Latest Version on Packagist")
