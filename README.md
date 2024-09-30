@@ -100,7 +100,7 @@ public function index()
 > [!IMPORTANT]
 > Using the previous methods you can simply provide the relationship name as a key and a colsure as a value or you can pass an array with four elements pointing to the `relationship` and the second pointing to the `column` and the third to the `operator` (The default value is `=` in case you do not provide this element), and fourth to the `value`.
 
-Furthermore, you can use the previous methods one time by passing a list of arrays to the `addWheres` and `addOrWhere` methods:
+Furthermore, you can use the previous methods one time by passing a list of arrays to the `addWheres` and `addOrWheres` methods:
 
 ```PHP
 /**
