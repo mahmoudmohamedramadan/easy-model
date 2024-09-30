@@ -35,7 +35,7 @@ In the beginning, you can specify the Searchable Model in the `constructor` meth
 
 ```PHP
 use App\Models\User;
-use Ramadan\EasyModel\Eloquent\Searchable;
+use Ramadan\EasyModel\Searchable;
 
 class UserController extends Controller
 {
