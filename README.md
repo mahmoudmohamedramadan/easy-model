@@ -31,7 +31,7 @@ composer require ramadan/easy-model
 
 ### Controllers / Services
 
-In the beginning, you can specify the Searchable Model in the `constructor` method:
+In the beginning, you can specify the **Searchable Model** in the `constructor` method:
 
 ```PHP
 use App\Models\User;
