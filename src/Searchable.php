@@ -96,9 +96,11 @@ trait Searchable
     }
 
     /**
-     * Add the "where" clauses to the query.
+     * Add the "whereHas", "whereDoesntHave" and "whereRelation" clauses to the query.
      *
-     * @param  array  $wheres
+     * @param  array  $whereHas
+     * @param  array  $whereDoesntHave
+     * @param  array  $whereRelation
      * @param  \Illuminate\Database\Eloquent\Builder|null  $q
      * @return $this
      *
@@ -106,15 +108,21 @@ trait Searchable
      * @throws \Ramadan\EasyModel\Exceptions\InvalidQuery
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      */
-    public function addWheres(array $wheres, Builder $query = null)
-    {
-        return $this->buildQueryUsingWheres($wheres, $query);
+    public function addWheres(
+        array $whereHas = [],
+        array $whereDoesntHave = [],
+        array $whereRelation = [],
+        Builder $query = null
+    ) {
+        return $this->buildQueryUsingWheres($whereHas, $whereDoesntHave, $whereRelation, $query);
     }
 
     /**
-     * Add the "or where" clauses to the query.
+     * Add the "orWhereHas", "orWhereDoesntHave" and "orWhereRelation" clauses to the query.
      *
-     * @param  array  $wheres
+     * @param  array  $whereHas
+     * @param  array  $whereDoesntHave
+     * @param  array  $whereRelation
      * @param  \Illuminate\Database\Eloquent\Builder|null  $query
      * @return $this
      *
@@ -122,9 +130,13 @@ trait Searchable
      * @throws \Ramadan\EasyModel\Exceptions\InvalidQuery
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      */
-    public function addOrWheres(array $wheres, Builder $query = null)
-    {
-        return $this->buildQueryUsingWheres($wheres, $query, 'orWhere');
+    public function addOrWheres(
+        array $whereHas = [],
+        array $whereDoesntHave = [],
+        array $whereRelation = [],
+        Builder $query = null
+    ) {
+        return $this->buildQueryUsingWheres($whereHas, $whereDoesntHave, $whereRelation, $query, 'orWhere');
     }
 
     /**
@@ -274,7 +286,9 @@ trait Searchable
     /**
      * Build the query using "where" clauses.
      *
-     * @param  array  $wheres
+     * @param  array  $whereHas
+     * @param  array  $whereDoesntHave
+     * @param  array  $whereRelation
      * @param  \Illuminate\Database\Eloquent\Builder|null  $query
      * @param  string  $method
      * @return $this
@@ -283,8 +297,13 @@ trait Searchable
      * @throws \Ramadan\EasyModel\Exceptions\InvalidQuery
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      */
-    protected function buildQueryUsingWheres($wheres, $query = null, string $method = 'where')
-    {
+    protected function buildQueryUsingWheres(
+        array $whereHas = [],
+        array $whereDoesntHave = [],
+        array $whereRelation = [],
+        Builder $query = null,
+        string $method = 'where'
+    ) {
         if (!empty($query)) {
             $this->query = $query;
         }
@@ -297,9 +316,19 @@ trait Searchable
             throw new InvalidQuery;
         }
 
-        $this->query = $this->buildQuery()->where(function ($q) use ($wheres, $method) {
-            $this->prepareBunchOfWhereClauses($q, $wheres, $method);
-        }, boolean: $method === 'where' ? 'and' : 'or');
+        $methodPrefix = ($method === 'where' ? '' : 'orWhere');
+
+        if (!empty($whereHas)) {
+            $this->buildQueryUsingWhereConditions($whereHas, $query, "{$methodPrefix}whereHas");
+        }
+
+        if (!empty($whereDoesntHave)) {
+            $this->buildQueryUsingWhereConditions($whereDoesntHave, $query, "{$methodPrefix}DoesntHave");
+        }
+
+        if (!empty($whereRelation)) {
+            $this->buildQueryUsingWhereRelations($whereRelation, $query, "{$methodPrefix}whereRelation");
+        }
 
         return $this;
     }
@@ -497,48 +526,6 @@ trait Searchable
     protected function buildQuery()
     {
         return !empty($this->query) ? $this->query : $this->getModel()::query();
-    }
-
-    /**
-     * Prepare the where conditions.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder  $q
-     * @param  array  $wheres
-     * @param  string  $method
-     * @return void
-     *
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
-     */
-    protected function prepareBunchOfWhereClauses($q, $wheres, $method = 'where')
-    {
-        // We will loop through the given wheres array that must be in array of arrays
-        // so, we have checked if each value represents an array.
-        foreach ($wheres as $where) {
-            if (!is_array($where)) {
-                throw new InvalidArrayStructure("The `{$method}` array must be well defined.");
-            }
-
-            // If the array has one element it means that it was an associative array where
-            // the key is the column and the value is the search value for that column
-            // e.g. ['name' => 'Mahmoud Ramadan']
-            // whereas, it has two elements it means that it was an indexed array where the first
-            // element is the column and the second element is the search value for that column
-            // e.g. ['name', 'Mahmoud Ramadan']
-            // else, it means that the first element is the column and the second element is the operator
-            // and the third element is the search value for that column
-            // e.g. ['name', '=', 'Mahmoud Ramadan'].
-            [$column, $operator, $value] = match (count($where)) {
-                1 => [array_keys($where)[0], '=', array_values($where)[0]],
-                2 => [$where[0], '=', $where[1]],
-                3 => $where
-            };
-
-            if (!in_array(strtolower($operator), $this->getAllowedOperators(), true)) {
-                throw new InvalidArrayStructure("The `{$operator}` is not a valid operator.");
-            }
-
-            $q->where($column, $operator, $value, $method === 'where' ? 'and' : 'or');
-        }
     }
 
     /**
