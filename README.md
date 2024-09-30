@@ -158,10 +158,11 @@ class Post extends Model
      */
     public function scopeHasComments($q)
     {
-        $this->addWheres(
-            whereHas: ['comments>2'],
-            query: $q
-        )
+        $this
+            ->addWheres(
+                whereHas: ['comments>2'],
+                query: $q
+            )
             ->execute();
     }
 }
