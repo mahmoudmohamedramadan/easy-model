@@ -53,31 +53,7 @@ class UserController extends Controller
 }
 ```
 
-After that, you can easily start searching using the `addWheres`, and `addOrWheres` methods:
-
-```PHP
-/**
- * Display a listing of the resource.
- */
-public function index()
-{
-    return $this
-        ->addWheres([
-            ['name', 'Mahmoud Ramadan'],
-        ])
-        ->addOrWheres([
-            ['email', 'LIKE', '%example.org%'],
-            ['age', '>', 15],
-        ])
-        ->execute()
-        ->get();
-}
-```
-
-> [!IMPORTANT]
-> You must provide an array of arrays to these methods since each array must contain three elements pointing to the `column` and the second to the `operator` (The default value is `=` in case you do not provide this element), and third to the `value`.
-
-Also, you can search in the Model relationships using the `addWhereHas`, and `addWhereDoesntHave` methods:
+After that, you can search in the Model relationships using the `addWhereHas`, and `addWhereDoesntHave` methods:
 
 ```PHP
 /**
@@ -101,7 +77,7 @@ public function index()
 > [!IMPORTANT]
 > You must provide an array to these methods since you can pass just the relationship name as a string, in addition, you can suffix the relationship name with the operator and count to specify the relationship count that the Model must have also, you can pass the relationship as the key and a closure as a value.
 
-Furthermore, you can use the `whereRelation` and `orWhereRelation`:
+Also, you can use the `whereRelation` and `orWhereRelation`:
 
 ```PHP
 /**
@@ -123,6 +99,28 @@ public function index()
 
 > [!IMPORTANT]
 > Using the previous methods you can simply provide the relationship name as a key and a colsure as a value or you can pass an array with four elements pointing to the `relationship` and the second pointing to the `column` and the third to the `operator` (The default value is `=` in case you do not provide this element), and fourth to the `value`.
+
+Furthermore, you can use the previous methods one time by passing a list of arrays to the `addWheres` and `addOrWhere` methods:
+
+```PHP
+/**
+ * Display a listing of the resource.
+ */
+public function index()
+{
+    return $this
+        ->addWheres(
+            whereHas: [
+                'posts>1'
+            ],
+            whereRelation: [
+                'posts.comments' => fn($q) => $q->where('body', 'LIKE', '%sit%'),
+            ]
+        )
+        ->execute()
+        ->get();
+}
+```
 
 ### Chainable
 
