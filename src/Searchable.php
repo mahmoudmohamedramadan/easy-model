@@ -1,6 +1,6 @@
 <?php
 
-namespace Ramadan\EasyModel\Eloquent;
+namespace Ramadan\EasyModel;
 
 use Ramadan\EasyModel\Concerns\ShouldBuildQueries;
 use Ramadan\EasyModel\Exceptions\InvalidSearchableModel;
