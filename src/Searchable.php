@@ -219,8 +219,6 @@ trait Searchable
         if (empty($this->getQuery())) {
             throw new InvalidSearchableModel('Provide a model to search in.');
         }
-
-        return $this;
     }
 
     /**
