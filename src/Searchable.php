@@ -429,12 +429,12 @@ trait Searchable
      * Prepare the where relations parameters.
      *
      * @param  string  $relation
-     * @param  array  $closure
+     * @param  array|\Closure  $closure
      * @return array
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      */
-    protected function prepareWhereRelationsParamters(string $relation, array $closure)
+    protected function prepareWhereRelationsParamters(string $relation, array|\Closure $closure)
     {
         if (is_string($relation) && is_callable($closure)) {
             return [
