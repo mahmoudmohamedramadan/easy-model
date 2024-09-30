@@ -152,15 +152,16 @@ class Post extends Model
     use Searchable;
 
     /**
-     * Get visible posts.
+     * Get the posts that have more than two comments.
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $q
      */
-    public function scopeIsVisible($q)
+    public function scopeHasComments($q)
     {
-        $this->addWheres([
-            ['is_visible', true]
-        ], $q)
+        $this->addWheres(
+            whereHas: ['comments>2'],
+            query: $q
+        )
             ->execute();
     }
 }
