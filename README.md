@@ -17,6 +17,7 @@
   - [Controllers / Services](#controllers--services)
   - [Chainable](#chainable)
   - [Models](#models)
+  - [Advanced](#advanced)
 - [Credits](#credits)
 - [Support me](#support-me)
 
@@ -25,6 +26,7 @@
 I'm working to add the next features:
 
 - [x] Search in the relationships using a single model instance.
+- [ ] Enable searching in many relationships.
 
 ## Installation
 
@@ -172,6 +174,27 @@ class Post extends Model
             )
             ->execute();
     }
+}
+```
+
+### Advanced
+
+It enables you also to search in the model relationship using the `setRelationship` method:
+
+```PHP
+/**
+ * Display a listing of the resource.
+ */
+public function index()
+{
+    return $this
+        ->setChainableModel(User::first())
+        ->setRelationship('posts')
+        ->addWhereRelation([
+            ['comments', 'body', 'LIKE', '%Laravel%']
+        ])
+        ->execute()
+        ->get();
 }
 ```
 
