@@ -24,7 +24,7 @@
 
 I'm working to add the next features:
 
-- Search in the relationships using a single model instance.
+- [x] Search in the relationships using a single model instance.
 
 ## Installation
 
