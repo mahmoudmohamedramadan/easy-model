@@ -208,7 +208,7 @@ trait Searchable
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      */
-    protected function checkQueryExistence($query)
+    protected function checkQueryExistence($query = null)
     {
         if (!empty($query)) {
             $this->query = $query;
