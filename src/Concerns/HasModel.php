@@ -9,17 +9,24 @@ trait HasModel
     /**
      * The model to search in.
      *
-     * @var string
+     * @var \Illuminate\Database\Eloquent\Model|string
      */
     protected $model;
 
     /**
+     * The model to search in.
+     *
+     * @var string
+     */
+    protected $relationship;
+
+    /**
      * Set the model without chaining the query.
      *
-     * @param  string  $model
+     * @param  \Illuminate\Database\Eloquent\Model|string  $model
      * @return void
      */
-    public function setModel(string $model)
+    public function setModel(Model|string $model)
     {
         $this->model = $model;
     }
@@ -27,7 +34,7 @@ trait HasModel
     /**
      * Get the current model.
      *
-     * @return string
+     * @return \Illuminate\Database\Eloquent\Model|string
      */
     public function getModel()
     {
@@ -37,14 +44,37 @@ trait HasModel
     /**
      * Set the model then chain the query.
      *
-     * @param  string  $model
+     * @param  \Illuminate\Database\Eloquent\Model|string  $model
      * @return $this
      */
-    public function setChainableModel(string $model)
+    public function setChainableModel(Model|string $model)
     {
         $this->setModel($model);
 
         return $this;
+    }
+
+    /**
+     * Set the model relationship.
+     *
+     * @param  string  $relationship
+     * @return $this
+     */
+    public function setRelationship(string $relationship)
+    {
+        $this->relationship = $relationship;
+
+        return $this;
+    }
+
+    /**
+     * Get the current model relationship.
+     *
+     * @return string
+     */
+    protected function getRelationship()
+    {
+        return $this->relationship;
     }
 
     /**

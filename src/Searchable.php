@@ -224,20 +224,28 @@ trait Searchable
     /**
      * Start building a new query or chain the existing one.
      *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Relations\Relation
      */
     protected function getQuery()
     {
-        return !empty($this->query) ? $this->query : $this->getModel()::query();
+        if (!empty($this->query)) {
+            return $this->query;
+        }
+
+        if (gettype($this->getModel()) === 'string') {
+            return $this->getModel()::query();
+        }
+
+        return $this->getModel()->{$this->getRelationship()}();
     }
 
     /**
      * Execute the query.
      *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Relations\Relation
      */
     public function execute()
     {
-        return $this->query;
+        return $this->getQuery();
     }
 }
