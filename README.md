@@ -11,6 +11,7 @@
 > [!NOTE]
 > This package is not responsible for getting the data using methods like `first`, `get`, and `paginate` but, gives you an elegant approach for easily managing the query.
 
+- [Upcoming Features](#upcoming-features)
 - [Installation](#installation)
 - [Usage](#usage)
   - [Controllers / Services](#controllers--services)
@@ -18,6 +19,12 @@
   - [Models](#models)
 - [Credits](#credits)
 - [Support me](#support-me)
+
+## Upcoming Features
+
+I'm working to add the next features:
+
+- Search in the relationships using a single model instance.
 
 ## Installation
 
