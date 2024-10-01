@@ -57,11 +57,11 @@ trait HasModel
         // This trait may be used in the Model that you need to search in so, we will
         // guess the model using the Model name in case it is not provided.
         if (!empty($this->getModel())) {
-            return $this;
+            return;
         }
 
         if (is_a(self::class, Model::class, true)) {
-            $this->model = self::class;
+            $this->setModel(self::class);
         }
     }
 }
