@@ -54,7 +54,7 @@ trait Searchable
      * @param  array  $whereHas
      * @param  array  $whereDoesntHave
      * @param  array  $whereRelation
-     * @param  \Illuminate\Database\Eloquent\Builder|null  $q
+     * @param  \Illuminate\Database\Eloquent\Builder|null  $query
      * @return $this
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
