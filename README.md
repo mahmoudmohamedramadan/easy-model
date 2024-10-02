@@ -26,7 +26,8 @@
 I'm working to add the next features:
 
 - [x] Search in the relationships using a single model instance.
-- [x] Enable searching in many relationships.
+- [x] Fix the issue of searching in many relationships.
+- [ ] Enable searching in the single model instance relationships.
 
 ## Installation
 
