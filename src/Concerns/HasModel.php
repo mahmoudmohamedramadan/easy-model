@@ -3,6 +3,7 @@
 namespace Ramadan\EasyModel\Concerns;
 
 use Illuminate\Database\Eloquent\Model;
+use Ramadan\EasyModel\Exceptions\InvalidSearchableModel;
 
 trait HasModel
 {
@@ -25,9 +26,18 @@ trait HasModel
      *
      * @param  \Illuminate\Database\Eloquent\Model|string  $model
      * @return void
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      */
-    public function setModel(Model|string $model)
+    public function setModel($model)
     {
+        if (!is_string($model) && !is_a($model, Model::class, true)) {
+            throw new InvalidSearchableModel(sprintf(
+                'The model must be string or instance of \Illuminate\Database\Eloquent\Model. Given [%s].',
+                gettype($model)
+            ));
+        }
+
         $this->model = $model;
     }
 
@@ -46,8 +56,10 @@ trait HasModel
      *
      * @param  \Illuminate\Database\Eloquent\Model|string  $model
      * @return $this
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      */
-    public function setChainableModel(Model|string $model)
+    public function setChainableModel($model)
     {
         $this->setModel($model);
 
@@ -81,6 +93,8 @@ trait HasModel
      * Try to guess the model if not provided.
      *
      * @return void
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      */
     protected function guessModel()
     {
