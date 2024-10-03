@@ -3,7 +3,6 @@
 namespace Ramadan\EasyModel\Concerns;
 
 use Ramadan\EasyModel\Exceptions\InvalidArrayStructure;
-use Ramadan\EasyModel\Exceptions\InvalidQuery;
 
 trait ShouldBuildQueries
 {
@@ -62,7 +61,7 @@ trait ShouldBuildQueries
         $whereRelation = [],
         $query = null,
         $method = 'where'
-    ) {        
+    ) {
         if (!empty($whereHas)) {
             $this->buildQueryUsingWhereConditions($whereHas, $query, "{$method}Has");
         }
