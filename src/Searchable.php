@@ -55,6 +55,9 @@ trait Searchable
      * @param  array  $wheres
      * @param  \Illuminate\Database\Eloquent\Builder|null  $query
      * @return $this
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidQuery
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      */
     public function addWheres(array $wheres, Builder $query = null)
     {
@@ -67,6 +70,9 @@ trait Searchable
      * @param  array  $wheres
      * @param  \Illuminate\Database\Eloquent\Builder|null  $query
      * @return $this
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidQuery
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      */
     public function addOrWheres($wheres, Builder $query = null)
     {
@@ -82,8 +88,8 @@ trait Searchable
      * @param  \Illuminate\Database\Eloquent\Builder|null  $query
      * @return $this
      *
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidQuery
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      */
     public function addAllWheres(
@@ -104,8 +110,8 @@ trait Searchable
      * @param  \Illuminate\Database\Eloquent\Builder|null  $query
      * @return $this
      *
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidQuery
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      */
     public function addAllOrWheres(
@@ -124,8 +130,8 @@ trait Searchable
      * @param  \Illuminate\Database\Eloquent\Builder|null  $query
      * @return $this
      *
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidQuery
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      */
     public function addWhereHas(array $wheres, Builder $query = null)
@@ -142,8 +148,8 @@ trait Searchable
      * @param  \Illuminate\Database\Eloquent\Builder|null  $query
      * @return $this
      *
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidQuery
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      */
     public function addOrWhereHas(array $wheres, Builder $query = null)
@@ -160,8 +166,8 @@ trait Searchable
      * @param  \Illuminate\Database\Eloquent\Builder|null  $query
      * @return $this
      *
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidQuery
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      */
     public function addWhereDoesntHave(array $wheres, Builder $query = null)
@@ -178,8 +184,8 @@ trait Searchable
      * @param  \Illuminate\Database\Eloquent\Builder|null  $query
      * @return $this
      *
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidQuery
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      */
     public function addOrWhereDoesntHave(array $wheres, Builder $query = null)
@@ -196,8 +202,8 @@ trait Searchable
      * @param  \Illuminate\Database\Eloquent\Builder|null  $query
      * @return $this
      *
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidQuery
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      */
     public function addWhereRelation(array $wheres, Builder $query = null)
@@ -214,8 +220,8 @@ trait Searchable
      * @param  \Illuminate\Database\Eloquent\Builder|null  $query
      * @return $this
      *
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidQuery
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      */
     public function addOrWhereRelation(array $wheres, Builder $query = null)
