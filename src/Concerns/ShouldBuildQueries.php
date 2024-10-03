@@ -18,11 +18,18 @@ trait ShouldBuildQueries
      * Add a basic "where" and "or where" clause to the query.
      *
      * @param  array  $wheres
+     * @param  \Illuminate\Database\Eloquent\Builder|null  $query
      * @param  string  $method
      * @return $this
      */
-    public function buildQueryUsingWheres($wheres, $method = 'where')
+    public function buildQueryUsingWheres($wheres, $query = null, $method = 'where')
     {
+        $this->checkQueryExistence($query);
+
+        if ($method === 'orWhere' && empty($this->query)) {
+            throw new InvalidQuery;
+        }
+
         $this->query = $this->getQuery()->whereNested(function ($query) use ($wheres, $method) {
             foreach ($wheres as $key => $value) {
                 if (is_numeric($key) && is_array($value)) {

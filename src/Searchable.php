@@ -52,22 +52,24 @@ trait Searchable
      * Add a basic "where" clause to the query.
      *
      * @param  array  $wheres
+     * @param  \Illuminate\Database\Eloquent\Builder|null  $query
      * @return $this
      */
-    public function addWheres(array $wheres)
+    public function addWheres(array $wheres, Builder $query = null)
     {
-        return $this->buildQueryUsingWheres($wheres);
+        return $this->buildQueryUsingWheres($wheres, $query);
     }
 
     /**
      * Add a basic "or where" clause to the query.
      *
      * @param  array  $wheres
+     * @param  \Illuminate\Database\Eloquent\Builder|null  $query
      * @return $this
      */
-    public function addOrWheres($wheres)
+    public function addOrWheres($wheres, Builder $query = null)
     {
-        return $this->buildQueryUsingWheres($wheres, 'orWhere');
+        return $this->buildQueryUsingWheres($wheres, $query, 'orWhere');
     }
 
     /**
