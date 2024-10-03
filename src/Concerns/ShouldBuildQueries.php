@@ -15,7 +15,7 @@ trait ShouldBuildQueries
     protected $query;
 
     /**
-     * Build the query using "where" clauses.
+     * Build the query using all "where" clauses that are used in relationships.
      *
      * @param  array  $whereHas
      * @param  array  $whereDoesntHave
@@ -28,7 +28,7 @@ trait ShouldBuildQueries
      * @throws \Ramadan\EasyModel\Exceptions\InvalidQuery
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      */
-    protected function buildQueryUsingWheres(
+    protected function buildQueryUsingAllWheres(
         $whereHas = [],
         $whereDoesntHave = [],
         $whereRelation = [],

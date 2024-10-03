@@ -61,13 +61,13 @@ trait Searchable
      * @throws \Ramadan\EasyModel\Exceptions\InvalidQuery
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      */
-    public function addWheres(
+    public function addAllWheres(
         array $whereHas = [],
         array $whereDoesntHave = [],
         array $whereRelation = [],
         Builder $query = null
     ) {
-        return $this->buildQueryUsingWheres($whereHas, $whereDoesntHave, $whereRelation, $query);
+        return $this->buildQueryUsingAllWheres($whereHas, $whereDoesntHave, $whereRelation, $query);
     }
 
     /**
@@ -83,13 +83,13 @@ trait Searchable
      * @throws \Ramadan\EasyModel\Exceptions\InvalidQuery
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      */
-    public function addOrWheres(
+    public function addAllOrWheres(
         array $whereHas = [],
         array $whereDoesntHave = [],
         array $whereRelation = [],
         Builder $query = null
     ) {
-        return $this->buildQueryUsingWheres($whereHas, $whereDoesntHave, $whereRelation, $query, 'orWhere');
+        return $this->buildQueryUsingAllWheres($whereHas, $whereDoesntHave, $whereRelation, $query, 'orWhere');
     }
 
     /**
