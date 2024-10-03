@@ -54,7 +54,7 @@ class UserController extends Controller
 }
 ```
 
-After that, you can simply search in the model itself using the `addWheres`, and `addOrWheres` methods:
+After that, you can simply search in the model using the `addWheres`, and `addOrWheres` methods:
 
 ```PHP
 /**
