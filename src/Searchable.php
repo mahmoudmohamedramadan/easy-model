@@ -269,10 +269,16 @@ trait Searchable
             return $this->query;
         }
 
+        // If the provided model was a string it means, the developer needs to search
+        // in a whole model (e.g. User::class).
         if (is_string($this->getModel())) {
             return $this->getModel()::query();
         }
 
+        // But, in case there is no relationship provided, it means that
+        // the developer needs to search in a single model instance (e.g. User::first()).
+        // Otherwise, it means that the developer needs to search in
+        // a single model instance relationships (e.g. User::first()->posts()).
         return empty($this->getRelationship()) ? $this->getModel() : $this->getModel()->{$this->getRelationship()}();
     }
 
