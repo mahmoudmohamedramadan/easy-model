@@ -10,7 +10,7 @@ trait ShouldBuildQueries
     /**
      * The search query.
      *
-     * @var \Illuminate\Database\Eloquent\Builder
+     * @var \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Relations\Relation
      */
     protected $query;
 
