@@ -21,8 +21,8 @@ trait ShouldBuildQueries
      * @param  string  $method
      * @return $this
      *
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidQuery
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      */
     public function buildQueryUsingWheres($wheres, $query = null, $method = 'where')
     {
@@ -51,8 +51,8 @@ trait ShouldBuildQueries
      * @param  string  $method
      * @return $this
      *
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidQuery
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      */
     protected function buildQueryUsingAllWheres(
@@ -85,8 +85,8 @@ trait ShouldBuildQueries
      * @param  string  $method
      * @return $this
      *
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidQuery
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      */
     protected function buildQueryUsingWhereConditions($wheres, $query = null, $method = 'whereHas')
@@ -120,8 +120,8 @@ trait ShouldBuildQueries
      * @param  string  $method
      * @return $this
      *
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidQuery
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      */
     protected function buildQueryUsingWhereRelations($wheres, $query = null, $method = 'whereRelation')
