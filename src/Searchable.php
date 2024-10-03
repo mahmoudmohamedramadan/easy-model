@@ -51,12 +51,12 @@ trait Searchable
     /**
      * Add a basic "where" clause to the query.
      *
-     * @param  array  $column
+     * @param  array  $wheres
      * @return $this
      */
-    public function addWhere(array $column)
+    public function addWhere(array $wheres)
     {
-        return $this->buildQueryUsingWhere($column);
+        return $this->buildQueryUsingWhere($wheres);
     }
 
     /**
