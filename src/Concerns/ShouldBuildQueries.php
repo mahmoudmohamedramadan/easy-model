@@ -44,7 +44,7 @@ trait ShouldBuildQueries
         $methodPrefix = ($method === 'where' ? '' : 'orWhere');
 
         if (!empty($whereHas)) {
-            $this->buildQueryUsingWhereConditions($whereHas, $query, "{$methodPrefix}whereHas");
+            $this->buildQueryUsingWhereConditions($whereHas, $query, "{$methodPrefix}Has");
         }
 
         if (!empty($whereDoesntHave)) {
@@ -52,7 +52,7 @@ trait ShouldBuildQueries
         }
 
         if (!empty($whereRelation)) {
-            $this->buildQueryUsingWhereRelations($whereRelation, $query, "{$methodPrefix}whereRelation");
+            $this->buildQueryUsingWhereRelations($whereRelation, $query, "{$methodPrefix}Relation");
         }
 
         return $this;
