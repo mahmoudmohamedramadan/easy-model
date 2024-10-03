@@ -54,20 +54,20 @@ trait Searchable
      * @param  array  $wheres
      * @return $this
      */
-    public function addWhere(array $wheres)
+    public function addWheres(array $wheres)
     {
-        return $this->buildQueryUsingWhere($wheres);
+        return $this->buildQueryUsingWheres($wheres);
     }
 
     /**
      * Add a basic "or where" clause to the query.
      *
-     * @param  array  $column
+     * @param  array  $wheres
      * @return $this
      */
-    public function addOrWhere($column)
+    public function addOrWheres($wheres)
     {
-        return $this->buildQueryUsingWhere($column, 'orWhere');
+        return $this->buildQueryUsingWheres($wheres, 'orWhere');
     }
 
     /**

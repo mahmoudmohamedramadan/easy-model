@@ -21,7 +21,7 @@ trait ShouldBuildQueries
      * @param  string  $method
      * @return $this
      */
-    public function buildQueryUsingWhere($wheres, $method = 'where')
+    public function buildQueryUsingWheres($wheres, $method = 'where')
     {
         $this->query = $this->getQuery()->whereNested(function ($query) use ($wheres, $method) {
             foreach ($wheres as $key => $value) {
