@@ -232,8 +232,8 @@ trait Searchable
      * @param  string  $method
      * @return void
      *
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidQuery
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      */
     protected function checkQueryExistence($query = null, $method = 'orWhere')
     {
@@ -241,14 +241,14 @@ trait Searchable
             $this->query = $query;
         }
 
+        if (str_starts_with($method, 'orWhere') && empty($this->query)) {
+            throw new InvalidQuery;
+        }
+
         $this->guessModel();
 
         if (empty($this->getQuery())) {
             throw new InvalidSearchableModel('Provide a model to search in.');
-        }
-
-        if (in_array($method, ['orWhere', 'orWhereHas', 'orWhereDoesntHave', 'orWhereRelation'], true)) {
-            throw new InvalidQuery;
         }
     }
 

@@ -21,8 +21,8 @@ trait ShouldBuildQueries
      * @param  string  $method
      * @return $this
      *
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidQuery
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      */
     public function buildQueryUsingWheres($wheres, $query = null, $method = 'where')
     {
@@ -51,8 +51,8 @@ trait ShouldBuildQueries
      * @param  string  $method
      * @return $this
      *
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidQuery
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      */
     protected function buildQueryUsingAllWheres(
@@ -62,20 +62,16 @@ trait ShouldBuildQueries
         $query = null,
         $method = 'where'
     ) {
-        $this->checkQueryExistence($query);
-
-        $methodPrefix = ($method === 'where' ? '' : 'orWhere');
-
         if (!empty($whereHas)) {
-            $this->buildQueryUsingWhereConditions($whereHas, $query, "{$methodPrefix}Has");
+            $this->buildQueryUsingWhereConditions($whereHas, $query, "{$method}Has");
         }
 
         if (!empty($whereDoesntHave)) {
-            $this->buildQueryUsingWhereConditions($whereDoesntHave, $query, "{$methodPrefix}DoesntHave");
+            $this->buildQueryUsingWhereConditions($whereDoesntHave, $query, "{$method}DoesntHave");
         }
 
         if (!empty($whereRelation)) {
-            $this->buildQueryUsingWhereRelations($whereRelation, $query, "{$methodPrefix}Relation");
+            $this->buildQueryUsingWhereRelations($whereRelation, $query, "{$method}Relation");
         }
 
         return $this;
@@ -89,13 +85,13 @@ trait ShouldBuildQueries
      * @param  string  $method
      * @return $this
      *
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidQuery
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      */
     protected function buildQueryUsingWhereConditions($wheres, $query = null, $method = 'whereHas')
     {
-        $this->checkQueryExistence($query);
+        $this->checkQueryExistence($query, $method);
 
         foreach ($wheres as $relation => $closure) {
             if (!is_string($closure) && !is_callable($closure)) {
@@ -124,13 +120,13 @@ trait ShouldBuildQueries
      * @param  string  $method
      * @return $this
      *
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidQuery
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      */
     protected function buildQueryUsingWhereRelations($wheres, $query = null, $method = 'whereRelation')
     {
-        $this->checkQueryExistence($query);
+        $this->checkQueryExistence($query, $method);
 
         foreach ($wheres as $relation => $closure) {
             if ((!is_string($relation) && !is_callable($closure)) && !is_array($closure)) {
