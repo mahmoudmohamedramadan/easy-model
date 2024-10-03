@@ -98,8 +98,8 @@ trait HasModel
      */
     protected function guessModel()
     {
-        // This trait may be used in the Model that you need to search in so, we will
-        // guess the model using the Model name in case it is not provided.
+        // The trait may be used in the model that you need to search in so, we will
+        // set the model value if not provided.
         if (!empty($this->getModel())) {
             return;
         }
