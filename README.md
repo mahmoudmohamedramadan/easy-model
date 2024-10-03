@@ -11,7 +11,6 @@
 > [!NOTE]
 > This package is not responsible for getting the data using methods like `first`, `get`, and `paginate` but, gives you an elegant approach for easily managing the query.
 
-- [Upcoming Features](#upcoming-features)
 - [Installation](#installation)
 - [Usage](#usage)
   - [Controllers / Services](#controllers--services)
@@ -20,14 +19,6 @@
   - [Advanced](#advanced)
 - [Credits](#credits)
 - [Support me](#support-me)
-
-## Upcoming Features
-
-I'm working to add the next features:
-
-- [x] Search in the relationships using a single model instance.
-- [x] Fix the issue of searching in many relationships.
-- [ ] Enable searching in the single model instance relationships.
 
 ## Installation
 
@@ -63,7 +54,30 @@ class UserController extends Controller
 }
 ```
 
-After that, you can search in the Model relationships using the `addWhereHas`, and `addWhereDoesntHave` methods:
+After that, you can simply search in the model itself using the `addWheres`, and `addOrWheres` methods:
+
+```PHP
+/**
+ * Display a listing of the resource.
+ */
+public function index()
+{
+    return $this
+        ->addWheres([
+            ['name', 'Mahmoud Ramadan']
+        ])
+        ->addOrWheres([
+            ['email', 'LIKE', '%example.org%']
+        ])
+        ->execute()
+        ->get();
+}
+```
+
+> [!IMPORTANT]
+> You must provide an array of arrays to these methods since the first element refers to the `column` and the second to the `operator` (The default value is `=` in case you do not provide this element), and third to the `value`.
+
+Also, you can search in the model relationships using the `addWhereHas`, and `addWhereDoesntHave` methods:
 
 ```PHP
 /**
@@ -85,9 +99,9 @@ public function index()
 ```
 
 > [!IMPORTANT]
-> You must provide an array to these methods since you can pass just the relationship name as a string, in addition, you can suffix the relationship name with the operator and count to specify the relationship count that the Model must have also, you can pass the relationship as the key and a closure as a value.
+> You must provide an array to these methods since you can pass just the relationship name as a string, in addition, you can suffix the relationship name with the operator and count to specify the relationship count that the model must have also, you can pass the relationship as the key and a closure as a value.
 
-Also, you can use the `whereRelation` and `orWhereRelation`:
+In addition, you can use the `whereRelation` and `orWhereRelation`:
 
 ```PHP
 /**
@@ -110,7 +124,7 @@ public function index()
 > [!IMPORTANT]
 > Using the previous methods you can simply provide the relationship name as a key and a colsure as a value or you can pass an array with four elements pointing to the `relationship` and the second pointing to the `column` and the third to the `operator` (The default value is `=` in case you do not provide this element), and fourth to the `value`.
 
-Furthermore, you can use the previous methods one time by passing a list of arrays to the `addWheres` and `addOrWheres` methods:
+Furthermore, you can use the previous methods one time by passing a list of arrays to the `addAllWheres` and `addAllOrWheres` methods:
 
 ```PHP
 /**
@@ -119,7 +133,7 @@ Furthermore, you can use the previous methods one time by passing a list of arra
 public function index()
 {
     return $this
-        ->addWheres(
+        ->addAllWheres(
             whereHas: [
                 'posts>1'
             ],
@@ -169,7 +183,7 @@ class Post extends Model
     public function scopeHasComments($q)
     {
         $this
-            ->addWheres(
+            ->addAllWheres(
                 whereHas: ['comments>2'],
                 query: $q
             )
@@ -191,6 +205,9 @@ public function index()
     return $this
         ->setChainableModel(User::first())
         ->setRelationship('posts')
+        ->addWheres([
+            ['title', 'Easy Model']
+        ])
         ->addWhereRelation([
             ['comments', 'body', 'LIKE', '%Laravel%']
         ])
