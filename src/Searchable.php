@@ -6,6 +6,7 @@ use Ramadan\EasyModel\Concerns\ShouldBuildQueries;
 use Ramadan\EasyModel\Exceptions\InvalidSearchableModel;
 use Illuminate\Database\Eloquent\Builder;
 use Ramadan\EasyModel\Concerns\HasModel;
+use Ramadan\EasyModel\Exceptions\InvalidQuery;
 
 trait Searchable
 {
@@ -228,11 +229,13 @@ trait Searchable
      * Check if the query has been set.
      *
      * @param  \Illuminate\Database\Eloquent\Builder|null  $query
+     * @param  string  $method
      * @return void
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidQuery
      */
-    protected function checkQueryExistence($query = null)
+    protected function checkQueryExistence($query = null, $method = 'orWhere')
     {
         if (!empty($query)) {
             $this->query = $query;
@@ -242,6 +245,10 @@ trait Searchable
 
         if (empty($this->getQuery())) {
             throw new InvalidSearchableModel('Provide a model to search in.');
+        }
+
+        if (in_array($method, ['orWhere', 'orWhereHas', 'orWhereDoesntHave', 'orWhereRelation'], true)) {
+            throw new InvalidQuery;
         }
     }
 

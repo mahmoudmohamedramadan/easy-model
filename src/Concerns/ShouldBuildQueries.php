@@ -21,14 +21,13 @@ trait ShouldBuildQueries
      * @param  \Illuminate\Database\Eloquent\Builder|null  $query
      * @param  string  $method
      * @return $this
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidQuery
      */
     public function buildQueryUsingWheres($wheres, $query = null, $method = 'where')
     {
-        $this->checkQueryExistence($query);
-
-        if ($method === 'orWhere' && empty($this->query)) {
-            throw new InvalidQuery;
-        }
+        $this->checkQueryExistence($query, $method);
 
         $this->query = $this->getQuery()->whereNested(function ($query) use ($wheres, $method) {
             foreach ($wheres as $key => $value) {
@@ -66,10 +65,6 @@ trait ShouldBuildQueries
     ) {
         $this->checkQueryExistence($query);
 
-        if ($method === 'orWhere' && empty($this->query)) {
-            throw new InvalidQuery;
-        }
-
         $methodPrefix = ($method === 'where' ? '' : 'orWhere');
 
         if (!empty($whereHas)) {
@@ -102,10 +97,6 @@ trait ShouldBuildQueries
     protected function buildQueryUsingWhereConditions($wheres, $query = null, $method = 'whereHas')
     {
         $this->checkQueryExistence($query);
-
-        if (in_array($method, ['orWhereHas', 'orWhereDoesntHave'], true) && empty($this->query)) {
-            throw new InvalidQuery;
-        }
 
         foreach ($wheres as $relation => $closure) {
             if (!is_string($closure) && !is_callable($closure)) {
@@ -141,10 +132,6 @@ trait ShouldBuildQueries
     protected function buildQueryUsingWhereRelations($wheres, $query = null, $method = 'whereRelation')
     {
         $this->checkQueryExistence($query);
-
-        if ($method === 'orWhereRelation' && empty($this->query)) {
-            throw new InvalidQuery;
-        }
 
         foreach ($wheres as $relation => $closure) {
             if ((!is_string($relation) && !is_callable($closure)) && !is_array($closure)) {
