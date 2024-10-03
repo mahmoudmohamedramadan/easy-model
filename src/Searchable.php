@@ -269,11 +269,11 @@ trait Searchable
             return $this->query;
         }
 
-        if (gettype($this->getModel()) === 'string') {
+        if (is_string($this->getModel())) {
             return $this->getModel()::query();
         }
 
-        return $this->getModel()->{$this->getRelationship()}();
+        return empty($this->getRelationship()) ? $this->getModel() : $this->getModel()->{$this->getRelationship()}();
     }
 
     /**
