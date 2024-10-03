@@ -15,6 +15,28 @@ trait ShouldBuildQueries
     protected $query;
 
     /**
+     * Add a basic "where" clause to the query.
+     *
+     * @param  array  $column
+     * @param  string  $method
+     * @return $this
+     */
+    public function buildQueryUsingWhere(array $column, $method = 'where')
+    {
+        $this->query = $this->getQuery()->whereNested(function ($query) use ($column, $method) {
+            foreach ($column as $key => $value) {
+                if (is_numeric($key) && is_array($value)) {
+                    $query->{$method}(...array_values($value));
+                } else {
+                    $query->{$method}($key, '=', $value, $method === 'where' ? 'and' : 'or');
+                }
+            }
+        }, $method === 'where' ? 'and' : 'or');
+
+        return $this;
+    }
+
+    /**
      * Build the query using all "where" clauses that are used in relationships.
      *
      * @param  array  $whereHas

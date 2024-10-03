@@ -49,6 +49,28 @@ trait Searchable
     }
 
     /**
+     * Add a basic "where" clause to the query.
+     *
+     * @param  array  $column
+     * @return $this
+     */
+    public function addWhere(array $column)
+    {
+        return $this->buildQueryUsingWhere($column);
+    }
+
+    /**
+     * Add a basic "or where" clause to the query.
+     *
+     * @param  array  $column
+     * @return $this
+     */
+    public function addOrWhere($column)
+    {
+        return $this->buildQueryUsingWhere($column, 'orWhere');
+    }
+
+    /**
      * Add the "whereHas", "whereDoesntHave" and "whereRelation" clauses to the query.
      *
      * @param  array  $whereHas
