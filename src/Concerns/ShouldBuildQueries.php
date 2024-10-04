@@ -63,15 +63,15 @@ trait ShouldBuildQueries
         $method = 'where'
     ) {
         if (!empty($whereHas)) {
-            $this->buildQueryUsingWhereConditions($whereHas, $query, "{$method}Has");
+            $this->buildQueryUsingWhereHasAndDoesntHave($whereHas, $query, "{$method}Has");
         }
 
         if (!empty($whereDoesntHave)) {
-            $this->buildQueryUsingWhereConditions($whereDoesntHave, $query, "{$method}DoesntHave");
+            $this->buildQueryUsingWhereHasAndDoesntHave($whereDoesntHave, $query, "{$method}DoesntHave");
         }
 
         if (!empty($whereRelation)) {
-            $this->buildQueryUsingWhereRelations($whereRelation, $query, "{$method}Relation");
+            $this->buildQueryUsingWhereRelation($whereRelation, $query, "{$method}Relation");
         }
 
         return $this;
@@ -89,7 +89,7 @@ trait ShouldBuildQueries
      * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      */
-    protected function buildQueryUsingWhereConditions($wheres, $query = null, $method = 'whereHas')
+    protected function buildQueryUsingWhereHasAndDoesntHave($wheres, $query = null, $method = 'whereHas')
     {
         $this->checkQueryExistence($query, $method);
 
@@ -98,7 +98,7 @@ trait ShouldBuildQueries
                 throw new InvalidArrayStructure("The `{$method}` array must be well defined.");
             }
 
-            $paramters = $this->prepareWhereConditionsParamters(is_string($closure) ? $closure : $relation, $method);
+            $paramters = $this->prepareParamtersForWhereHasAndDoesntHave(is_string($closure) ? $closure : $relation, $method);
 
             $this->query = $this->buildQueryUsingHas(
                 $paramters['relation'],
@@ -124,7 +124,7 @@ trait ShouldBuildQueries
      * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      */
-    protected function buildQueryUsingWhereRelations($wheres, $query = null, $method = 'whereRelation')
+    protected function buildQueryUsingWhereRelation($wheres, $query = null, $method = 'whereRelation')
     {
         $this->checkQueryExistence($query, $method);
 
@@ -133,7 +133,7 @@ trait ShouldBuildQueries
                 throw new InvalidArrayStructure("The `{$method}` array must be well defined.");
             }
 
-            $paramters = $this->prepareWhereRelationsParamters($relation, $closure);
+            $paramters = $this->prepareParamtersForWhereRelation($relation, $closure);
 
             $this->query = $this->buildQueryUsingHas(
                 $paramters['relation'],
@@ -175,13 +175,13 @@ trait ShouldBuildQueries
     }
 
     /**
-     * Prepare the where conditions parameters.
+     * Prepare the "whereHas", and "whereDoesntHave" parameters.
      *
      * @param  string  $subject
      * @param  string  $method
      * @return array
      */
-    protected function prepareWhereConditionsParamters(string $subject, string $method)
+    protected function prepareParamtersForWhereHasAndDoesntHave(string $subject, string $method)
     {
         if (in_array($method, ['whereDoesntHave', 'orWhereDoesntHave'], true)) {
             return [
@@ -202,7 +202,7 @@ trait ShouldBuildQueries
     }
 
     /**
-     * Prepare the where relations parameters.
+     * Prepare the "whereRelation" parameters.
      *
      * @param  string  $relation
      * @param  array|\Closure  $closure
@@ -210,7 +210,7 @@ trait ShouldBuildQueries
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      */
-    protected function prepareWhereRelationsParamters(string $relation, array|\Closure $closure)
+    protected function prepareParamtersForWhereRelation(string $relation, array|\Closure $closure)
     {
         if (is_string($relation) && is_callable($closure)) {
             return [

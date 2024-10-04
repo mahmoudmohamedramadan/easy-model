@@ -136,7 +136,7 @@ trait Searchable
      */
     public function addWhereHas(array $wheres, Builder $query = null)
     {
-        $this->buildQueryUsingWhereConditions($wheres, $query);
+        $this->buildQueryUsingWhereHasAndDoesntHave($wheres, $query);
 
         return $this;
     }
@@ -154,7 +154,7 @@ trait Searchable
      */
     public function addOrWhereHas(array $wheres, Builder $query = null)
     {
-        $this->buildQueryUsingWhereConditions($wheres, $query, 'orWhereHas');
+        $this->buildQueryUsingWhereHasAndDoesntHave($wheres, $query, 'orWhereHas');
 
         return $this;
     }
@@ -172,7 +172,7 @@ trait Searchable
      */
     public function addWhereDoesntHave(array $wheres, Builder $query = null)
     {
-        $this->buildQueryUsingWhereConditions($wheres, $query, 'whereDoesntHave');
+        $this->buildQueryUsingWhereHasAndDoesntHave($wheres, $query, 'whereDoesntHave');
 
         return $this;
     }
@@ -190,7 +190,7 @@ trait Searchable
      */
     public function addOrWhereDoesntHave(array $wheres, Builder $query = null)
     {
-        $this->buildQueryUsingWhereConditions($wheres, $query, 'orWhereDoesntHave');
+        $this->buildQueryUsingWhereHasAndDoesntHave($wheres, $query, 'orWhereDoesntHave');
 
         return $this;
     }
@@ -208,7 +208,7 @@ trait Searchable
      */
     public function addWhereRelation(array $wheres, Builder $query = null)
     {
-        $this->buildQueryUsingWhereRelations($wheres, $query, 'whereRelation');
+        $this->buildQueryUsingWhereRelation($wheres, $query, 'whereRelation');
 
         return $this;
     }
@@ -226,7 +226,7 @@ trait Searchable
      */
     public function addOrWhereRelation(array $wheres, Builder $query = null)
     {
-        $this->buildQueryUsingWhereRelations($wheres, $query, 'orWhereRelation');
+        $this->buildQueryUsingWhereRelation($wheres, $query, 'orWhereRelation');
 
         return $this;
     }
@@ -235,13 +235,13 @@ trait Searchable
      * Check if the query has been set.
      *
      * @param  \Illuminate\Database\Eloquent\Builder|null  $query
-     * @param  string  $method
+     * @param  string|null  $method
      * @return void
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidQuery
      * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      */
-    protected function checkQueryExistence($query = null, $method = 'orWhere')
+    protected function checkQueryExistence($query = null, $method = null)
     {
         if (!empty($query)) {
             $this->query = $query;
