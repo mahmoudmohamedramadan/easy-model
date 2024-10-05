@@ -9,7 +9,7 @@ trait ShouldBuildQueries
     /**
      * The search query.
      *
-     * @var \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Relations\Relation
+     * @var \Illuminate\Database\Eloquent\Builder
      */
     protected $query;
 
@@ -28,15 +28,17 @@ trait ShouldBuildQueries
     {
         $this->checkQueryExistence($query, $method);
 
-        $this->query = $this->getQuery()->whereNested(function ($query) use ($wheres, $method) {
-            foreach ($wheres as $key => $value) {
-                if (is_numeric($key) && is_array($value)) {
-                    $query->{$method}(...array_values($value));
-                } else {
-                    $query->{$method}($key, '=', $value, $method === 'where' ? 'and' : 'or');
+        $this->query = $this
+            ->getQuery()
+            ->whereNested(function ($query) use ($wheres, $method) {
+                foreach ($wheres as $key => $value) {
+                    if (is_numeric($key) && is_array($value)) {
+                        $query->{$method}(...array_values($value));
+                    } else {
+                        $query->{$method}($key, '=', $value, $method === 'where' ? 'and' : 'or');
+                    }
                 }
-            }
-        }, $method === 'where' ? 'and' : 'or');
+            }, $method === 'where' ? 'and' : 'or');
 
         return $this;
     }
@@ -98,7 +100,10 @@ trait ShouldBuildQueries
                 throw new InvalidArrayStructure("The `{$method}` array must be well defined.");
             }
 
-            $paramters = $this->prepareParamtersForWhereHasAndDoesntHave(is_string($closure) ? $closure : $relation, $method);
+            $paramters = $this->prepareParamtersForWhereHasAndDoesntHave(
+                is_string($closure) ? $closure : $relation,
+                $method
+            );
 
             $this->query = $this->buildQueryUsingHas(
                 $paramters['relation'],

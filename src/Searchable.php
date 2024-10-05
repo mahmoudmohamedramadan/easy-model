@@ -261,7 +261,7 @@ trait Searchable
     /**
      * Start building a new query or chain the existing one.
      *
-     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Relations\Relation
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     protected function getQuery()
     {
@@ -285,7 +285,7 @@ trait Searchable
     /**
      * Execute the query.
      *
-     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Relations\Relation
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function execute()
     {
