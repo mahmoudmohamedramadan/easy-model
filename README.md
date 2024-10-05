@@ -23,7 +23,7 @@
 
 ## Introduction
 
- The package improves the way Eloquent is written and boosts the triggered query time than **Laravel** ([fig.1.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-faster-than-laravel-01.png), [fig.2.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-faster-than-laravel-02.png)). 🚀
+ The package improves how Eloquent is written and speeds up the triggered query time more than **Laravel** ([fig.1.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-faster-than-laravel-01.png), [fig.2.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-faster-than-laravel-02.png)). 🚀
 
 ## Installation
 
@@ -220,6 +220,31 @@ public function index()
         ->get();
 }
 ```
+
+Moreover, you can order the result bu using the `addOrderBy` method:
+
+```PHP
+/**
+ * Display a listing of the resource.
+ */
+public function index()
+{
+    return $this
+        ->setChainableModel(User::class)
+        ->addWhereRelation([
+            ['posts', 'title', 'LIKE', '%Easy Model%']
+        ])
+        ->addOrderBy([
+            'name',
+            ['created_at' => 'desc']
+        ])
+        ->execute()
+        ->get();
+}
+```
+
+> [!IMPORTANT]
+> The `addOrderBy` method accepts the column you need to be used in the order query (The default direction is `ASC`) and agrees with an array where the key is the column and the value is the direction.
 
 ## Credits
 
