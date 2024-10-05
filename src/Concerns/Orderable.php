@@ -60,7 +60,7 @@ trait Orderable
         }
 
         if (!in_array(strtolower($direction = array_values($order)[0]), ['asc', 'desc'], true)) {
-            throw new InvalidArrayStructure("The `orderBy` direction must be well defined.");
+            throw new InvalidArrayStructure('Order direction must be "asc" or "desc".');
         }
 
         return [
