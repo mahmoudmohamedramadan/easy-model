@@ -322,10 +322,10 @@ trait Searchable
     /**
      * Execute the query.
      *
-     * @return \Illuminate\Database\Query\Builder
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function execute()
     {
-        return $this->queryBuilder;
+        return $this->getEloquentBuilder();
     }
 }
