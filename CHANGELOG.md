@@ -1,12 +1,18 @@
 # Release Notes for 1.x
 
+## [v1.0.1](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.1)
+
+- [1.x] Speeds up the query time using the `Query Builder` instead of `Eloquent Builder`.
+- [1.x] Adds the ability to order the results using `addOrderBy`.
+- [1.x] Renames the methods to be more descriptive.
+
 ## [v1.0.0](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.0)
 
 - [1.x] Releases the package. 🎉
 
 ## [v1.0.0 (alpha.3)](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.0-alpha.3)
 
-- [1.x] Renames the method that adds all relationships where to `addAllWheres` and `addAllOrWheres`.
+- [1.x] Renames the method that adds all relationships checking to `addAllWheres` and `addAllOrWheres`.
 - [1.x] Adds the ability to search the model using `addWheres` and `addOrWheres`.
 - [1.x] Adds the ability to search the model relationships using `addWheres` and `addOrWheres`.
 
