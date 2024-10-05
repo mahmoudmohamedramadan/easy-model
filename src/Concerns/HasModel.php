@@ -109,7 +109,7 @@ trait HasModel
         }
 
         if (is_a(self::class, Model::class, true)) {
-            $this->setModel(new self);
+            $this->setModel(self::class);
         }
     }
 }
