@@ -44,10 +44,14 @@ trait HasModel
     /**
      * Get the current model.
      *
-     * @return \Illuminate\Database\Eloquent\Model|string
+     * @return \Illuminate\Database\Eloquent\Model
      */
     public function getModel()
     {
+        if (is_string($this->model)) {
+            return new $this->model;
+        }
+
         return $this->model;
     }
 
@@ -105,7 +109,7 @@ trait HasModel
         }
 
         if (is_a(self::class, Model::class, true)) {
-            $this->setModel(self::class);
+            $this->setModel(new self);
         }
     }
 }

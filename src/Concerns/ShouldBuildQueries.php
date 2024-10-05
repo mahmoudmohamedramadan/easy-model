@@ -7,28 +7,31 @@ use Ramadan\EasyModel\Exceptions\InvalidArrayStructure;
 trait ShouldBuildQueries
 {
     /**
-     * The search query.
+     * The search query builder.
      *
      * @var \Illuminate\Database\Query\Builder
      */
-    protected $query;
+    protected $queryBuilder;
+
+    /**
+     * The search eloquent query.
+     *
+     * @var \Illuminate\Database\Eloquent\Builder
+     */
+    protected $eloquentBuilder;
 
     /**
      * Add a basic "where" and "or where" clause to the query.
      *
      * @param  array  $wheres
-     * @param  \Illuminate\Database\Eloquent\Builder|null  $query
      * @param  string  $method
      * @return $this
      *
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidQuery
      * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      */
-    public function buildQueryUsingWheres($wheres, $query = null, $method = 'where')
+    public function buildQueryUsingWheres($wheres, $method = 'where')
     {
-        $this->checkQueryExistence($query, $method);
-
-        $this->query = $this
+        $this->queryBuilder = $this
             ->getQueryBuilder()
             ->whereNested(function ($query) use ($wheres, $method) {
                 foreach ($wheres as $key => $value) {
@@ -49,31 +52,24 @@ trait ShouldBuildQueries
      * @param  array  $whereHas
      * @param  array  $whereDoesntHave
      * @param  array  $whereRelation
-     * @param  \Illuminate\Database\Eloquent\Builder|null  $query
      * @param  string  $method
      * @return $this
      *
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidQuery
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      */
-    protected function buildQueryUsingAllWheres(
-        $whereHas = [],
-        $whereDoesntHave = [],
-        $whereRelation = [],
-        $query = null,
-        $method = 'where'
-    ) {
+    protected function buildQueryUsingAllWheres($whereHas = [], $whereDoesntHave = [], $whereRelation = [], $method = 'where')
+    {
         if (!empty($whereHas)) {
-            $this->buildQueryUsingWhereHasAndDoesntHave($whereHas, $query, "{$method}Has");
+            $this->buildQueryUsingWhereHasAndDoesntHave($whereHas, "{$method}Has");
         }
 
         if (!empty($whereDoesntHave)) {
-            $this->buildQueryUsingWhereHasAndDoesntHave($whereDoesntHave, $query, "{$method}DoesntHave");
+            $this->buildQueryUsingWhereHasAndDoesntHave($whereDoesntHave, "{$method}DoesntHave");
         }
 
         if (!empty($whereRelation)) {
-            $this->buildQueryUsingWhereRelation($whereRelation, $query, "{$method}Relation");
+            $this->buildQueryUsingWhereRelation($whereRelation, "{$method}Relation");
         }
 
         return $this;
@@ -83,18 +79,14 @@ trait ShouldBuildQueries
      * Build the query using "whereHas", and "whereDoesntHave" queries.
      *
      * @param  array  $wheres
-     * @param  \Illuminate\Database\Eloquent\Builder|null  $query
      * @param  string  $method
      * @return $this
      *
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidQuery
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      */
-    protected function buildQueryUsingWhereHasAndDoesntHave($wheres, $query = null, $method = 'whereHas')
+    protected function buildQueryUsingWhereHasAndDoesntHave($wheres, $method = 'whereHas')
     {
-        $this->checkQueryExistence($query, $method);
-
         foreach ($wheres as $relation => $closure) {
             if (!is_string($closure) && !is_callable($closure)) {
                 throw new InvalidArrayStructure("The `{$method}` array must be well defined.");
@@ -105,12 +97,12 @@ trait ShouldBuildQueries
                 $method
             );
 
-            $this->query = $this->buildQueryUsingHas(
-                $paramters['relation'],
-                $paramters['operator'],
-                $paramters['count'],
-                str_starts_with($method, 'orWhere') ? 'or' : 'and',
-                is_callable($closure) ? $closure : null
+            $this->queryBuilder = $this->buildQueryUsingHas(
+                relation: $paramters['relation'],
+                operator: $paramters['operator'],
+                count: $paramters['count'],
+                boolean: str_starts_with($method, 'orWhere') ? 'or' : 'and',
+                closure: is_callable($closure) ? $closure : null
             );
         }
 
@@ -121,18 +113,14 @@ trait ShouldBuildQueries
      * Build the query using "whereRelation" queries.
      *
      * @param  array  $wheres
-     * @param  \Illuminate\Database\Eloquent\Builder|null  $query
      * @param  string  $method
      * @return $this
      *
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidQuery
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      */
-    protected function buildQueryUsingWhereRelation($wheres, $query = null, $method = 'whereRelation')
+    protected function buildQueryUsingWhereRelation($wheres, $method = 'whereRelation')
     {
-        $this->checkQueryExistence($query, $method);
-
         foreach ($wheres as $relation => $closure) {
             if ((!is_string($relation) && !is_callable($closure)) && !is_array($closure)) {
                 throw new InvalidArrayStructure("The `{$method}` array must be well defined.");
@@ -140,8 +128,8 @@ trait ShouldBuildQueries
 
             $paramters = $this->prepareParamtersForWhereRelation($relation, $closure);
 
-            $this->query = $this->buildQueryUsingHas(
-                $paramters['relation'],
+            $this->queryBuilder = $this->buildQueryUsingHas(
+                relation: $paramters['relation'],
                 boolean: str_starts_with($method, 'orWhere') ? 'or' : 'and',
                 closure: function ($query) use ($paramters) {
                     if (is_callable($column = $paramters['column'])) {
@@ -164,19 +152,16 @@ trait ShouldBuildQueries
      * @param  int  $count
      * @param  string  $boolean
      * @param  \Closure|null  $closure
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return \Illuminate\Database\Query\Builder
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      */
     protected function buildQueryUsingHas($relation, $operator = '>=', $count = 1, $boolean = 'and', $closure = null)
     {
         return $this
             ->getEloquentBuilder()
-            ->has(
-                $relation,
-                $operator,
-                $count,
-                $boolean,
-                $closure
-            );
+            ->has(...func_get_args())
+            ->getQuery();
     }
 
     /**
@@ -201,7 +186,7 @@ trait ShouldBuildQueries
 
         return [
             'relation' => $matches[0],
-            'operator' => array_key_exists(0, $operator) ? $operator[0] : '=',
+            'operator' => array_key_exists(0, $operator) ? $operator[0] : '>=',
             'count'    => array_key_exists(1, $matches) ? $matches[1] : 1,
         ];
     }

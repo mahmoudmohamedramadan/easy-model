@@ -14,16 +14,12 @@ trait Orderable
      * @param  \Illuminate\Database\Eloquent\Builder|null  $query
      * @return $this
      *
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidQuery
      * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      */
     public function addOrderBy(array $orders, Builder $query = null)
     {
-        $this->checkQueryExistence($query);
-
-        $query = $this->getQueryBuilder();
-
+        $queryBuilder = $this->getQueryBuilder($query);
         foreach ($orders as $order) {
             if (!is_string($order) && !is_array($order)) {
                 throw new InvalidArrayStructure("The `orderBy` array must be well defined.");
@@ -31,13 +27,12 @@ trait Orderable
 
             $paramters = $this->prepareParamtersForOrderBy($order);
 
-            $query->{$query->unions ? 'unionOrders' : 'orders'}[] = [
+            $queryBuilder->{$queryBuilder->unions ? 'unionOrders' : 'orders'}[] = [
                 'column'    => $paramters['column'],
                 'direction' => $paramters['direction'],
             ];
         }
-
-        $this->query = $query;
+        $this->queryBuilder = $queryBuilder;
 
         return $this;
     }
