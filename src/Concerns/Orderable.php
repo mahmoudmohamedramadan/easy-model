@@ -22,15 +22,22 @@ trait Orderable
     {
         $this->checkQueryExistence($query);
 
-        foreach ($orders as $column => $direction) {
-            if ((!is_string($column) || !is_numeric($column)) && !is_string($direction)) {
+        $query = $this->getQueryBuilder();
+
+        foreach ($orders as $order) {
+            if (!is_string($order) && !is_array($order)) {
                 throw new InvalidArrayStructure("The `orderBy` array must be well defined.");
             }
 
-            $paramters = $this->prepareParamtersForOrderBy($column, $direction);
+            $paramters = $this->prepareParamtersForOrderBy($order);
 
-            $this->query = $this->getQuery()->orderBy($paramters['column'], $paramters['direction']);
+            $query->{$query->unions ? 'unionOrders' : 'orders'}[] = [
+                'column'    => $paramters['column'],
+                'direction' => $paramters['direction'],
+            ];
         }
+
+        $this->query = $query;
 
         return $this;
     }
@@ -38,27 +45,26 @@ trait Orderable
     /**
      * Prepare the "orderBy" parameters.
      *
-     * @param  string  $column
-     * @param  string  $direction
+     * @param  string|array  $order
      * @return array
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      */
-    protected function prepareParamtersForOrderBy(string $column, string $direction)
+    protected function prepareParamtersForOrderBy(string|array $order)
     {
-        if (is_numeric($column) && is_string($direction)) {
+        if (is_string($order)) {
             return [
-                'column'    => $direction,
+                'column'    => $order,
                 'direction' => 'asc'
             ];
         }
 
-        if (!in_array(strtolower($direction), ['asc', 'desc'], true)) {
-            throw new InvalidArrayStructure("The `orderBy` array must be well defined.");
+        if (!in_array(strtolower($direction = array_values($order)[0]), ['asc', 'desc'], true)) {
+            throw new InvalidArrayStructure("The `orderBy` direction must be well defined.");
         }
 
         return [
-            'column'    => $column,
+            'column'    => array_keys($order)[0],
             'direction' => $direction,
         ];
     }

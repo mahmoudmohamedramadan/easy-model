@@ -245,7 +245,7 @@ trait Searchable
     protected function checkQueryExistence($query = null, $method = null)
     {
         if (!empty($query)) {
-            $this->query = $query;
+            $this->query = $query->getQuery();
         }
 
         if (str_starts_with($method, 'orWhere') && empty($this->query)) {
@@ -254,22 +254,18 @@ trait Searchable
 
         $this->guessModel();
 
-        if (empty($this->getQuery())) {
+        if (empty($this->getQueryBuilder())) {
             throw new InvalidSearchableModel('Provide a model to search in.');
         }
     }
 
     /**
-     * Start building a new query or chain the existing one.
+     * Start building a new eloquent query or chain the existing one.
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    protected function getQuery()
+    protected function getEloquentBuilder()
     {
-        if (!empty($this->query)) {
-            return $this->query;
-        }
-
         // If the provided model was a string it means, the developer needs to search
         // in a whole model (e.g. User::class).
         if (is_string($this->getModel())) {
@@ -284,12 +280,34 @@ trait Searchable
     }
 
     /**
+     * Start building a new query or chain the existing one.
+     *
+     * @return \Illuminate\Database\Query\Builder
+     */
+    protected function getQueryBuilder()
+    {
+        if (!empty($this->query)) {
+            return $this->query;
+        }
+
+        $query = $this->getEloquentBuilder()->getQuery();
+
+        if (empty($this->getRelationship())) {
+            return $query;
+        }
+
+        // In case there is a relationship, we will invoke the `getQuery` twice where the first time
+        // to get a eloquent builder instance and the second to get a query builder instance.
+        return $query->getQuery();
+    }
+
+    /**
      * Execute the query.
      *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return \Illuminate\Database\Query\Builder
      */
     public function execute()
     {
-        return $this->getQuery();
+        return $this->getQueryBuilder();
     }
 }

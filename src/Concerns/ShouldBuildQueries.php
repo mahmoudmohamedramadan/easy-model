@@ -9,7 +9,7 @@ trait ShouldBuildQueries
     /**
      * The search query.
      *
-     * @var \Illuminate\Database\Eloquent\Builder
+     * @var \Illuminate\Database\Query\Builder
      */
     protected $query;
 
@@ -29,7 +29,7 @@ trait ShouldBuildQueries
         $this->checkQueryExistence($query, $method);
 
         $this->query = $this
-            ->getQuery()
+            ->getQueryBuilder()
             ->whereNested(function ($query) use ($wheres, $method) {
                 foreach ($wheres as $key => $value) {
                     if (is_numeric($key) && is_array($value)) {
@@ -169,7 +169,7 @@ trait ShouldBuildQueries
     protected function buildQueryUsingHas($relation, $operator = '>=', $count = 1, $boolean = 'and', $closure = null)
     {
         return $this
-            ->getQuery()
+            ->getEloquentBuilder()
             ->has(
                 $relation,
                 $operator,
