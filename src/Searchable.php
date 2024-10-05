@@ -6,11 +6,12 @@ use Ramadan\EasyModel\Concerns\ShouldBuildQueries;
 use Ramadan\EasyModel\Exceptions\InvalidSearchableModel;
 use Illuminate\Database\Eloquent\Builder;
 use Ramadan\EasyModel\Concerns\HasModel;
+use Ramadan\EasyModel\Concerns\Orderable;
 use Ramadan\EasyModel\Exceptions\InvalidQuery;
 
 trait Searchable
 {
-    use HasModel, ShouldBuildQueries;
+    use Orderable, HasModel, ShouldBuildQueries;
 
     /**
      * The allowed operators.
