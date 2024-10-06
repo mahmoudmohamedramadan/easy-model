@@ -10,7 +10,7 @@ use Ramadan\EasyModel\Concerns\Orderable;
 
 trait Searchable
 {
-    use Orderable, HasModel, ShouldBuildQueries;
+    use HasModel, Orderable, ShouldBuildQueries;
 
     /**
      * The allowed operators.

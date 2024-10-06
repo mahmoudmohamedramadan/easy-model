@@ -54,12 +54,14 @@ trait Orderable
             ];
         }
 
-        if (!in_array(strtolower($direction = array_values($order)[0]), ['asc', 'desc'], true)) {
+        $direction = array_values($order)[0];
+
+        if (!in_array(strtolower($direction), ['asc', 'desc'], true)) {
             throw new InvalidArrayStructure('Order direction must be "asc" or "desc".');
         }
 
         return [
-            'column'    => array_keys($order)[0],
+            'column'    => array_key_first($order),
             'direction' => $direction,
         ];
     }
