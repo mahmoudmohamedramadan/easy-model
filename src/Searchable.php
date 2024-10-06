@@ -245,16 +245,17 @@ trait Searchable
     /**
      * Start building a new eloquent query or chain the existing one.
      *
+     * @param  \Illuminate\Database\Eloquent\Builder|null  $query
      * @return \Illuminate\Database\Eloquent\Builder
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      */
-    protected function getEloquentBuilder()
+    protected function getEloquentBuilder($query = null)
     {
-        $this->guessModel();
+        $this->setQuery($query);
 
-        if (empty($this->getModel())) {
-            throw new InvalidSearchableModel('Provide a model to search in.');
+        if (!empty($this->eloquentBuilder)) {
+            return $this->eloquentBuilder;
         }
 
         if (!empty($this->queryBuilder)) {
@@ -262,6 +263,12 @@ trait Searchable
             $this->eloquentBuilder->setModel($this->getModel());
 
             return $this->eloquentBuilder;
+        }
+
+        $this->guessModel();
+
+        if (empty($this->getModel())) {
+            throw new InvalidSearchableModel('Provide a model to search in.');
         }
 
         // If the provided model was a string it means, the developer needs to search
@@ -322,10 +329,11 @@ trait Searchable
     /**
      * Execute the query.
      *
+     * @param  bool  $ineedEloquentBuilderInstance
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function execute()
+    public function execute($ineedEloquentBuilderInstance = true)
     {
-        return $this->getEloquentBuilder();
+        return $ineedEloquentBuilderInstance ? $this->getEloquentBuilder() : $this->getQueryBuilder();
     }
 }
