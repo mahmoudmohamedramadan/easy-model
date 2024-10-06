@@ -243,25 +243,23 @@ trait Searchable
     }
 
     /**
-     * Start building a new eloquent query or chain the existing one.
+     * Start building a new eloquent builder or chain the existing one.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder|null  $query
+     * @param  \Illuminate\Database\Eloquent\Builder|null  $givenQuery
      * @return \Illuminate\Database\Eloquent\Builder
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      */
-    protected function getEloquentBuilder($query = null)
+    protected function getEloquentBuilder($givenQuery = null)
     {
-        $this->setQuery($query);
+        $this->setQuery($givenQuery);
 
-        if (!empty($this->eloquentBuilder)) {
-            return $this->eloquentBuilder;
-        }
-
-        if (!empty($this->queryBuilder)) {
+        if (empty($this->eloquentBuilder) && !empty($this->queryBuilder)) {
             $this->eloquentBuilder = new EloquentBuilder($this->queryBuilder);
             $this->eloquentBuilder->setModel($this->getModel());
+        }
 
+        if (!empty($this->eloquentBuilder)) {
             return $this->eloquentBuilder;
         }
 
@@ -272,29 +270,30 @@ trait Searchable
         }
 
         // If the provided model was a string it means, the developer needs to search
-        // in a whole model (e.g. User::class).
+        // in a whole model (e.g. User::class), and according to the new rules i'm getting
+        // an anonymous model instance object (e.g. new User) so, it's table name will be empty.
         if (empty($this->getModel()->getTable())) {
             return $this->getModel()->query();
         }
 
-        // But, in case there is no relationship provided, it means that
-        // the developer needs to search in a single model instance (e.g. User::first()).
-        // Otherwise, it means that the developer needs to search in
-        // a single model instance relationships (e.g. User::first()->posts()).
+        // If there is no relationship provided, it means that the developer needs to search
+        // in a single model instance (e.g. User::first()).
+        // Otherwise, it means that he needs to search in a single model instance relationship
+        // (e.g. User::first()->posts()).
         return empty($this->getRelationship()) ? $this->getModel() : $this->getModel()->{$this->getRelationship()}();
     }
 
     /**
-     * Start building a new query or chain the existing one.
+     * Start building a new query builder or chain the existing one.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder|null  $eloquentBuilder
+     * @param  \Illuminate\Database\Eloquent\Builder|null  $givenQuery
      * @return \Illuminate\Database\Query\Builder
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      */
-    protected function getQueryBuilder($eloquentBuilder = null)
+    protected function getQueryBuilder($givenQuery = null)
     {
-        $this->setQuery($eloquentBuilder);
+        $this->setQuery($givenQuery);
 
         if (!empty($this->queryBuilder)) {
             return $this->queryBuilder;
@@ -330,7 +329,9 @@ trait Searchable
      * Execute the query.
      *
      * @param  bool  $ineedEloquentBuilderInstance
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      */
     public function execute($ineedEloquentBuilderInstance = true)
     {

@@ -42,7 +42,7 @@ trait HasModel
     }
 
     /**
-     * Get the current model.
+     * Get the current model instance.
      *
      * @return \Illuminate\Database\Eloquent\Model
      */
