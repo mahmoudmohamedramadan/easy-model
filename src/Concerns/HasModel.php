@@ -105,5 +105,9 @@ trait HasModel
         if (is_a(self::class, Model::class, true)) {
             $this->setModel(self::class);
         }
+
+        if (empty($this->getModel())) {
+            throw new InvalidSearchableModel('Cannot guess the searchable model.');
+        }
     }
 }
