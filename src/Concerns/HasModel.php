@@ -102,12 +102,6 @@ trait HasModel
      */
     protected function guessModel()
     {
-        // The trait may be used in the model that you need to search in so, we will
-        // set the model value if not provided.
-        if (!empty($this->getModel())) {
-            return;
-        }
-
         if (is_a(self::class, Model::class, true)) {
             $this->setModel(self::class);
         }
