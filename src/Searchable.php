@@ -333,7 +333,7 @@ trait Searchable
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      */
-    public function execute($ineedEloquentBuilderInstance = true)
+    public function execute(bool $ineedEloquentBuilderInstance = true)
     {
         return $ineedEloquentBuilderInstance ? $this->getEloquentBuilder() : $this->getQueryBuilder();
     }
