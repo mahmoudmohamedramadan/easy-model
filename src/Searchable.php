@@ -300,13 +300,13 @@ trait Searchable
             return $query;
         }
 
-        // In case there is a relationship, we will invoke the `getQuery` twice where the first time
+        // In case there is a relationship, we will invoke the "getQuery" twice where the first time
         // to get a eloquent builder instance and the second to get a query builder instance.
         return $query->getQuery();
     }
 
     /**
-     * Set the given query according to the given type.
+     * Set the given query according to its type.
      *
      * @param  \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|null  $query
      * @return void

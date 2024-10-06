@@ -15,7 +15,7 @@ trait HasModel
     protected $model;
 
     /**
-     * The model to search in.
+     * The relationship to search in.
      *
      * @var string
      */
