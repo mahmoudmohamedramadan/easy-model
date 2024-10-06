@@ -80,7 +80,7 @@ public function index()
 ```
 
 > [!IMPORTANT]
-> You must provide an array of arrays to these methods since the first element refers to the `column` and the second to the `operator` (The default value is `=` in case you do not provide this element), and third to the `value`.
+> You must provide an array of arrays to these methods since the first element refers to the `column` and the second to the `operator` (The default value is `=` in case you do not provide this element), and the third to the `value`.
 
 Also, you can search in the model relationships using the `addWhereHas`, and `addWhereDoesntHave` methods:
 
@@ -127,7 +127,7 @@ public function index()
 ```
 
 > [!IMPORTANT]
-> Using the previous methods you can simply provide the relationship name as a key and a colsure as a value or you can pass an array with four elements pointing to the `relationship` and the second pointing to the `column` and the third to the `operator` (The default value is `=` in case you do not provide this element), and fourth to the `value`.
+> Using the previous methods you can simply provide the relationship name as a key and a closure as a value or you can pass an array with four elements pointing to the `relationship` and the second pointing to the `column` and the third to the `operator` (The default value is `=` in case you do not provide this element), and fourth to the `value`.
 
 Furthermore, you can use the previous methods one time by passing a list of arrays to the `addAllWheres` and `addAllOrWheres` methods:
 
@@ -199,6 +199,9 @@ class Post extends Model
 
 ### Advanced
 
+> [!TIP]
+> In **v1.0.2**, a new feature allows developers to specify the returning query type `Query Builder` or `Eloquent Builder` by passing a boolean value to the `execute` method.
+
 It enables you also to search in the model relationship using the `setRelationship` method:
 
 ```PHP
@@ -221,7 +224,7 @@ public function index()
 }
 ```
 
-Moreover, you can order the result bu using the `addOrderBy` method:
+Moreover, you can order the result by using the `addOrderBy` method:
 
 ```PHP
 /**
@@ -238,7 +241,7 @@ public function index()
             'name',
             ['created_at' => 'desc']
         ])
-        ->execute()
+        ->execute(false)
         ->get();
 }
 ```
