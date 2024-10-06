@@ -200,7 +200,7 @@ class Post extends Model
 ### Advanced
 
 > [!TIP]
-> In **v1.0.2**, a new feature allows developers to specify the returning query type `Query Builder` or `Eloquent Builder` by passing a boolean value to the `execute` method.
+> Starting from **v1.0.2**, a new feature allows developers to specify the returning query type `Query Builder` or `Eloquent Builder` by passing a boolean value to the `execute` method.
 
 It enables you also to search in the model relationship using the `setRelationship` method:
 
