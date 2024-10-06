@@ -321,7 +321,7 @@ trait Searchable
         if ($query instanceof EloquentBuilder) {
             $this->queryBuilder = $query->getQuery();
         } elseif ($query instanceof QueryBuilder) {
-            $this->eloquentBuilder = $query;
+            $this->queryBuilder = $query;
         }
     }
 
