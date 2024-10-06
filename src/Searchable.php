@@ -3,7 +3,6 @@
 namespace Ramadan\EasyModel;
 
 use Ramadan\EasyModel\Concerns\ShouldBuildQueries;
-use Ramadan\EasyModel\Exceptions\InvalidSearchableModel;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Ramadan\EasyModel\Concerns\HasModel;
@@ -205,7 +204,7 @@ trait Searchable
     }
 
     /**
-     * Add a basic where clause to a relationship query.
+     * Add a basic "where" clause to a relationship query.
      *
      * @param  array  $wheres
      * @param  \Illuminate\Database\Eloquent\Builder|null  $query
@@ -264,10 +263,6 @@ trait Searchable
         }
 
         $this->guessModel();
-
-        if (empty($this->getModel())) {
-            throw new InvalidSearchableModel('Provide a model to search in.');
-        }
 
         // If the provided model was a string it means, the developer needs to search
         // in a whole model (e.g. User::class), and according to the new rules i'm getting
@@ -328,13 +323,13 @@ trait Searchable
     /**
      * Execute the query.
      *
-     * @param  bool  $ineedEloquentBuilderInstance
+     * @param  bool  $iNeedEloquentBuilderInstance
      * @return \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      */
-    public function execute(bool $ineedEloquentBuilderInstance = true)
+    public function execute(bool $iNeedEloquentBuilderInstance = true)
     {
-        return $ineedEloquentBuilderInstance ? $this->getEloquentBuilder() : $this->getQueryBuilder();
+        return $iNeedEloquentBuilderInstance ? $this->getEloquentBuilder() : $this->getQueryBuilder();
     }
 }
