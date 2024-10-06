@@ -1,5 +1,11 @@
 # Release Notes for 1.x
 
+## [v1.0.2](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.2)
+
+- [1.x] Adds the ability to easily switch between `Eloquent Builder` and `Query Builder`.
+- [1.x] Executes an `Eloquent Builder` instead of a `Query Builder`.
+- [1.x] Fixes assigning the correct query type issue.
+
 ## [v1.0.1](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.1)
 
 - [1.x] Speeds up the query time using the `Query Builder` instead of `Eloquent Builder`.
