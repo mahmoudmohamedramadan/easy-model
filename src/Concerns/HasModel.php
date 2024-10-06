@@ -102,10 +102,17 @@ trait HasModel
      */
     protected function guessModel()
     {
+        // Before guessing the model, ensure it is already set using the "setModel"
+        // and "setChainableModel" methods, as manual setting is more of a priority.
+        if (!empty($this->getModel())) {
+            return;
+        }
+
         if (is_a(self::class, Model::class, true)) {
             $this->setModel(self::class);
         }
 
+        // At last, if the model hasn't been set, we will throw an exception.
         if (empty($this->getModel())) {
             throw new InvalidSearchableModel('Cannot guess the searchable model.');
         }
