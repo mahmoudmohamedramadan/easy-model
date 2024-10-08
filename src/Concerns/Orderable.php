@@ -58,9 +58,13 @@ trait Orderable
         } elseif (is_string($order) && str_contains($order, '.')) {
             $relationships = explode('.', $order);
 
-            $relationshipsCount = count($relationships);
-            $column             = "{$relationships[$relationshipsCount - 2]}.{$relationships[$relationshipsCount - 1]}";
-            $direction          = 'asc';
+            // Get the last relationship to be ordered by its column.
+            $lastRelationship = $relationships[count($relationships) - 2];
+            // Get the column that needs to be ordered by
+            $relationshipColumn = end($relationships);
+
+            $column    = "{$lastRelationship}.{$relationshipColumn}";
+            $direction = 'asc';
 
             $this->performJoinsForOrderByRelationships($relationships, $queryBuilder);
         } elseif (is_array($order) && !str_contains(array_key_first($order), '.')) {
@@ -69,8 +73,13 @@ trait Orderable
         } elseif (is_array($order) && str_contains(array_key_first($order), '.')) {
             $relationships = explode('.', array_key_first($order));
 
-            $relationshipsCount = count($relationships);
-            $column             = "{$relationships[$relationshipsCount - 2]}.{$relationships[$relationshipsCount - 1]}";            $direction = strtolower(array_values($order)[0]);
+              // Get the last relationship to be ordered by its column.
+            $lastRelationship = $relationships[count($relationships) - 2];
+            // Get the column that needs to be ordered by.
+            $relationshipColumn = end($relationships);
+
+            $column    = "{$lastRelationship}.{$relationshipColumn}";
+            $direction = strtolower(array_values($order)[0]);
 
             $this->performJoinsForOrderByRelationships($relationships, $queryBuilder);
         }
