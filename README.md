@@ -246,6 +246,27 @@ public function index()
 }
 ```
 
+Besides, you can amazingly order the model by its relationships:
+
+```PHP
+/**
+ * Display a listing of the resource.
+ */
+public function index()
+{
+    return $this
+        ->setChainableModel(User::class)
+        ->addWhere([
+            ['name', 'Mahmoud Ramadan']
+        ])
+        ->addOrderBy([
+            ['posts.comments.created_at' => 'desc']
+        ])
+        ->execute()
+        ->get();
+}
+```
+
 > [!IMPORTANT]
 > The `addOrderBy` method accepts the column you need to be used in the order query (The default direction is `ASC`) and agrees with an array where the key is the column and the value is the direction.
 
