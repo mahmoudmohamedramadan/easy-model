@@ -114,7 +114,7 @@ trait Orderable
             $relatedTableName  = $relatedModel->getTable();
             $previousTableName = $previousModel->getTable();
 
-            // Get the foreign key and primary key of the previous models.
+            // Get the foreign key and primary key of the previous model.
             $previousForeignKey      = $previousModel->getForeignKey();
             $previousTablePrimaryKey = $previousModel->getKeyName();
 
@@ -129,7 +129,7 @@ trait Orderable
             );
 
             // Now, let's move to the next model (the previous one is the current related model)
-            // hence, the previous model will be "posts" and the next related model will be "comments".
+            // hence, the last model will be "posts" and the next related model will be "comments".
             $previousModel = $relatedModel;
         }
     }
