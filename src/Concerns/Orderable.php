@@ -73,7 +73,7 @@ trait Orderable
         } elseif (is_array($order) && str_contains(array_key_first($order), '.')) {
             $relationships = explode('.', array_key_first($order));
 
-              // Get the last relationship to be ordered by its column.
+            // Get the last relationship to be ordered by its column.
             $lastRelationship = $relationships[count($relationships) - 2];
             // Get the column that needs to be ordered by.
             $relationshipColumn = end($relationships);
@@ -107,7 +107,7 @@ trait Orderable
         $previousModel = $this->getModel();
 
         for ($i = 0; $i < count($relationships) - 1; $i++) {
-            // This will call the model relationships (e.g., $user->posts(), $user->comments())
+            // This will call the model relationships (e.g., $user->posts(), $user->comments()).
             $relatedModel = $previousModel->{$relationships[$i]}()->getModel();
 
             // Get the table name of the related and previous models.
