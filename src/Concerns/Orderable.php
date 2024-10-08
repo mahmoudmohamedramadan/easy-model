@@ -25,7 +25,7 @@ trait Orderable
                 throw new InvalidArrayStructure("The `orderBy` array must be well defined.");
             }
 
-            $paramters = $this->prepareParamtersForOrderBy($order);
+            $paramters = $this->prepareParamtersForOrderBy($order, $queryBuilder);
 
             $queryBuilder->{$queryBuilder->unions ? 'unionOrders' : 'orders'}[] = [
                 'column'    => $paramters['column'],
@@ -41,11 +41,12 @@ trait Orderable
      * Prepare the "orderBy" parameters.
      *
      * @param  string|array  $order
+     * @param  \Illuminate\Database\Query\Builder  $queryBuilder
      * @return array
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      */
-    protected function prepareParamtersForOrderBy(string|array $order)
+    protected function prepareParamtersForOrderBy(string|array $order, $queryBuilder)
     {
         // If the given string does not contain a dot, this means that the order
         // is not related to the model relationships.
@@ -57,20 +58,21 @@ trait Orderable
         } elseif (is_string($order) && str_contains($order, '.')) {
             $relationships = explode('.', $order);
 
-            $column    = end($relationships);
-            $direction = 'asc';
+            $relationshipsCount = count($relationships);
+            $column             = "{$relationships[$relationshipsCount - 2]}.{$relationships[$relationshipsCount - 1]}";
+            $direction          = 'asc';
 
-            $this->performJoinsForOrderByRelationships($relationships);
+            $this->performJoinsForOrderByRelationships($relationships, $queryBuilder);
         } elseif (is_array($order) && !str_contains(array_key_first($order), '.')) {
             $column    = end($order);
             $direction = strtolower(array_values($order)[0]);
         } elseif (is_array($order) && str_contains(array_key_first($order), '.')) {
             $relationships = explode('.', array_key_first($order));
 
-            $column    = end($relationships);
-            $direction = strtolower(array_values($order)[0]);
+            $relationshipsCount = count($relationships);
+            $column             = "{$relationships[$relationshipsCount - 2]}.{$relationships[$relationshipsCount - 1]}";            $direction = strtolower(array_values($order)[0]);
 
-            $this->performJoinsForOrderByRelationships($relationships);
+            $this->performJoinsForOrderByRelationships($relationships, $queryBuilder);
         }
 
         if (!in_array($direction, ['asc', 'desc'], true)) {
@@ -87,36 +89,39 @@ trait Orderable
      * Perform the "orderBy" joins.
      *
      * @param  array  $relationships
+     * @param  \Illuminate\Database\Query\Builder  $queryBuilder
      * @return void
      */
-    protected function performJoinsForOrderByRelationships($relationships)
+    protected function performJoinsForOrderByRelationships($relationships, $queryBuilder)
     {
-        $model        = $this->getModel();
-        $queryBuilder = $model->newQuery();
-
         // Keep track of the previous model's table to set the join condition
-        $previousTable = $model->getTable();
+        $previousModel = $this->getModel();
 
         for ($i = 0; $i < count($relationships) - 1; $i++) {
             // This will call the model relationships (e.g., posts(), comments())
-            $relatedModel = $model->{$relationships[$i]}()->getModel();
+            $relatedModel = $previousModel->{$relationships[$i]}()->getModel();
 
-            // Get the table name of the related model
-            $relatedTable = $relatedModel->getTable();
-            $foreignKey   = $relatedModel->getForeignKey();
+            // Get the table name of the related and previous models
+            $relatedTableName        = $relatedModel->getTable();
+            $previousTableName       = $previousModel->getTable();
 
-            // Define the current table's primary key
-            $primaryKey = $model->getKeyName();
+            // Get the foreign key and primary key of the related and previous models
+            $previousForeignKey      = $previousModel->getForeignKey();
+            $previousTablePrimaryKey = $previousModel->getKeyName();
 
             // Perform the join:
             // - Previous table is the current model's table (for first iteration, it's the User table)
             // - Current table is the related model's table (e.g. posts, comments, etc.)
-            $queryBuilder->join($relatedTable, "{$previousTable}.{$primaryKey}", '=', "{$relatedTable}.{$foreignKey}");
+            $queryBuilder->join(
+                $relatedTableName,
+                "{$relatedTableName}.{$previousForeignKey}",
+                '=',
+                "{$previousTableName}.{$previousTablePrimaryKey}"
+            );
 
             // Move to the next model (the related model now becomes the "current" model)
             // then update the table for the next iteration
-            $model         = $relatedModel;
-            $previousTable = $relatedTable;
+            $previousModel = $relatedModel;
         }
     }
 }
