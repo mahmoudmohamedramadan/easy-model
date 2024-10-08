@@ -60,7 +60,7 @@ trait Orderable
 
             // Get the last relationship to be ordered by its column.
             $lastRelationship = $relationships[count($relationships) - 2];
-            // Get the column that needs to be ordered by
+            // Get the column that needs to be ordered by.
             $relationshipColumn = end($relationships);
 
             $column    = "{$lastRelationship}.{$relationshipColumn}";
@@ -103,24 +103,24 @@ trait Orderable
      */
     protected function performJoinsForOrderByRelationships($relationships, $queryBuilder)
     {
-        // Keep track of the previous model's table to set the join condition
+        // Let's pretend that the model will get back an instance of "App\Models\User".
         $previousModel = $this->getModel();
 
         for ($i = 0; $i < count($relationships) - 1; $i++) {
-            // This will call the model relationships (e.g., posts(), comments())
+            // This will call the model relationships (e.g., $user->posts(), $user->comments())
             $relatedModel = $previousModel->{$relationships[$i]}()->getModel();
 
-            // Get the table name of the related and previous models
-            $relatedTableName        = $relatedModel->getTable();
-            $previousTableName       = $previousModel->getTable();
+            // Get the table name of the related and previous models.
+            $relatedTableName  = $relatedModel->getTable();
+            $previousTableName = $previousModel->getTable();
 
-            // Get the foreign key and primary key of the related and previous models
+            // Get the foreign key and primary key of the previous models.
             $previousForeignKey      = $previousModel->getForeignKey();
             $previousTablePrimaryKey = $previousModel->getKeyName();
 
             // Perform the join:
-            // - Previous table is the current model's table (for first iteration, it's the User table)
-            // - Current table is the related model's table (e.g. posts, comments, etc.)
+            // - Related table is the current model's table (for first iteration, it's the "users" table).
+            // - Previous table is the related model's table (e.g. "posts").
             $queryBuilder->join(
                 $relatedTableName,
                 "{$relatedTableName}.{$previousForeignKey}",
@@ -128,8 +128,8 @@ trait Orderable
                 "{$previousTableName}.{$previousTablePrimaryKey}"
             );
 
-            // Move to the next model (the related model now becomes the "current" model)
-            // then update the table for the next iteration
+            // Now, let's move to the next model (the previous one is the current related model)
+            // hence, the previous model will be "posts" and the next related model will be "comments".
             $previousModel = $relatedModel;
         }
     }
