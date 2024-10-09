@@ -9,9 +9,8 @@
  - - -
 
 > [!NOTE]
-> This package is not responsible for getting the data using methods like `first`, `get`, and `paginate` but, gives you an elegant approach for easily managing the query.
+> This package is not responsible for getting the data using methods like first, get, and paginate but, gives you an elegant approach for easily managing the query by improving how Eloquent is written, and speeds up the triggered query time more than **Laravel** ([fig.1.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-faster-than-laravel-01.png), [fig.2.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-faster-than-laravel-02.png)). 🚀.
 
-- [Introduction](#introduction)
 - [Installation](#installation)
 - [Usage](#usage)
   - [Controllers / Services](#controllers--services)
@@ -20,10 +19,6 @@
   - [Advanced](#advanced)
 - [Credits](#credits)
 - [Support me](#support-me)
-
-## Introduction
-
- The package improves how Eloquent is written and speeds up the triggered query time more than **Laravel** ([fig.1.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-faster-than-laravel-01.png), [fig.2.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-faster-than-laravel-02.png)). 🚀
 
 ## Installation
 
@@ -256,10 +251,11 @@ public function index()
 {
     return $this
         ->setChainableModel(User::class)
-        ->addWhere([
-            ['name', 'Mahmoud Ramadan']
+        ->addWhereHas([
+            'posts>1'
         ])
         ->addOrderBy([
+            // 'posts.created_at',
             ['posts.comments.created_at' => 'desc']
         ])
         ->execute()
