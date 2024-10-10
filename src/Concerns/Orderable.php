@@ -53,7 +53,7 @@ trait Orderable
         // Otherwise, it means the order should be executed on the model relationships therefore, we need
         // to split the order to get the relationships and the column that needs to be ordered.
         if (is_string($order)) {
-            $parts     = explode('.', $order);
+            $parts = explode('.', $order);
 
             $column    = $order;
             $direction = 'asc';
@@ -109,7 +109,7 @@ trait Orderable
 
             // Perform the join:
             // - Related table is the current model's table (for first iteration, it's the "users" table).
-            // - Previous table is the related model's table (e.g. "posts").
+            // - Previous table is the related model's table (e.g., "posts").
             $queryBuilder->join(
                 $relatedTableName,
                 "{$relatedTableName}.{$previousForeignKey}",

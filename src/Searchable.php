@@ -265,16 +265,16 @@ trait Searchable
         $this->guessModel();
 
         // If the provided model was a string it means, the developer needs to search
-        // in a whole model (e.g. User::class), and according to the new rules i'm getting
-        // an anonymous model instance object (e.g. new User) so, it's table name will be empty.
+        // in a whole model (e.g., User::class), and according to the new rules i'm getting
+        // an anonymous model instance object (e.g., new User) so, it's table name will be empty.
         if (empty($this->getModel()->getTable())) {
             return $this->getModel()->query();
         }
 
         // If there is no relationship provided, it means that the developer needs to search
-        // in a single model instance (e.g. User::first()).
+        // in a single model instance (e.g., User::first()).
         // Otherwise, it means that he needs to search in a single model instance relationship
-        // (e.g. User::first()->posts()).
+        // (e.g., User::first()->posts()).
         return empty($this->getRelationship()) ? $this->getModel() : $this->getModel()->{$this->getRelationship()}();
     }
 
