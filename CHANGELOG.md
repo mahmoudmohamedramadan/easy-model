@@ -1,5 +1,10 @@
 # Release Notes for 1.x
 
+## [v1.0.4](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.4)
+
+- [1.x] Refactors the `addOrderBy` method.
+- [1.x] Improves the code's readability.
+
 ## [v1.0.3](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.3)
 
 - [1.x] Adds the ability to order the model by its relationships.
