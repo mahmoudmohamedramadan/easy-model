@@ -48,40 +48,29 @@ trait Orderable
      */
     protected function prepareParamtersForOrderBy(string|array $order, $queryBuilder)
     {
-        // If the given string does not contain a dot, this means that the order
-        // is not related to the model relationships.
-        // Otherwise, it means the order is related to the model relationships therefore, we need
+        // If the given string does not contain a dot, the order will not be executed
+        // using the model relationships.
+        // Otherwise, it means the order should be executed on the model relationships therefore, we need
         // to split the order to get the relationships and the column that needs to be ordered.
-        if (is_string($order) && !str_contains($order, '.')) {
+        if (is_string($order)) {
+            $parts     = explode('.', $order);
+
             $column    = $order;
             $direction = 'asc';
-        } elseif (is_string($order) && str_contains($order, '.')) {
-            $relationships = explode('.', $order);
+        } elseif (is_array($order)) {
+            $key   = array_key_first($order);
+            $parts = explode('.', $key);
 
-            // Get the last relationship to be ordered by its column.
-            $lastRelationship = $relationships[count($relationships) - 2];
-            // Get the column that needs to be ordered by.
-            $relationshipColumn = end($relationships);
-
-            $column    = "{$lastRelationship}.{$relationshipColumn}";
-            $direction = 'asc';
-
-            $this->performJoinsForOrderByRelationships($relationships, $queryBuilder);
-        } elseif (is_array($order) && !str_contains(array_key_first($order), '.')) {
-            $column    = end($order);
+            $column    = $key;
             $direction = strtolower(array_values($order)[0]);
-        } elseif (is_array($order) && str_contains(array_key_first($order), '.')) {
-            $relationships = explode('.', array_key_first($order));
+        }
 
-            // Get the last relationship to be ordered by its column.
-            $lastRelationship = $relationships[count($relationships) - 2];
-            // Get the column that needs to be ordered by.
-            $relationshipColumn = end($relationships);
+        if (count($parts) > 1) {
+            // In case the order is related to the model relationships, we need to get
+            // the relationships and the column that needs to be ordered (e.g., "posts.created_at").
+            $column = implode('.', array_slice($parts, -2));
 
-            $column    = "{$lastRelationship}.{$relationshipColumn}";
-            $direction = strtolower(array_values($order)[0]);
-
-            $this->performJoinsForOrderByRelationships($relationships, $queryBuilder);
+            $this->performJoinsForOrderByRelationships($parts, $queryBuilder);
         }
 
         if (!in_array($direction, ['asc', 'desc'], true)) {
