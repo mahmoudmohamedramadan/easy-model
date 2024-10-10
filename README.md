@@ -8,8 +8,10 @@
 
  - - -
 
-> [!NOTE]
-> This package is not responsible for getting the data using methods like first, get, and paginate but, gives you an elegant approach for easily managing the query by improving how Eloquent is written, and speeds up the triggered query time more than **Laravel** ([fig.1.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-faster-than-laravel-01.png), [fig.2.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-faster-than-laravel-02.png)). 🚀
+ What makes this package featured?
+
+- Improves the **Query Time** more than any Package even **Laravel** itself ([fig.1.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-faster-than-laravel-01.png), [fig.2.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-faster-than-laravel-02.png)).
+- Gives you a `Query Builder` and `Eloquent Builder` instances via ONLY one syntax.
 
 - [Installation](#installation)
 - [Usage](#usage)
