@@ -14,7 +14,7 @@ trait ShouldBuildQueries
     protected $queryBuilder;
 
     /**
-     * The search eloquent query.
+     * The search eloquent builder.
      *
      * @var \Illuminate\Database\Eloquent\Builder
      */
@@ -58,8 +58,12 @@ trait ShouldBuildQueries
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      */
-    protected function buildQueryUsingAllWheres($whereHas = [], $whereDoesntHave = [], $whereRelation = [], $method = 'where')
-    {
+    protected function buildQueryUsingAllWheres(
+        $whereHas = [],
+        $whereDoesntHave = [],
+        $whereRelation = [],
+        $method = 'where'
+    ) {
         if (!empty($whereHas)) {
             $this->buildQueryUsingWhereHasAndDoesntHave($whereHas, "{$method}Has");
         }
