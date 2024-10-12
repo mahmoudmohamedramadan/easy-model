@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Ramadan\EasyModel\Concerns\HasModel;
 use Ramadan\EasyModel\Concerns\Orderable;
+use Ramadan\EasyModel\Exceptions\InvalidSearchableModel;
 
 trait Searchable
 {
@@ -254,8 +255,12 @@ trait Searchable
         $this->setQuery($givenQuery);
 
         if (empty($this->eloquentBuilder) && !empty($this->queryBuilder)) {
-            $this->eloquentBuilder = new EloquentBuilder($this->queryBuilder);
-            $this->eloquentBuilder->setModel($this->getModel());
+            if (empty($this->getRelationship())) {
+                $this->eloquentBuilder = $this->getModel()->query()->setQuery($this->queryBuilder);
+            } else {
+                $this->eloquentBuilder = new EloquentBuilder($this->queryBuilder);
+                $this->eloquentBuilder->setModel($this->getModel()->{$this->getRelationship()}()->getRelated());
+            }
         }
 
         if (!empty($this->eloquentBuilder)) {
@@ -264,18 +269,15 @@ trait Searchable
 
         $this->guessModel();
 
-        // If the provided model was a string it means, the developer needs to search
-        // in a whole model (e.g., User::class), and according to the new rules i'm getting
-        // an anonymous model instance object (e.g., new User) so, it's table name will be empty.
-        if (empty($this->getModel()->getTable())) {
+        if (!empty($this->getRelationship()) && !$this->getModel()->exists) {
+            throw new InvalidSearchableModel('Cannot search in a relationship with anonymous model.');
+        }
+
+        if (empty($this->getRelationship())) {
             return $this->getModel()->query();
         }
 
-        // If there is no relationship provided, it means that the developer needs to search
-        // in a single model instance (e.g., User::first()).
-        // Otherwise, it means that he needs to search in a single model instance relationship
-        // (e.g., User::first()->posts()).
-        return empty($this->getRelationship()) ? $this->getModel() : $this->getModel()->{$this->getRelationship()}();
+        return $this->getModel()->{$this->getRelationship()}()->getQuery();
     }
 
     /**
@@ -294,15 +296,7 @@ trait Searchable
             return $this->queryBuilder;
         }
 
-        $query = $this->getEloquentBuilder()->getQuery();
-
-        if (empty($this->getRelationship())) {
-            return $query;
-        }
-
-        // In case there is a relationship, we will invoke the "getQuery" twice where the first time
-        // to get a eloquent builder instance and the second to get a query builder instance.
-        return $query->getQuery();
+        return $this->getEloquentBuilder()->getQuery();
     }
 
     /**
