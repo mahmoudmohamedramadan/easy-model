@@ -1,5 +1,11 @@
 # Release Notes for 1.x
 
+## [v1.0.5](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.5)
+
+- [1.x] Refactors the `getEloquentBuilder` and `getQueryBuilder` methods.
+- [1.x] Improves the code's readability.
+- [1.x] Fixes the search issue when providing a relationship.
+
 ## [v1.0.4](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.4)
 
 - [1.x] Refactors the `addOrderBy` method.
