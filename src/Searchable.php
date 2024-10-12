@@ -258,6 +258,8 @@ trait Searchable
             if (empty($this->getRelationship())) {
                 $this->eloquentBuilder = $this->getModel()->query()->setQuery($this->queryBuilder);
             } else {
+                // When the relationship is provided, we will start a new query and set the model
+                // with the given relationship using "getRelated" method on it.
                 $this->eloquentBuilder = new EloquentBuilder($this->queryBuilder);
                 $this->eloquentBuilder->setModel($this->getModel()->{$this->getRelationship()}()->getRelated());
             }
@@ -269,6 +271,8 @@ trait Searchable
 
         $this->guessModel();
 
+        // There is no ability to search when providing a relationship
+        // and the model is anonymous (e.g., User::class, new User).
         if (!empty($this->getRelationship()) && !$this->getModel()->exists) {
             throw new InvalidSearchableModel('Cannot search in a relationship with anonymous model.');
         }
