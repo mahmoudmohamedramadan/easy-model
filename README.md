@@ -54,12 +54,13 @@ class UserController extends Controller
      */
     public function __construct()
     {
+        // $this->setModel(new User);
         $this->setModel(User::class);
     }
 }
 ```
 
-After that, you can simply search in the model using the `addWheres`, and `addOrWheres` methods:
+After that, you can search in the model using the `addWheres`, and `addOrWheres` methods:
 
 ```PHP
 /**
@@ -106,7 +107,7 @@ public function index()
 > [!IMPORTANT]
 > You must provide an array to these methods since you can pass just the relationship name as a string, in addition, you can suffix the relationship name with the operator and count to specify the relationship count that the model must have also, you can pass the relationship as the key and a closure as a value.
 
-In addition, you can use the `whereRelation` and `orWhereRelation`:
+In addition, you can use the `addWhereRelation` and `addOrWhereRelation`:
 
 ```PHP
 /**
@@ -127,7 +128,7 @@ public function index()
 ```
 
 > [!IMPORTANT]
-> Using the previous methods you can simply provide the relationship name as a key and a closure as a value or you can pass an array with four elements pointing to the `relationship` and the second pointing to the `column` and the third to the `operator` (The default value is `=` in case you do not provide this element), and fourth to the `value`.
+> Using the previous methods you can provide the relationship name as a key and a closure as a value or you can pass an array with four elements pointing to the `relationship` and the second to the `column` and the third to the `operator` (The default value is `=` in case you do not provide this element), and fourth to the `value`.
 
 Furthermore, you can use the previous methods one time by passing a list of arrays to the `addAllWheres` and `addAllOrWheres` methods:
 
@@ -233,13 +234,13 @@ Moreover, you can order the result by using the `addOrderBy` method:
 public function index()
 {
     return $this
-        ->setChainableModel(User::class)
+        ->setChainableModel(new User)
         ->addWhereRelation([
             ['posts', 'title', 'LIKE', '%Easy Model%']
         ])
         ->addOrderBy([
             'name',
-            ['created_at' => 'desc']
+            // ['created_at' => 'desc']
         ])
         ->execute(false)
         ->get();
@@ -255,7 +256,7 @@ Besides, you can amazingly order the model by its relationships:
 public function index()
 {
     return $this
-        ->setChainableModel(User::class)
+        ->setChainableModel(new User)
         ->addWhereHas([
             'posts>1'
         ])
