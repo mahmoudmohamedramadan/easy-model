@@ -16,7 +16,8 @@
         "queryobject",
         "sql",
         "sqlite",
-        "sqlserver"
+        "sqlserver",
+        "orm"
     ],
     "license": "MIT",
     "authors": [
