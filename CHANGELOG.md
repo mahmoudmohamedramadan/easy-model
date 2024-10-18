@@ -4,6 +4,7 @@
 
 - [1.x] Optimizes the query time.
 - [1.x] Adds the `ext-pdo` to the `require` key.
+- [1.x] Adds the `laravel/framework` to the `require` key.
 - [1.x] Removes the `illuminate/database` from the `require` key.
 - [1.x] Removes the `illuminate/contracts` from the `require` key.
 - [1.x] Removes the `illuminate/pagination` from the `require` key.
