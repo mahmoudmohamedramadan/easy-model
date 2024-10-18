@@ -1,5 +1,13 @@
 # Release Notes for 1.x
 
+## [v1.0.6](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.6)
+
+- [1.x] Optimizes the query time.
+- [1.x] Adds the `ext-pdo` to the `require` key.
+- [1.x] Removes the `illuminate/database` from the `require` key.
+- [1.x] Removes the `illuminate/contracts` from the `require` key.
+- [1.x] Removes the `illuminate/pagination` from the `require` key.
+
 ## [v1.0.5](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.5)
 
 - [1.x] Refactors the `getEloquentBuilder` and `getQueryBuilder` methods.
