@@ -29,9 +29,8 @@
     ],
     "require": {
         "php": "^8.0",
-        "illuminate/database": "^8.0|^9.0|^10.0|^11.0",
-        "illuminate/contracts": "^8.0|^9.0|^10.0|^11.0",
-        "illuminate/pagination": "^8.0|^9.0|^10.0|^11.0"
+        "laravel/framework": "^10.0|^11.0",
+        "ext-pdo": "*"
     },
     "autoload": {
         "psr-4": {
