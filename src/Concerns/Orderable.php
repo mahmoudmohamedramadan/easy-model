@@ -93,33 +93,33 @@ trait Orderable
     protected function performJoinsForOrderByRelationships($relationships, $queryBuilder)
     {
         // Let's pretend that the model will get back an instance of "App\Models\User".
-        $previousModel = $this->getModel();
+        $currentModel = $this->getModel();
 
         for ($i = 0; $i < count($relationships) - 1; $i++) {
             // This will call the model relationships (e.g., $user->posts(), $user->comments()).
-            $relatedModel = $previousModel->{$relationships[$i]}()->getModel();
+            $relatedModel = $currentModel->{$relationships[$i]}()->getModel();
 
-            // Get the table name of the related and previous models.
-            $relatedTableName  = $relatedModel->getTable();
-            $previousTableName = $previousModel->getTable();
+            // Get the table name of the current and related models.
+            $currentTableName = $currentModel->getTable();
+            $relatedTableName = $relatedModel->getTable();
 
-            // Get the foreign key and primary key of the previous model.
-            $previousForeignKey      = $previousModel->getForeignKey();
-            $previousTablePrimaryKey = $previousModel->getKeyName();
+            // Get the foreign key and primary key of the current model.
+            $currentForeignKey      = $currentModel->getForeignKey();
+            $currentTablePrimaryKey = $currentModel->getKeyName();
 
             // Perform the join:
-            // - Related table is the current model's table (for first iteration, it's the "users" table).
-            // - Previous table is the related model's table (e.g., "posts").
+            // - Current table is the current model's table (for first iteration, it's the "users" table).
+            // - Related table is the related model's table (e.g., "posts").
             $queryBuilder->join(
                 table: $relatedTableName,
-                first: "{$previousTableName}.{$previousTablePrimaryKey}",
+                first: "{$currentTableName}.{$currentTablePrimaryKey}",
                 operator: '=',
-                second: "{$relatedTableName}.{$previousForeignKey}"
+                second: "{$relatedTableName}.{$currentForeignKey}"
             );
 
-            // Now, let's move to the next model (the previous one is the current related model)
-            // hence, the last model will be "posts" and the next related model will be "comments".
-            $previousModel = $relatedModel;
+            // Now, let's move to the next model (the current one will be the related model) hence, if
+            // the current model was "users" then, the current model in the next iteration will be "posts".
+            $currentModel = $relatedModel;
         }
     }
 }
