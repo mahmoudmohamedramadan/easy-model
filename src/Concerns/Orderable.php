@@ -112,9 +112,9 @@ trait Orderable
             // - Previous table is the related model's table (e.g., "posts").
             $queryBuilder->join(
                 table: $relatedTableName,
-                first: "{$relatedTableName}.{$previousForeignKey}",
+                first: "{$previousTableName}.{$previousTablePrimaryKey}",
                 operator: '=',
-                second: "{$previousTableName}.{$previousTablePrimaryKey}"
+                second: "{$relatedTableName}.{$previousForeignKey}"
             );
 
             // Now, let's move to the next model (the previous one is the current related model)
