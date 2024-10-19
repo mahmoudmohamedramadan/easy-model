@@ -22,10 +22,10 @@
 
  What makes this package featured?
 
-- Improves the **query time** more than any package, even **Laravel** itself ([figs. 1.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-faster-than-laravel-01.png), and [2.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-faster-than-laravel-02.png)).
+- Improves the **query time** more than any package, even **Laravel** itself ([fig. 1.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-faster-than-laravel-01.png)).
 - Gives you a `Query Builder` and `Eloquent Builder` instances via ONLY one syntax.
 
-> I tested the package on 1000 records with the same query of **Laravel**, and it was completely FASTER ([fig. 3.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-faster-than-laravel-03.png)). 🥵
+> I tested the package on over 1k records with the same query of **Laravel**, and it was completely FASTER ([fig. 2.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-faster-than-laravel-02.png)). 🥵
 
 ## Installation
 
