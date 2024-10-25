@@ -259,6 +259,12 @@ trait Searchable
         $model        = $this->getModel();
         $relationship = $this->getRelationship();
 
+        // There is no ability to search when providing a relationship
+        // and the model is anonymous (e.g., User::class, new User).
+        if (!empty($relationship) && !$model->exists) {
+            throw new InvalidSearchableModel('Cannot search in a relationship with anonymous model.');
+        }
+
         if (empty($this->eloquentBuilder) && !empty($this->queryBuilder)) {
             if (empty($relationship)) {
                 $this->eloquentBuilder = $model->newQuery()->setQuery($this->queryBuilder);
@@ -273,12 +279,6 @@ trait Searchable
 
         if (!empty($this->eloquentBuilder)) {
             return $this->eloquentBuilder;
-        }
-
-        // There is no ability to search when providing a relationship
-        // and the model is anonymous (e.g., User::class, new User).
-        if (!empty($relationship) && !$model->exists) {
-            throw new InvalidSearchableModel('Cannot search in a relationship with anonymous model.');
         }
 
         if (empty($relationship)) {
