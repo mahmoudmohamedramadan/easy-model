@@ -1,5 +1,13 @@
 # Release Notes for 1.x
 
+## [v1.0.7](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.7)
+
+- [1.x] Fixes the issue of searching in the relationship with an anonymous model.
+- [1.x] Fixes the issue of searching within the model itself.
+- [1.x] Renames the `addAllWheres` and `addOrAllWheres` to `addRelationConditions` and `addOrRelationConditions`.
+- [1.x] Improves the code's readability.
+- [1.x] Update the `order by` query by replacing the foreign with the primary key.
+
 ## [v1.0.6](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.6)
 
 - [1.x] Optimizes the query time.
