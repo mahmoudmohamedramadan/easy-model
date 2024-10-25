@@ -132,7 +132,7 @@ public function index()
 > [!IMPORTANT]
 > Using the previous methods you can provide the relationship name as a key and a closure as a value or you can pass an array with four elements pointing to the `relationship` and the second to the `column` and the third to the `operator` (The default value is `=` in case you do not provide this element), and fourth to the `value`.
 
-Furthermore, you can use the previous methods one time by passing a list of arrays to the `addAllWheres` and `addAllOrWheres` methods:
+Furthermore, you can use the previous methods one time by passing a list of arrays to the `addRelationConditions` and `addOrRelationConditions` methods:
 
 ```PHP
 /**
@@ -141,11 +141,11 @@ Furthermore, you can use the previous methods one time by passing a list of arra
 public function index()
 {
     return $this
-        ->addAllWheres(
-            whereHas: [
+        ->addRelationConditions(
+            has: [
                 'posts>1'
             ],
-            whereRelation: [
+            relation: [
                 'posts.comments' => fn($q) => $q->where('body', 'LIKE', '%sit%'),
             ]
         )
@@ -191,8 +191,8 @@ class Post extends Model
     public function scopeHasComments($q)
     {
         $this
-            ->addAllWheres(
-                whereHas: ['comments>2'],
+            ->addRelationConditions(
+                has: ['comments>2'],
                 query: $q
             )
             ->execute();
