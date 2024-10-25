@@ -85,47 +85,47 @@ trait Searchable
     /**
      * Add the "whereHas", "whereDoesntHave" and "whereRelation" clauses to the query.
      *
-     * @param  array  $whereHas
-     * @param  array  $whereDoesntHave
-     * @param  array  $whereRelation
+     * @param  array  $has
+     * @param  array  $doesntHave
+     * @param  array  $relation
      * @param  \Illuminate\Database\Eloquent\Builder|null  $query
      * @return $this
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      */
-    public function addAllWheres(
-        array $whereHas = [],
-        array $whereDoesntHave = [],
-        array $whereRelation = [],
+    public function addRelationConditions(
+        array $has = [],
+        array $doesntHave = [],
+        array $relation = [],
         EloquentBuilder $query = null
     ) {
         $this->setQuery($query);
 
-        return $this->buildQueryUsingAllWheres($whereHas, $whereDoesntHave, $whereRelation);
+        return $this->buildQueryUsingRelationConditions($has, $doesntHave, $relation);
     }
 
     /**
      * Add the "orWhereHas", "orWhereDoesntHave" and "orWhereRelation" clauses to the query.
      *
-     * @param  array  $whereHas
-     * @param  array  $whereDoesntHave
-     * @param  array  $whereRelation
+     * @param  array  $has
+     * @param  array  $doesntHave
+     * @param  array  $relation
      * @param  \Illuminate\Database\Eloquent\Builder|null  $query
      * @return $this
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      */
-    public function addAllOrWheres(
-        array $whereHas = [],
-        array $whereDoesntHave = [],
-        array $whereRelation = [],
+    public function addOrRelationConditions(
+        array $has = [],
+        array $doesntHave = [],
+        array $relation = [],
         EloquentBuilder $query = null
     ) {
         $this->setQuery($query);
 
-        return $this->buildQueryUsingAllWheres($whereHas, $whereDoesntHave, $whereRelation, 'orWhere');
+        return $this->buildQueryUsingRelationConditions($has, $doesntHave, $relation, 'orWhere');
     }
 
     /**

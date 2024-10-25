@@ -49,31 +49,31 @@ trait ShouldBuildQueries
     /**
      * Build the query using all "where" and "or where" clauses that are used in relationships.
      *
-     * @param  array  $whereHas
-     * @param  array  $whereDoesntHave
-     * @param  array  $whereRelation
+     * @param  array  $has
+     * @param  array  $doesntHave
+     * @param  array  $relation
      * @param  string  $method
      * @return $this
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      */
-    protected function buildQueryUsingAllWheres(
-        $whereHas = [],
-        $whereDoesntHave = [],
-        $whereRelation = [],
+    protected function buildQueryUsingRelationConditions(
+        $has = [],
+        $doesntHave = [],
+        $relation = [],
         $method = 'where'
     ) {
-        if (!empty($whereHas)) {
-            $this->buildQueryUsingWhereHasAndDoesntHave($whereHas, "{$method}Has");
+        if (!empty($has)) {
+            $this->buildQueryUsingWhereHasAndDoesntHave($has, "{$method}Has");
         }
 
-        if (!empty($whereDoesntHave)) {
-            $this->buildQueryUsingWhereHasAndDoesntHave($whereDoesntHave, "{$method}DoesntHave");
+        if (!empty($doesntHave)) {
+            $this->buildQueryUsingWhereHasAndDoesntHave($doesntHave, "{$method}DoesntHave");
         }
 
-        if (!empty($whereRelation)) {
-            $this->buildQueryUsingWhereRelation($whereRelation, "{$method}Relation");
+        if (!empty($relation)) {
+            $this->buildQueryUsingWhereRelation($relation, "{$method}Relation");
         }
 
         return $this;
