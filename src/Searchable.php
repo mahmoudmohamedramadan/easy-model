@@ -245,15 +245,12 @@ trait Searchable
     /**
      * Start building a new eloquent builder or chain the existing one.
      *
-     * @param  \Illuminate\Database\Eloquent\Builder|null  $givenQuery
      * @return \Illuminate\Database\Eloquent\Builder
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      */
-    protected function getEloquentBuilder($givenQuery = null)
+    protected function getEloquentBuilder()
     {
-        $this->setQuery($givenQuery);
-
         $this->guessModel();
 
         $model        = $this->getModel();
