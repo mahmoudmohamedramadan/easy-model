@@ -94,7 +94,7 @@ trait HasModel
     }
 
     /**
-     * Try to guess the model if not provided.
+     * Guess the model if not provided.
      *
      * @return void
      *
@@ -110,11 +110,9 @@ trait HasModel
 
         if (is_a(self::class, Model::class, true)) {
             $this->setModel(self::class);
+            return;
         }
 
-        // At last, if the model hasn't been set, we will throw an exception.
-        if (empty($this->getModel())) {
-            throw new InvalidSearchableModel('Cannot guess the searchable model.');
-        }
+        throw new InvalidSearchableModel('Cannot guess the searchable model.');
     }
 }
