@@ -254,6 +254,8 @@ trait Searchable
     {
         $this->setQuery($givenQuery);
 
+        $this->guessModel();
+
         $model        = $this->getModel();
         $relationship = $this->getRelationship();
 
@@ -272,8 +274,6 @@ trait Searchable
         if (!empty($this->eloquentBuilder)) {
             return $this->eloquentBuilder;
         }
-
-        $this->guessModel();
 
         // There is no ability to search when providing a relationship
         // and the model is anonymous (e.g., User::class, new User).
