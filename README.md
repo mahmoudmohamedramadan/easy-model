@@ -274,6 +274,29 @@ public function index()
 > [!IMPORTANT]
 > The `addOrderBy` method accepts the column you need to be used in the order query (The default direction is `ASC`) and agrees with an array where the key is the column and the value is the direction.
 
+According to **Scopes**, it enables you to use the Local and Global Scopes together in an extremely awesome approach via the `usingScopes` method:
+
+```PHP
+/**
+ * Display a listing of the resource.
+ */
+public function index()
+{
+    return $this
+        ->setChainableModel(new User)
+        ->addWheres([
+            ['name', 'Mahmoud Ramadan']
+        ])
+        ->usingScopes([
+            // new EmailVerifiedScope, // Global Scope in object
+            EmailVerifiedScope::class, // Global Scope in string
+            'isAdmin' // Local Scope
+        ])
+        ->execute()
+        ->get();
+}
+```
+
 ## Credits
 
 - [Mahmoud Ramadan](https://github.com/mahmoudmohamedramadan)
