@@ -97,7 +97,10 @@ trait Orderable
     protected function performJoinsForOrderByRelationships($relationships, $queryBuilder)
     {
         // Let's pretend that the model will get back an instance of "App\Models\User".
-        $currentModel = $this->getModel();
+        $model        = $this->getModel();
+        $relationship = $this->getRelationship();
+
+        $currentModel = empty($relationship) ? $model : $model->{$relationship}()->getRelated();
 
         for ($i = 0; $i < count($relationships) - 1; $i++) {
             // This will call the model relationships (e.g., $user->posts(), $user->comments()).
