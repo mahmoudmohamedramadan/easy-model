@@ -263,15 +263,11 @@ trait Searchable
         }
 
         if (empty($this->eloquentBuilder) && !empty($this->queryBuilder)) {
-            if (empty($relationship)) {
-                $this->eloquentBuilder = $model->newQuery()->setQuery($this->queryBuilder);
-            } else {
-                // When the relationship is provided, we will start a new query and set the model
-                // with the given relationship using "getRelated" method on it.
-                $this->eloquentBuilder = $model
-                    ->newEloquentBuilder($this->queryBuilder)
-                    ->setModel($model->{$relationship}()->getRelated());
-            }
+            // When the relationship is provided, we will start a new query and set the model
+            // with the given relationship using "getRelated" method on it.
+            $curreentModel = empty($relationship) ? $model : $model->{$relationship}()->getRelated();
+
+            $this->eloquentBuilder = $curreentModel->newQueryWithoutRelationships()->setQuery($this->queryBuilder);
         }
 
         if (!empty($this->eloquentBuilder)) {
