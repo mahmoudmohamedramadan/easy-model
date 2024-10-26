@@ -3,6 +3,7 @@
 namespace Ramadan\EasyModel\Concerns;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Scope;
 use Ramadan\EasyModel\Exceptions\InvalidSearchableModel;
 
 trait HasModel
@@ -114,5 +115,32 @@ trait HasModel
         }
 
         throw new InvalidSearchableModel('Cannot guess the searchable model.');
+    }
+
+    /**
+     * Apply the scopes to the query.
+     *
+     * @param  array  $scopes
+     * @return $this
+     */
+    public function usingScopes(array $scopes)
+    {
+        $localScopes = [];
+
+        foreach ($scopes as $scope) {
+            if (is_a($scope, Scope::class, true)) {
+                $identifier            = is_string($scope) ? $scope : get_class($scope);
+                $scope                 = is_string($scope) ? new $scope : $scope;
+                $this->getEloquentBuilder()->withGlobalScope($identifier, $scope);
+            } else {
+                $localScopes[] = $scope;
+            }
+        }
+
+        if (!empty($localScopes)) {
+            $this->getEloquentBuilder()->scopes($localScopes);
+        }
+
+        return $this;
     }
 }
