@@ -267,7 +267,7 @@ trait Searchable
             // with the given relationship using "getRelated" method on it.
             $curreentModel = empty($relationship) ? $model : $model->{$relationship}()->getRelated();
 
-            $this->eloquentBuilder = $curreentModel->newQueryWithoutRelationships()->setQuery($this->queryBuilder);
+            $this->eloquentBuilder = $curreentModel->newQuery()->setQuery($this->queryBuilder);
         }
 
         if (!empty($this->eloquentBuilder)) {
