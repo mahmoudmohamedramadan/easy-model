@@ -283,7 +283,7 @@ According to **Scopes**, it enables you to use the Local and Global Scopes toget
 public function index()
 {
     return $this
-        ->setChainableModel(new User)
+        ->setChainableModel(User::class)
         ->addWheres([
             ['name', 'Mahmoud Ramadan']
         ])
@@ -296,6 +296,9 @@ public function index()
         ->get();
 }
 ```
+
+> [!IMPORTANT]
+> The `usingScopes` method never override the [Global Scopes](https://laravel.com/docs/11.x/eloquent#applying-global-scopes) you already use in the model.
 
 ## Credits
 
