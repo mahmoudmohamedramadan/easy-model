@@ -65,6 +65,10 @@ trait Orderable
             $direction = strtolower(array_values($order)[0]);
         }
 
+        if (in_array(strtolower($column), ['asc', 'desc'], true)) {
+            throw new InvalidArrayStructure('Provide correct orderable column.');
+        }
+
         if (count($parts) > 1) {
             // In case the order is related to the model relationships, we need to get
             // the relationships and the column that needs to be ordered (e.g., "posts.created_at").
@@ -93,7 +97,10 @@ trait Orderable
     protected function performJoinsForOrderByRelationships($relationships, $queryBuilder)
     {
         // Let's pretend that the model will get back an instance of "App\Models\User".
-        $currentModel = $this->getModel();
+        $model        = $this->getModel();
+        $relationship = $this->getRelationship();
+
+        $currentModel = empty($relationship) ? $model : $model->{$relationship}()->getRelated();
 
         for ($i = 0; $i < count($relationships) - 1; $i++) {
             // This will call the model relationships (e.g., $user->posts(), $user->comments()).
