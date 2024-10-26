@@ -95,16 +95,17 @@ trait HasModel
     }
 
     /**
-     * Guess the model if not provided.
+     * Resolve the model for the current context.
      *
      * @return void
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      */
-    protected function guessModel()
+    protected function resolveModel()
     {
-        // Before guessing the model, ensure it is already set using the "setModel"
-        // and "setChainableModel" methods, as manual setting is more of a priority.
+        // We will check if the model has been set using the "setModel" or "setChainableModel"
+        // method as a manual setting is more of a priority otherwise it means the developer
+        // uses the "Searchable" trait in the model itself.
         if (!empty($this->getModel())) {
             return;
         }
@@ -114,7 +115,7 @@ trait HasModel
             return;
         }
 
-        throw new InvalidSearchableModel('Cannot guess the searchable model.');
+        throw new InvalidSearchableModel('Cannot resolve the searchable model.');
     }
 
     /**

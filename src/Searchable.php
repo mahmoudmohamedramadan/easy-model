@@ -251,7 +251,7 @@ trait Searchable
      */
     protected function getEloquentBuilder()
     {
-        $this->guessModel();
+        $this->resolveModel();
 
         $model        = $this->getModel();
         $relationship = $this->getRelationship();
