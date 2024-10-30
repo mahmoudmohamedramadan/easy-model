@@ -16,6 +16,13 @@ trait HasModel
     protected $model;
 
     /**
+     * The current model or the related model based on the relationship value.
+     *
+     * @var \Illuminate\Database\Eloquent\Model
+     */
+    protected $modelOrRelation;
+
+    /**
      * The relationship to search in.
      *
      * @var string
@@ -54,6 +61,29 @@ trait HasModel
         }
 
         return $this->model;
+    }
+
+    /**
+     * Get the current model or the related model based on the relationship value.
+     *
+     * @param  string|null  $relationship
+     * @param  \Illuminate\Database\Eloquent\Model|null  $model
+     * @return \Illuminate\Database\Eloquent\Model
+     */
+    public function resolveModelOrRelation($relationship = null, $model = null)
+    {
+        if (!empty($this->modelOrRelation)) {
+            return $this->modelOrRelation;
+        }
+
+        if (!empty($relationship) && !empty($model)) {
+            return empty($relationship) ? $model : $model->{$relationship}()->getRelated();
+        }
+
+        $relationship = $this->getRelationship();
+        $model        = $this->getModel();
+
+        return empty($relationship) ? $model : $model->{$relationship}()->getRelated();
     }
 
     /**
@@ -126,6 +156,7 @@ trait HasModel
      */
     public function usingScopes(array $scopes)
     {
+        // TODO: Add the ability to pass additional arguments to local scopes.
         $localScopes = [];
 
         foreach ($scopes as $scope) {
