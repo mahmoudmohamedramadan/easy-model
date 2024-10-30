@@ -265,9 +265,9 @@ trait Searchable
         if (empty($this->eloquentBuilder) && !empty($this->queryBuilder)) {
             // When the relationship is provided, we will start a new query and set the model
             // with the given relationship using "getRelated" method on it.
-            $currentModel = empty($relationship) ? $model : $model->{$relationship}()->getRelated();
+            $this->modelOrRelation = $this->resolveModelOrRelation($relationship, $model);
 
-            $this->eloquentBuilder = $currentModel->newQuery()->setQuery($this->queryBuilder);
+            $this->eloquentBuilder = $this->modelOrRelation->newQuery()->setQuery($this->queryBuilder);
         }
 
         if (!empty($this->eloquentBuilder)) {
