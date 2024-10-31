@@ -1,6 +1,13 @@
 # Release Notes for 1.x
 
-## [Unreleased](https://github.com/mahmoudmohamedramadan/easy-model/compare/v1.0.7...1.x)
+## [Unreleased](https://github.com/mahmoudmohamedramadan/easy-model/compare/v1.0.8...1.x)
+
+## [v1.0.8](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.8)
+
+- [1.x] Adds the ability to order the result using `HasOne`, `HasMany`, `BelongsTo`, and `BelongsToMany` relationships.
+- [1.x] Fixes the issue of ordering the result by model relationship.
+- [1.x] Improves the code's readability.
+- [1.x] Adds the ability to use the `Local Scopes` and `Global Scopes`.
 
 ## [v1.0.7](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.7)
 
