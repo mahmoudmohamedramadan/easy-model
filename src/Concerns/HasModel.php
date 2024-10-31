@@ -156,7 +156,6 @@ trait HasModel
      */
     public function usingScopes(array $scopes)
     {
-        // TODO: Add the ability to pass additional arguments to local scopes.
         $localScopes = [];
 
         foreach ($scopes as $scope) {
