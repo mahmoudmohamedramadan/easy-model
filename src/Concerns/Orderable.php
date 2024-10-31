@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Ramadan\EasyModel\Exceptions\InvalidArrayStructure;
+use Ramadan\EasyModel\Exceptions\InvalidOrderableRelationship;
 
 trait Orderable
 {
@@ -20,6 +21,7 @@ trait Orderable
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidOrderableRelationship
      */
     public function addOrderBy(array $orders, Builder $query = null)
     {
@@ -49,6 +51,7 @@ trait Orderable
      * @return array
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidOrderableRelationship
      */
     protected function prepareParamtersForOrderBy(string|array $order, $queryBuilder)
     {
@@ -74,8 +77,8 @@ trait Orderable
         }
 
         if (count($parts) > 1) {
-            // In case the order is related to the model relationships, we need to get
-            // the relationships and the column that needs to be ordered (e.g., "posts.created_at").
+            // In case the order is related to the model relationships, we need to get the last
+            // relationship and the column that needs to be ordered (e.g., "post.comments.created_at").
             $column = $this->performJoinsForOrderByRelationships($parts, $queryBuilder);
         }
 
@@ -95,6 +98,8 @@ trait Orderable
      * @param  array  $relationships
      * @param  \Illuminate\Database\Query\Builder  $queryBuilder
      * @return string
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidOrderableRelationship
      */
     protected function performJoinsForOrderByRelationships($relationships, $queryBuilder)
     {
@@ -104,10 +109,10 @@ trait Orderable
             $currentRelationship = $currentModel->{$relationships[$i]}();
             $relatedModel        = $currentRelationship->getModel();
 
-            // At first let's pretend that the current model is "App\Models\User" which is the parent and he has
-            // one or many child models (e.g., "post", "comments") in this case, the foreign key of the current
+            // At first let's pretend that the current model is "App\Models\User" which is the parent and it has
+            // one or many child models (e.g., "profile", "accounts") in this case, the foreign key of the current
             // model is "user_id" and must be exists in the child table(s).
-            if (in_array(get_class($currentRelationship), [HasMany::class, HasOne::class])) {
+            if (in_array(get_class($currentRelationship), [HasOne::class, HasMany::class])) {
                 $currentTableName = $currentModel->getTable();
                 $relatedTableName = $relatedModel->getTable();
 
@@ -115,15 +120,21 @@ trait Orderable
                 $currentTablePrimaryKey = $currentModel->getKeyName();
             }
 
-            // But, in case the current model is "App\Models\Post" which is the child and it belongs to
-            // a parent model (e.g., "user") the foreign key "user_id" must exists in the table of the
-            // current related model "posts".
+            // But, in case the current model is "App\Models\Comment" which is the child and it belongs to a
+            // parent model (e.g., "App\Models\Post") the foreign key "post_id" must exists in the table of the
+            // current related model "comments".
             elseif (in_array(get_class($currentRelationship), [BelongsTo::class, BelongsToMany::class])) {
                 $currentTableName = $relatedModel->getTable();
                 $relatedTableName = $currentModel->getTable();
 
                 $currentForeignKey      = $relatedModel->getForeignKey();
                 $currentTablePrimaryKey = $currentModel->getKeyName();
+            }
+
+            if (empty($currentTableName) || empty($relatedTableName)) {
+                throw new InvalidOrderableRelationship(
+                    sprintf('The orderable relationship [%s] is unsupported.', get_class($currentRelationship))
+                );
             }
 
             // Perform the join
