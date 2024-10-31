@@ -290,7 +290,8 @@ public function index()
         ->usingScopes([
             // new EmailVerifiedScope, // Global Scope in object
             EmailVerifiedScope::class, // Global Scope in string
-            'isAdmin' // Local Scope
+            // 'isAdmin', // Local Scope
+            'isAdmin' => [false], // Local Scope With Parameters
         ])
         ->execute()
         ->get();

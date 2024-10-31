@@ -156,21 +156,20 @@ trait HasModel
      */
     public function usingScopes(array $scopes)
     {
-        // TODO: Add the ability to pass additional arguments to local scopes.
         $localScopes = [];
 
-        foreach ($scopes as $scope) {
-            if (is_a($scope, Scope::class, true)) {
-                $identifier            = is_string($scope) ? $scope : get_class($scope);
-                $scope                 = is_string($scope) ? new $scope : $scope;
-                $this->getEloquentBuilder()->withGlobalScope($identifier, $scope);
+        foreach ($scopes as $scope => $parameters) {
+            if (is_a($parameters, Scope::class, true)) {
+                $identifier = is_string($parameters) ? $parameters : get_class($parameters);
+                $scope      = is_string($parameters) ? new $parameters : $parameters;
+                $this->eloquentBuilder = $this->getEloquentBuilder()->withGlobalScope($identifier, $scope);
             } else {
-                $localScopes[] = $scope;
+                $localScopes[$scope] = $parameters;
             }
         }
 
         if (!empty($localScopes)) {
-            $this->getEloquentBuilder()->scopes($localScopes);
+            $this->eloquentBuilder = $this->getEloquentBuilder()->scopes($localScopes);
         }
 
         return $this;
