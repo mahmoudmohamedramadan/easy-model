@@ -8,7 +8,7 @@
 
  - - -
 
-- [About](#about)
+- [Overview](#overview)
 - [Installation](#installation)
 - [Usage](#usage)
   - [Controllers / Services](#controllers--services)
@@ -18,7 +18,7 @@
 - [Credits](#credits)
 - [Support me](#support-me)
 
-## About
+## Overview
 
  What makes this package featured?
 
@@ -202,9 +202,6 @@ class Post extends Model
 ```
 
 ### Advanced
-
-> [!TIP]
-> Starting from **v1.0.2**, a new feature allows developers to specify the returning query type `Query Builder` or `Eloquent Builder` by passing a boolean value to the `execute` method.
 
 It enables you also to search in the model relationship using the `setRelationship` method:
 
