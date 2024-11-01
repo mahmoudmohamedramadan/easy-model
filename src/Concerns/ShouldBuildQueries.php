@@ -31,17 +31,14 @@ trait ShouldBuildQueries
      */
     public function buildQueryUsingWheres($wheres, $method = 'where')
     {
-        $this->queryBuilder = $this
-            ->getQueryBuilder()
-            ->whereNested(function ($query) use ($wheres, $method) {
-                foreach ($wheres as $key => $value) {
-                    if (is_numeric($key) && is_array($value)) {
-                        $query->{$method}(...array_values($value));
-                    } else {
-                        $query->{$method}($key, '=', $value, $method === 'where' ? 'and' : 'or');
-                    }
-                }
-            }, $method === 'where' ? 'and' : 'or');
+        $queryBuilder = $this->getQueryBuilder();
+        foreach ($wheres as $where) {
+            $this->{(match (gettype($where)) {
+                'object' => 'prepareClosuresForWheres',
+                'array'  => 'prepareArraysForWheres',
+            })}($where, $queryBuilder, $method);
+        }
+        $this->queryBuilder = $queryBuilder;
 
         return $this;
     }
@@ -230,5 +227,43 @@ trait ShouldBuildQueries
             'operator' => $operator,
             'value'    => $value
         ];
+    }
+
+    /**
+     * Prepare the closures for "where" closure.
+     *
+     * @param \Closure $where
+     * @param \Illuminate\Database\Query\Builder $queryBuilder
+     * @param string $method
+     * @return void
+     */
+    protected function prepareClosuresForWheres($where, $queryBuilder, $method = 'where')
+    {
+        $type    = 'Nested';
+        $where($query = $queryBuilder->forNestedWhere());
+        $boolean = $method === 'where' ? 'and' : 'or';
+
+        $queryBuilder->wheres[] = compact('type', 'query', 'boolean');
+
+        $queryBuilder->addBinding($queryBuilder->getRawBindings()['where'], 'where');
+    }
+
+    /**
+     * Prepare the array for "where" closure.
+     *
+     * @param array $where
+     * @param \Illuminate\Database\Query\Builder $queryBuilder
+     * @param string $method
+     * @return void
+     */
+    protected function prepareArraysForWheres($where, $queryBuilder, $method = 'where')
+    {
+        $queryBuilder->whereNested(function ($query) use ($where, $method) {
+            if (count($where) === 3) {
+                $query->{$method}(...array_values($where), boolean: $method === 'where' ? 'and' : 'or');
+            } else {
+                $query->{$method}($where[0], '=', $where[1], $method === 'where' ? 'and' : 'or');
+            }
+        }, $method === 'where' ? 'and' : 'or');
     }
 }
