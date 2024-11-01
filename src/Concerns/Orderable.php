@@ -55,20 +55,27 @@ trait Orderable
      */
     protected function prepareParamtersForOrderBy(string|array $order, $queryBuilder)
     {
-        // If the given string does not contain a dot, the order will not be executed
-        // using the model relationships.
+        $currentModel = $this->resolveModelOrRelation();
+
+        // If the given string does not contain a dot, the order will not be executed using the model relationships.
         // Otherwise, it means the order should be executed on the model relationships therefore, we need
         // to split the order to get the relationships and the column that needs to be ordered.
         if (is_string($order)) {
             $parts = explode('.', $order);
 
-            $column    = $order;
+            // If the developer uses the same column of the model and its relationship to order the result,
+            // this will throw an "Ambiguous Exception" so, we must specify which table this column belongs to.
+            // addOrderBy([
+            //     ['created_at' => 'desc'],
+            //     'posts.created_at'
+            // ])
+            $column    = "{$currentModel->getTable()}.{$order}";
             $direction = 'asc';
         } elseif (is_array($order)) {
             $key   = array_key_first($order);
             $parts = explode('.', $key);
 
-            $column    = $key;
+            $column    = "{$currentModel->getTable()}.{$key}";
             $direction = strtolower(array_values($order)[0]);
         }
 
@@ -79,7 +86,7 @@ trait Orderable
         if (count($parts) > 1) {
             // In case the order is related to the model relationships, we need to get the last
             // relationship and the column that needs to be ordered (e.g., "post.comments.created_at").
-            $column = $this->performJoinsForOrderByRelationships($parts, $queryBuilder);
+            $column = $this->performJoinsForOrderByRelationships($currentModel, $parts, $queryBuilder);
         }
 
         if (!in_array($direction, ['asc', 'desc'], true)) {
@@ -95,16 +102,15 @@ trait Orderable
     /**
      * Perform the "orderBy" joins.
      *
+     * @param  \Illuminate\Database\Eloquent\Model  $currentModel
      * @param  array  $relationships
      * @param  \Illuminate\Database\Query\Builder  $queryBuilder
      * @return string
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidOrderableRelationship
      */
-    protected function performJoinsForOrderByRelationships($relationships, $queryBuilder)
+    protected function performJoinsForOrderByRelationships($currentModel, $relationships, $queryBuilder)
     {
-        $currentModel = $this->resolveModelOrRelation();
-
         for ($i = 0; $i < count($relationships) - 1; $i++) {
             $currentRelationship = $currentModel->{$relationships[$i]}();
             $relatedModel        = $currentRelationship->getModel();
@@ -151,6 +157,6 @@ trait Orderable
         }
 
         // The "$currentModel" always contains the latest relationship that you need to use for performing the order
-        return "{$currentModel->getTable()}.{$relationships[count($relationships) - 1]}";
+        return "{$currentModel->getTable()}." . end($relationships);
     }
 }
