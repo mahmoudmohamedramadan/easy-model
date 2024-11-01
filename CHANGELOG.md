@@ -6,6 +6,7 @@
 
 - [1.x] Adds the ability to order the result using `HasOne`, `HasMany`, `BelongsTo`, and `BelongsToMany` relationships.
 - [1.x] Fixes the issue of ordering the result by model relationship.
+- [1.x] Optimizes the query time.
 - [1.x] Improves the code's readability.
 - [1.x] Adds the ability to use the `Local Scopes` and `Global Scopes`.
 
