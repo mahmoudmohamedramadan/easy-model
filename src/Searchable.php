@@ -75,7 +75,7 @@ trait Searchable
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      */
-    public function addOrWheres($wheres, EloquentBuilder $query = null)
+    public function addOrWheres(array $wheres, EloquentBuilder $query = null)
     {
         $this->setQuery($query);
 
