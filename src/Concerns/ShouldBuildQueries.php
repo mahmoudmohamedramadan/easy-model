@@ -166,6 +166,41 @@ trait ShouldBuildQueries
     }
 
     /**
+     * Prepare a nested of "where" clauses using the given closure.
+     *
+     * @param \Closure $where
+     * @param \Illuminate\Database\Query\Builder $queryBuilder
+     * @param string $method
+     * @return void
+     */
+    protected function prepareClosuresForWheres($where, $queryBuilder, $method = 'where')
+    {
+        $where($query = $queryBuilder->forNestedWhere());
+        $boolean = $method === 'where' ? 'and' : 'or';
+
+        $queryBuilder->addNestedWhereQuery($query, $boolean);
+    }
+
+    /**
+     * Prepare an array of conditions to be inserted into the "where" clause.
+     *
+     * @param array $where
+     * @param \Illuminate\Database\Query\Builder $queryBuilder
+     * @param string $method
+     * @return void
+     */
+    protected function prepareArraysForWheres($where, $queryBuilder, $method = 'where')
+    {
+        $this->prepareClosuresForWheres(function ($query) use ($where, $method) {
+            if (count($where) === 3) {
+                $query->{$method}(...array_values($where), boolean: $method === 'where' ? 'and' : 'or');
+            } else {
+                $query->{$method}($where[0], '=', $where[1], $method === 'where' ? 'and' : 'or');
+            }
+        }, $queryBuilder, $method);
+    }
+
+    /**
      * Prepare the "whereHas", and "whereDoesntHave" parameters.
      *
      * @param  string  $subject
@@ -227,43 +262,5 @@ trait ShouldBuildQueries
             'operator' => $operator,
             'value'    => $value
         ];
-    }
-
-    /**
-     * Prepare the closures for "where" closure.
-     *
-     * @param \Closure $where
-     * @param \Illuminate\Database\Query\Builder $queryBuilder
-     * @param string $method
-     * @return void
-     */
-    protected function prepareClosuresForWheres($where, $queryBuilder, $method = 'where')
-    {
-        $type    = 'Nested';
-        $where($query = $queryBuilder->forNestedWhere());
-        $boolean = $method === 'where' ? 'and' : 'or';
-
-        $queryBuilder->wheres[] = compact('type', 'query', 'boolean');
-
-        $queryBuilder->addBinding($queryBuilder->getRawBindings()['where'], 'where');
-    }
-
-    /**
-     * Prepare the array for "where" closure.
-     *
-     * @param array $where
-     * @param \Illuminate\Database\Query\Builder $queryBuilder
-     * @param string $method
-     * @return void
-     */
-    protected function prepareArraysForWheres($where, $queryBuilder, $method = 'where')
-    {
-        $queryBuilder->whereNested(function ($query) use ($where, $method) {
-            if (count($where) === 3) {
-                $query->{$method}(...array_values($where), boolean: $method === 'where' ? 'and' : 'or');
-            } else {
-                $query->{$method}($where[0], '=', $where[1], $method === 'where' ? 'and' : 'or');
-            }
-        }, $method === 'where' ? 'and' : 'or');
     }
 }
