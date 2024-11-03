@@ -3,6 +3,8 @@
 namespace Ramadan\EasyModel\Concerns;
 
 use Ramadan\EasyModel\Exceptions\InvalidArrayStructure;
+use Illuminate\Contracts\Database\Query\Expression as ExpressionContract;
+use Illuminate\Support\Arr;
 
 trait ShouldBuildQueries
 {
@@ -168,9 +170,9 @@ trait ShouldBuildQueries
     /**
      * Prepare a nested of "where" clauses using the given closure.
      *
-     * @param \Closure $where
-     * @param \Illuminate\Database\Query\Builder $queryBuilder
-     * @param string $method
+     * @param \Closure  $where
+     * @param \Illuminate\Database\Query\Builder  $queryBuilder
+     * @param string  $method
      * @return void
      */
     protected function prepareClosuresForWheres($where, $queryBuilder, $method = 'where')
@@ -184,20 +186,24 @@ trait ShouldBuildQueries
     /**
      * Prepare an array of conditions to be inserted into the "where" clause.
      *
-     * @param array $where
-     * @param \Illuminate\Database\Query\Builder $queryBuilder
-     * @param string $method
+     * @param array  $where
+     * @param \Illuminate\Database\Query\Builder  $queryBuilder
+     * @param string  $method
      * @return void
      */
     protected function prepareArraysForWheres($where, $queryBuilder, $method = 'where')
     {
-        $this->prepareClosuresForWheres(function ($query) use ($where, $method) {
-            if (count($where) === 3) {
-                $query->{$method}(...array_values($where), boolean: $method === 'where' ? 'and' : 'or');
-            } else {
-                $query->{$method}($where[0], '=', $where[1], $method === 'where' ? 'and' : 'or');
-            }
-        }, $queryBuilder, $method);
+        $type     = 'Basic';
+        $boolean  = $method === 'where' ? 'and' : 'or';
+        $operator = count($where) === 3 ? $where[1] : '=';
+
+        [$column, $value, $boolean] = [$where[0], $where[2], $boolean];
+
+        if (! $value instanceof ExpressionContract) {
+            $queryBuilder->addBinding(is_array($value) ? reset(Arr::flatten($value)) : $value, 'where');
+        }
+
+        $queryBuilder->wheres[] = compact('type', 'column', 'operator', 'value', 'boolean');
     }
 
     /**
