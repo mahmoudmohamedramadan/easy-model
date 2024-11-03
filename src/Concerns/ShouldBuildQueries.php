@@ -168,9 +168,9 @@ trait ShouldBuildQueries
     /**
      * Prepare a nested of "where" clauses using the given closure.
      *
-     * @param \Closure $where
-     * @param \Illuminate\Database\Query\Builder $queryBuilder
-     * @param string $method
+     * @param \Closure  $where
+     * @param \Illuminate\Database\Query\Builder  $queryBuilder
+     * @param string  $method
      * @return void
      */
     protected function prepareClosuresForWheres($where, $queryBuilder, $method = 'where')
@@ -184,9 +184,9 @@ trait ShouldBuildQueries
     /**
      * Prepare an array of conditions to be inserted into the "where" clause.
      *
-     * @param array $where
-     * @param \Illuminate\Database\Query\Builder $queryBuilder
-     * @param string $method
+     * @param array  $where
+     * @param \Illuminate\Database\Query\Builder  $queryBuilder
+     * @param string  $method
      * @return void
      */
     protected function prepareArraysForWheres($where, $queryBuilder, $method = 'where')
