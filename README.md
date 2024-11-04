@@ -24,6 +24,7 @@
 
 - Improves the **query time** more than any package, even **Laravel** itself ([fig. 1.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-vs-laravel-01.png)).
 - Gives you a `Query Builder` and `Eloquent Builder` instances via **ONLY one syntax**.
+- Fixes the **Ambiguous Exception** that Laravel throws when you use the same column of the model and its relationship within the "order" query.
 - IMO, The most wonderful feature is that it enables you to order the result by the model relationships (`HasOne`, `HasMany`, `BelongsTo`, and `BelongsToMany`) and keeps you away from performing the "join" manually ([fig. 3.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-vs-laravel-03.png)).
 
 > The package was significantly FASTER than the Laravel query when tested on over **1k records** ([fig. 2.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-vs-laravel-02.png)). 🥵
@@ -73,7 +74,8 @@ public function index()
 {
     return $this
         ->addWheres([
-            ['name', 'Mahmoud Ramadan']
+            ['name', 'Mahmoud Ramadan'],
+             fn($q) => $q->whereNotNull('email_verified_at')
         ])
         ->addOrWheres([
             ['email', 'LIKE', '%example.org%']
@@ -84,7 +86,7 @@ public function index()
 ```
 
 > [!IMPORTANT]
-> You must provide an array of arrays to these methods since the first element refers to the `column` and the second to the `operator` (The default value is `=` in case you do not provide this element), and the third to the `value`.
+> You must provide an array of arrays or closures to these methods since the first element of array refers to the `column` and the second to the `operator` (The default value is `=` in case you do not provide this element), and the third to the `value` in the array structure.
 
 Also, you can search in the model relationships using the `addWhereHas`, and `addWhereDoesntHave` methods:
 
@@ -186,8 +188,6 @@ class Post extends Model
 
     /**
      * Get the posts that have more than two comments.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder  $q
      */
     public function scopeHasComments($q)
     {
@@ -261,7 +261,7 @@ public function index()
             'posts>1'
         ])
         ->addOrderBy([
-            // 'posts.created_at',
+            // 'created_at',
             ['posts.comments.created_at' => 'desc']
         ])
         ->execute()
