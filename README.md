@@ -58,8 +58,8 @@ class UserController extends Controller
      */
     public function __construct()
     {
-        // $this->setModel(new User);
-        $this->setModel(User::class);
+        $this->setModel(new User); // Model in object
+        // $this->setModel(User::class); // Model in string
     }
 }
 ```
@@ -86,7 +86,7 @@ public function index()
 ```
 
 > [!IMPORTANT]
-> You must provide an array of arrays or closures to these methods since the first element of array refers to the `column` and the second to the `operator` (The default value is `=` in case you do not provide this element), and the third to the `value` in the array structure.
+> You must provide an array of arrays or closures to these methods since the first element of array refers to the `column` and the second to the `operator` (default value is `=` in case you do not provide this element), and the third to the `value` in the array structure.
 
 Also, you can search in the model relationships using the `addWhereHas`, and `addWhereDoesntHave` methods:
 
@@ -133,7 +133,7 @@ public function index()
 ```
 
 > [!IMPORTANT]
-> Using the previous methods you can provide the relationship name as a key and a closure as a value or you can pass an array with four elements pointing to the `relationship` and the second to the `column` and the third to the `operator` (The default value is `=` in case you do not provide this element), and fourth to the `value`.
+> Using the previous methods you can provide the relationship name as a key and a closure as a value or you can pass an array with four elements pointing to the `relationship` and the second to the `column` and the third to the `operator` (default value is `=` in case you do not provide this element), and fourth to the `value`.
 
 Furthermore, you can use the previous methods one time by passing a list of arrays to the `addRelationConditions` and `addOrRelationConditions` methods:
 
@@ -270,7 +270,7 @@ public function index()
 ```
 
 > [!IMPORTANT]
-> The `addOrderBy` method accepts the column you need to be used in the order query (The default direction is `ASC`) and agrees with an array where the key is the column and the value is the direction.
+> The `addOrderBy` method accepts the column you need to be used in the order query (default direction is `ASC`) and agrees with an array where the key is the column and the value is the direction.
 
 According to **Scopes**, it enables you to use the Local and Global Scopes together in an extremely awesome approach via the `usingScopes` method:
 
@@ -288,8 +288,8 @@ public function index()
         ->usingScopes([
             // new EmailVerifiedScope, // Global Scope in object
             EmailVerifiedScope::class, // Global Scope in string
-            // 'isAdmin', // Local Scope Without Parameters
-            'isAdmin' => [false, fn($q) => $q->where('id', '>', 2)], // Local Scope With Parameters
+            // 'isActive', // Local Scope method does not require additional parameters
+            'isAdmin' => [false, fn($q) => $q->where('id', '>', 2)], // Local Scope requires additional parameters
         ])
         ->execute()
         ->get();
