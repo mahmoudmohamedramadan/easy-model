@@ -296,7 +296,7 @@ public function index()
 }
 ```
 
-> [!IMPORTANT]
+> [!NOTE]
 > The `usingScopes` method never override the [Global Scopes](https://laravel.com/docs/11.x/eloquent#applying-global-scopes) you already use in the model.
 
 ## Credits
