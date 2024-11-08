@@ -16,7 +16,7 @@ trait HasModel
     protected $model;
 
     /**
-     * The current model or the related model based on the relationship value.
+     * The current model.
      *
      * @var \Illuminate\Database\Eloquent\Model
      */
@@ -64,20 +64,20 @@ trait HasModel
     }
 
     /**
-     * Get the current model or the related model based on the relationship value.
+     * Resolve the current model.
      *
-     * @param  string|null  $relationship
-     * @param  \Illuminate\Database\Eloquent\Model|null  $model
+     * @param  string|null  $givenRelationship
+     * @param  \Illuminate\Database\Eloquent\Model|null  $givenModel
      * @return \Illuminate\Database\Eloquent\Model
      */
-    public function resolveModelOrRelation($relationship = null, $model = null)
+    public function resolveModelOrRelation($givenRelationship = null, $givenModel = null)
     {
         if (!empty($this->modelOrRelation)) {
             return $this->modelOrRelation;
         }
 
-        if (!empty($relationship) && !empty($model)) {
-            return empty($relationship) ? $model : $model->{$relationship}()->getRelated();
+        if (!empty($givenRelationship) && !empty($givenModel)) {
+            return $givenModel->{$givenRelationship}()->getRelated();
         }
 
         $relationship = $this->getRelationship();

@@ -258,7 +258,7 @@ trait ShouldBuildQueries
         $operator = count($closure) === 4 ? $closure[2] : '=';
         $value    = count($closure) === 4 ? $closure[3] : $closure[2];
 
-        if (!in_array(strtolower($operator), $this->getAllowedOperators(), true)) {
+        if (!in_array(strtolower($operator), $this->allowedOperators, true)) {
             throw new InvalidArrayStructure("The `{$operator}` is not a valid operator.");
         }
 
