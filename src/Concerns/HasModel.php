@@ -16,18 +16,18 @@ trait HasModel
     protected $model;
 
     /**
-     * The current model.
-     *
-     * @var \Illuminate\Database\Eloquent\Model
-     */
-    protected $modelOrRelation;
-
-    /**
      * The relationship to search in.
      *
      * @var string
      */
     protected $relationship;
+
+    /**
+     * The current model.
+     *
+     * @var \Illuminate\Database\Eloquent\Model
+     */
+    protected $modelOrRelation;
 
     /**
      * Set the model without chaining the query.
