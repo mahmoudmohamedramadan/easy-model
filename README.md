@@ -8,7 +8,7 @@
 
  - - -
 
-- [About](#about)
+- [Overview](#overview)
 - [Installation](#installation)
 - [Usage](#usage)
   - [Controllers / Services](#controllers--services)
@@ -18,14 +18,16 @@
 - [Credits](#credits)
 - [Support me](#support-me)
 
-## About
+## Overview
 
  What makes this package featured?
 
-- Improves the **query time** more than any package, even **Laravel** itself ([fig. 1.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-faster-than-laravel-01.png)).
-- Gives you a `Query Builder` and `Eloquent Builder` instances via ONLY one syntax.
+- Improves the **query time** more than any package, even **Laravel** itself ([fig. 1.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-vs-laravel-01.png)).
+- Gives you a `Query Builder` and `Eloquent Builder` instances via **ONLY one syntax**.
+- Fixes the **Ambiguous Exception** that Laravel throws when you use the same column of the model and its relationship within the "order" query.
+- IMO, The most wonderful feature is that it enables you to order the result by the model relationships (`HasOne`, `HasMany`, `BelongsTo`, and `BelongsToMany`) and keeps you away from performing the "join" manually ([fig. 3.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-vs-laravel-03.png)).
 
-> The package was significantly FASTER than the Laravel query when tested on over **1k records** ([fig. 2.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-faster-than-laravel-02.png)). 🥵
+> The package was significantly FASTER than the Laravel query when tested on over **1k records** ([fig. 2.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-vs-laravel-02.png)). 🥵
 
 ## Installation
 
@@ -56,8 +58,8 @@ class UserController extends Controller
      */
     public function __construct()
     {
-        // $this->setModel(new User);
-        $this->setModel(User::class);
+        $this->setModel(new User); // Model in object
+        // $this->setModel(User::class); // Model in string
     }
 }
 ```
@@ -72,7 +74,8 @@ public function index()
 {
     return $this
         ->addWheres([
-            ['name', 'Mahmoud Ramadan']
+            ['name', 'Mahmoud Ramadan'],
+             fn($q) => $q->whereNotNull('email_verified_at')
         ])
         ->addOrWheres([
             ['email', 'LIKE', '%example.org%']
@@ -83,7 +86,7 @@ public function index()
 ```
 
 > [!IMPORTANT]
-> You must provide an array of arrays to these methods since the first element refers to the `column` and the second to the `operator` (The default value is `=` in case you do not provide this element), and the third to the `value`.
+> You must provide an array of arrays or closures to these methods since the first element of array refers to the `column` and the second to the `operator` (default value is `=` in case you do not provide this element), and the third to the `value` in the array structure.
 
 Also, you can search in the model relationships using the `addWhereHas`, and `addWhereDoesntHave` methods:
 
@@ -130,7 +133,7 @@ public function index()
 ```
 
 > [!IMPORTANT]
-> Using the previous methods you can provide the relationship name as a key and a closure as a value or you can pass an array with four elements pointing to the `relationship` and the second to the `column` and the third to the `operator` (The default value is `=` in case you do not provide this element), and fourth to the `value`.
+> Using the previous methods you can provide the relationship name as a key and a closure as a value or you can pass an array with four elements pointing to the `relationship` and the second to the `column` and the third to the `operator` (default value is `=` in case you do not provide this element), and fourth to the `value`.
 
 Furthermore, you can use the previous methods one time by passing a list of arrays to the `addRelationConditions` and `addOrRelationConditions` methods:
 
@@ -185,8 +188,6 @@ class Post extends Model
 
     /**
      * Get the posts that have more than two comments.
-     *
-     * @param  \Illuminate\Database\Eloquent\Builder  $q
      */
     public function scopeHasComments($q)
     {
@@ -201,9 +202,6 @@ class Post extends Model
 ```
 
 ### Advanced
-
-> [!TIP]
-> Starting from **v1.0.2**, a new feature allows developers to specify the returning query type `Query Builder` or `Eloquent Builder` by passing a boolean value to the `execute` method.
 
 It enables you also to search in the model relationship using the `setRelationship` method:
 
@@ -263,7 +261,7 @@ public function index()
             'posts>1'
         ])
         ->addOrderBy([
-            // 'posts.created_at',
+            // 'created_at',
             ['posts.comments.created_at' => 'desc']
         ])
         ->execute()
@@ -272,7 +270,7 @@ public function index()
 ```
 
 > [!IMPORTANT]
-> The `addOrderBy` method accepts the column you need to be used in the order query (The default direction is `ASC`) and agrees with an array where the key is the column and the value is the direction.
+> The `addOrderBy` method accepts the column you need to be used in the order query (default direction is `ASC`) and agrees with an array where the key is the column and the value is the direction.
 
 According to **Scopes**, it enables you to use the Local and Global Scopes together in an extremely awesome approach via the `usingScopes` method:
 
@@ -290,15 +288,15 @@ public function index()
         ->usingScopes([
             // new EmailVerifiedScope, // Global Scope in object
             EmailVerifiedScope::class, // Global Scope in string
-            // 'isAdmin', // Local Scope Without Parameters
-            'isAdmin' => [false, fn($q) => $q->where('id', '>', 2)], // Local Scope With Parameters
+            // 'isActive', // Local Scope method does not require additional parameters
+            'isAdmin' => [false, fn($q) => $q->where('id', '>', 2)], // Local Scope requires additional parameters
         ])
         ->execute()
         ->get();
 }
 ```
 
-> [!IMPORTANT]
+> [!NOTE]
 > The `usingScopes` method never override the [Global Scopes](https://laravel.com/docs/11.x/eloquent#applying-global-scopes) you already use in the model.
 
 ## Credits
