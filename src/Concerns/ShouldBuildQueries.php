@@ -195,9 +195,9 @@ trait ShouldBuildQueries
     {
         $type     = 'Basic';
         $boolean  = $method === 'where' ? 'and' : 'or';
+        $column   = $where[0];
         $operator = count($where) === 3 ? $where[1] : '=';
-
-        [$column, $value] = [$where[0], $where[2]];
+        $value    = count($where) === 3 ? $where[2] : $where[1];
 
         if (! $value instanceof ExpressionContract) {
             $queryBuilder->addBinding(is_array($value) ? reset(Arr::flatten($value)) : $value, 'where');
