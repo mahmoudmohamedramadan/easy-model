@@ -57,14 +57,16 @@ trait Orderable
     {
         $currentModel = $this->resolveModelOrRelation();
 
-        // If the given string does not contain a dot, the order will not be executed using the model relationships.
-        // Otherwise, it means the order should be executed on the model relationships therefore, we need
-        // to split the order to get the relationships and the column that needs to be ordered.
+        // If the given string does not contain a dot, the order will be applied directly to the
+        // model's column. However, if the string includes a dot, it indicates that the order should
+        // be applied to a related model. In this case, we need to split the string to separate the
+        // relationship and the column by which the model should be ordered.
         if (is_string($order)) {
             $parts = explode('.', $order);
 
-            // If the developer uses the same column of the model and its relationship to order the result,
-            // this will throw an "Ambiguous Exception" so, we must specify which table this column belongs to.
+            // If the developer attempts to use the same column from both the model and its relationship
+            // to order the results, it will trigger an "Ambiguous Exception" To resolve this, we must
+            // explicitly specify which table the column belongs to.
             // addOrderBy([
             //     ['created_at' => 'desc'],
             //     'posts.created_at'
@@ -156,7 +158,8 @@ trait Orderable
             $currentModel = $relatedModel;
         }
 
-        // The "$currentModel" always contains the latest relationship that you need to use for performing the order
+        // The "$currentModel" always contains the latest relationship
+        // that you need to use for performing the order.
         return "{$currentModel->getTable()}." . end($relationships);
     }
 }
