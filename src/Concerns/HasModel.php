@@ -16,18 +16,18 @@ trait HasModel
     protected $model;
 
     /**
-     * The current model or the related model based on the relationship value.
-     *
-     * @var \Illuminate\Database\Eloquent\Model
-     */
-    protected $modelOrRelation;
-
-    /**
      * The relationship to search in.
      *
      * @var string
      */
     protected $relationship;
+
+    /**
+     * The resolved model or relationship instance.
+     *
+     * @var \Illuminate\Database\Eloquent\Model
+     */
+    protected $modelOrRelation;
 
     /**
      * Set the model without chaining the query.
@@ -64,20 +64,20 @@ trait HasModel
     }
 
     /**
-     * Get the current model or the related model based on the relationship value.
+     * Resolve and return the model or relationship based on the given parameters.
      *
-     * @param  string|null  $relationship
-     * @param  \Illuminate\Database\Eloquent\Model|null  $model
+     * @param  string|null  $givenRelationship
+     * @param  \Illuminate\Database\Eloquent\Model|null  $givenModel
      * @return \Illuminate\Database\Eloquent\Model
      */
-    public function resolveModelOrRelation($relationship = null, $model = null)
+    public function resolveModelOrRelation($givenRelationship = null, $givenModel = null)
     {
         if (!empty($this->modelOrRelation)) {
             return $this->modelOrRelation;
         }
 
-        if (!empty($relationship) && !empty($model)) {
-            return empty($relationship) ? $model : $model->{$relationship}()->getRelated();
+        if (!empty($givenRelationship) && !empty($givenModel)) {
+            return $givenModel->{$givenRelationship}()->getRelated();
         }
 
         $relationship = $this->getRelationship();
@@ -115,7 +115,7 @@ trait HasModel
     }
 
     /**
-     * Get the current model relationship.
+     * Get the model relationship.
      *
      * @return string
      */

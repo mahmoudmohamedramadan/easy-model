@@ -193,11 +193,12 @@ trait ShouldBuildQueries
      */
     protected function prepareArraysForWheres($where, $queryBuilder, $method = 'where')
     {
-        $type     = 'Basic';
-        $boolean  = $method === 'where' ? 'and' : 'or';
-        $operator = count($where) === 3 ? $where[1] : '=';
+        $type = 'Basic';
 
-        [$column, $value] = [$where[0], $where[2]];
+        $column   = $where[0];
+        $operator = count($where) === 3 ? $where[1] : '=';
+        $value    = count($where) === 3 ? $where[2] : $where[1];
+        $boolean  = $method === 'where' ? 'and' : 'or';
 
         if (! $value instanceof ExpressionContract) {
             $queryBuilder->addBinding(is_array($value) ? reset(Arr::flatten($value)) : $value, 'where');
@@ -258,7 +259,7 @@ trait ShouldBuildQueries
         $operator = count($closure) === 4 ? $closure[2] : '=';
         $value    = count($closure) === 4 ? $closure[3] : $closure[2];
 
-        if (!in_array(strtolower($operator), $this->getAllowedOperators(), true)) {
+        if (!in_array(strtolower($operator), $this->allowedOperators, true)) {
             throw new InvalidArrayStructure("The `{$operator}` is not a valid operator.");
         }
 

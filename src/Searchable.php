@@ -41,16 +41,6 @@ trait Searchable
     protected $operatorsPattern = '/[><=]+/';
 
     /**
-     * Get the allowed operators.
-     *
-     * @return array
-     */
-    public function getAllowedOperators()
-    {
-        return $this->allowedOperators;
-    }
-
-    /**
      * Add a basic "where" clause to the query.
      *
      * @param  array  $wheres
@@ -289,7 +279,7 @@ trait Searchable
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      */
-    protected function getQueryBuilder($givenQuery = null)
+    protected function getQueryBuilder(EloquentBuilder $givenQuery = null)
     {
         $this->setQuery($givenQuery);
 
