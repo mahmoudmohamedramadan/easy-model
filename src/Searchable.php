@@ -279,7 +279,7 @@ trait Searchable
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
      */
-    protected function getQueryBuilder($givenQuery = null)
+    protected function getQueryBuilder(EloquentBuilder $givenQuery = null)
     {
         $this->setQuery($givenQuery);
 
