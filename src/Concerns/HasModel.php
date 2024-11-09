@@ -23,7 +23,7 @@ trait HasModel
     protected $relationship;
 
     /**
-     * The current model.
+     * The resolved model or relationship instance.
      *
      * @var \Illuminate\Database\Eloquent\Model
      */
@@ -64,7 +64,7 @@ trait HasModel
     }
 
     /**
-     * Resolve the current model.
+     * Resolve and return the model or relationship based on the given parameters.
      *
      * @param  string|null  $givenRelationship
      * @param  \Illuminate\Database\Eloquent\Model|null  $givenModel
@@ -115,7 +115,7 @@ trait HasModel
     }
 
     /**
-     * Get the current model relationship.
+     * Get the model relationship.
      *
      * @return string
      */
