@@ -193,11 +193,12 @@ trait ShouldBuildQueries
      */
     protected function prepareArraysForWheres($where, $queryBuilder, $method = 'where')
     {
-        $type     = 'Basic';
-        $boolean  = $method === 'where' ? 'and' : 'or';
+        $type = 'Basic';
+
         $column   = $where[0];
         $operator = count($where) === 3 ? $where[1] : '=';
         $value    = count($where) === 3 ? $where[2] : $where[1];
+        $boolean  = $method === 'where' ? 'and' : 'or';
 
         if (! $value instanceof ExpressionContract) {
             $queryBuilder->addBinding(is_array($value) ? reset(Arr::flatten($value)) : $value, 'where');
