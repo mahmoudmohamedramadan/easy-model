@@ -7,8 +7,6 @@
 - [1.x] Refactors the code.
 - [1.x] Fixes the issue of providing columns and values only to `addWheres` and `addOrWheres`.
 
-## [Unreleased](https://github.com/mahmoudmohamedramadan/easy-model/compare/v1.0.9...1.x)
-
 ## [v1.0.9](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.9)
 
 - [1.x] Fixes the issue of ordering the result by the same model and its relationship column.
