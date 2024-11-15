@@ -239,12 +239,12 @@ trait Searchable
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
-    protected function getEloquentBuilder()
+    protected function getSearchableEloquentBuilder()
     {
         $this->resolveModel();
 
         $model        = $this->getSearchableModel();
-        $relationship = $this->getSearchableRelationship();
+        $relationship = $this->getRelationship();
 
         // There is no ability to search when providing a relationship
         // and the model is anonymous (e.g., User::class, new User).
@@ -279,11 +279,7 @@ trait Searchable
     {
         $this->setQuery($givenQuery);
 
-        if (!empty($this->queryBuilder)) {
-            return $this->queryBuilder;
-        }
-
-        return $this->getEloquentBuilder()->getQuery();
+        return !empty($this->queryBuilder) ? $this->queryBuilder : $this->getSearchableEloquentBuilder()->getQuery();
     }
 
     /**
@@ -311,6 +307,6 @@ trait Searchable
      */
     public function execute(bool $iNeedEloquentBuilderInstance = true)
     {
-        return $iNeedEloquentBuilderInstance ? $this->getEloquentBuilder() : $this->getQueryBuilder();
+        return $iNeedEloquentBuilderInstance ? $this->getSearchableEloquentBuilder() : $this->getQueryBuilder();
     }
 }

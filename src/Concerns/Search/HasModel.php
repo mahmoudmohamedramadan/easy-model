@@ -20,7 +20,7 @@ trait HasModel
      *
      * @var string
      */
-    protected $searchableRelationship;
+    protected $relationship;
 
     /**
      * The resolved model or relationship instance.
@@ -54,7 +54,7 @@ trait HasModel
      *
      * @return \Illuminate\Database\Eloquent\Model
      */
-    public function getSearchableModel()
+    protected function getSearchableModel()
     {
         return is_string($this->searchableModel) ? new $this->searchableModel : $this->searchableModel;
     }
@@ -76,7 +76,7 @@ trait HasModel
             return $givenModel->{$givenRelationship}()->getRelated();
         }
 
-        $relationship = $this->getSearchableRelationship();
+        $relationship = $this->getRelationship();
         $model        = $this->getSearchableModel();
 
         return empty($relationship) ? $model : $model->{$relationship}()->getRelated();
@@ -103,9 +103,9 @@ trait HasModel
      * @param  string  $relationship
      * @return $this
      */
-    public function setSearchableRelationship(string $relationship)
+    public function setRelationship(string $relationship)
     {
-        $this->searchableRelationship = $relationship;
+        $this->relationship = $relationship;
 
         return $this;
     }
@@ -115,9 +115,9 @@ trait HasModel
      *
      * @return string
      */
-    protected function getSearchableRelationship()
+    protected function getRelationship()
     {
-        return $this->searchableRelationship;
+        return $this->relationship;
     }
 
     /**
@@ -158,14 +158,14 @@ trait HasModel
             if (is_a($parameters, Scope::class, true)) {
                 $identifier = is_string($parameters) ? $parameters : get_class($parameters);
                 $scope      = is_string($parameters) ? new $parameters : $parameters;
-                $this->eloquentBuilder = $this->getEloquentBuilder()->withGlobalScope($identifier, $scope);
+                $this->eloquentBuilder = $this->getSearchableEloquentBuilder()->withGlobalScope($identifier, $scope);
             } else {
                 $localScopes[$scope] = $parameters;
             }
         }
 
         if (!empty($localScopes)) {
-            $this->eloquentBuilder = $this->getEloquentBuilder()->scopes($localScopes);
+            $this->eloquentBuilder = $this->getSearchableEloquentBuilder()->scopes($localScopes);
         }
 
         return $this;

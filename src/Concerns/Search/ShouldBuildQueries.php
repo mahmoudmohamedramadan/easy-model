@@ -162,7 +162,7 @@ trait ShouldBuildQueries
     protected function buildQueryUsingHas($relation, $operator = '>=', $count = 1, $boolean = 'and', $closure = null)
     {
         return $this
-            ->getEloquentBuilder()
+            ->getSearchableEloquentBuilder()
             ->has(...func_get_args())
             ->getQuery();
     }
@@ -200,7 +200,7 @@ trait ShouldBuildQueries
         $value    = count($where) === 3 ? $where[2] : $where[1];
         $boolean  = $method === 'where' ? 'and' : 'or';
 
-        if (! $value instanceof ExpressionContract) {
+        if (!($value instanceof ExpressionContract)) {
             $queryBuilder->addBinding(is_array($value) ? reset(Arr::flatten($value)) : $value, 'where');
         }
 
