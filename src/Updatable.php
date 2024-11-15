@@ -11,9 +11,9 @@ trait Updatable
     /**
      * Create or update a record matching the attributes, and fill it with values.
      *
-     * @param array $attributes
-     * @param array $values
-     * @param \Illuminate\Database\Eloquent\Model|string|null $model
+     * @param  array  $attributes
+     * @param  array  $values
+     * @param  \Illuminate\Database\Eloquent\Model|string|null  $model
      * @return \Illuminate\Database\Eloquent\Model
      */
     public function updateOrCreate(array $attributes, array $values = [], $model = null)
