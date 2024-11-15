@@ -264,11 +264,7 @@ trait Searchable
             return $this->eloquentBuilder;
         }
 
-        if (empty($relationship)) {
-            return $model->query();
-        }
-
-        return $model->{$relationship}()->getQuery();
+        return empty($relationship) ? $model->newQuery() : $model->{$relationship}()->getQuery();
     }
 
     /**

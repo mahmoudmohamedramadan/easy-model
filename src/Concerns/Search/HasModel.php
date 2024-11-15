@@ -56,11 +56,7 @@ trait HasModel
      */
     public function getSearchableModel()
     {
-        if (is_string($this->searchableModel)) {
-            return new $this->searchableModel;
-        }
-
-        return $this->searchableModel;
+        return is_string($this->searchableModel) ? new $this->searchableModel : $this->searchableModel;
     }
 
     /**
