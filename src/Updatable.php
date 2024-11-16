@@ -47,13 +47,13 @@ trait Updatable
      * @param  array  $values
      * @param  array  $incrementEach
      * @param  array  $decrementEach
-     * @return $this
+     * @return int
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
     public function performUpdateQuery(array $values, array $incrementEach = [], array $decrementEach = [])
     {
-        $this->getSearchOrUpdateQuery()->update($values);
+        $affectedRecords = $this->getSearchOrUpdateQuery()->update($values);
 
         if (!empty($incrementEach)) {
             $this->getSearchOrUpdateQuery(true)->incrementEach($incrementEach);
@@ -63,13 +63,13 @@ trait Updatable
             $this->getSearchOrUpdateQuery(true)->decrementEach($decrementEach);
         }
 
-        return $this;
+        return $affectedRecords;
     }
 
     /**
      * Delete records from the database.
      *
-     * @return $this
+     * @return int
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
@@ -102,14 +102,14 @@ trait Updatable
             $this->setUpdatableModel($model);
         }
 
-        $this->updatableModel = $this->getUpdatableEloquentBuilder()->updateOrCreate($attributes, $values);
+        $this->updatableModel = $this->getSearchOrUpdateQuery()->updateOrCreate($attributes, $values);
 
         if (!empty($incrementEach)) {
-            $this->getUpdatableQueryBuilder()->incrementEach($incrementEach);
+            $this->getSearchOrUpdateQuery(isQueryBuilder: true)->incrementEach($incrementEach);
         }
 
         if (!empty($decrementEach)) {
-            $this->getUpdatableQueryBuilder()->decrementEach($decrementEach);
+            $this->getSearchOrUpdateQuery(isQueryBuilder: true)->decrementEach($decrementEach);
         }
 
         return $this;
@@ -140,14 +140,14 @@ trait Updatable
             $this->setUpdatableModel($model);
         }
 
-        $this->getUpdatableEloquentBuilder($relationship)->updateOrCreate($attributes, $values);
+        $this->getSearchOrUpdateQuery($relationship)->updateOrCreate($attributes, $values);
 
         if (!empty($incrementEach)) {
-            $this->getUpdatableQueryBuilder($relationship)->incrementEach($incrementEach);
+            $this->getSearchOrUpdateQuery($relationship, true)->incrementEach($incrementEach);
         }
 
         if (!empty($decrementEach)) {
-            $this->getUpdatableQueryBuilder($relationship)->decrementEach($decrementEach);
+            $this->getSearchOrUpdateQuery($relationship, true)->decrementEach($decrementEach);
         }
 
         return $this;
@@ -156,24 +156,29 @@ trait Updatable
     /**
      * Get the appropriate query builder based on the context "Searchable" or "Updatable" and the type of builder.
      *
+     * @param  string|null  $relationship
      * @param  bool  $isQueryBuilder
      * @return \\Illuminate\Database\Eloquent\Builder|Illuminate\Database\Query\Builder
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
-    protected function getSearchOrUpdateQuery(bool $isQueryBuilder = false)
+    protected function getSearchOrUpdateQuery(string $relationship = null, bool $isQueryBuilder = false)
     {
-        // If the "getSearchableQueryBuilder" method exists, it means the request is coming
+        // If the "setRelationship" method exists, it means the request is coming
         // from the "Searchable" context since the "Updatable" trait is used there.
+        if (!empty($relationship) && method_exists($this, 'setRelationship')) {
+            $this->setRelationship($relationship);
+        }
+
         if ($isQueryBuilder) {
             return method_exists($this, 'getSearchableQueryBuilder') ?
                 $this->getSearchableQueryBuilder() :
-                $this->getUpdatableQueryBuilder();
+                $this->getUpdatableQueryBuilder($relationship);
         }
 
         return method_exists($this, 'getSearchableEloquentBuilder') ?
             $this->getSearchableEloquentBuilder() :
-            $this->getUpdatableEloquentBuilder();
+            $this->getUpdatableEloquentBuilder($relationship);
     }
 
     /**
