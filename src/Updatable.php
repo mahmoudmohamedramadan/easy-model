@@ -79,7 +79,7 @@ trait Updatable
     }
 
     /**
-     * Create or update a record matching the attributes, and fill it with values.
+     * Create or update a record matching the attributes against the model, and fill it with values.
      *
      * @param  array  $attributes
      * @param  array  $values
@@ -116,7 +116,7 @@ trait Updatable
     }
 
     /**
-     * Create or update a record matching the attributes, and fill it with values.
+     * Create or update a record matching the attributes against the relationship, and fill it with values.
      *
      * @param  string  $relationship
      * @param  array  $attributes
@@ -154,7 +154,7 @@ trait Updatable
     }
 
     /**
-     * Get the appropriate query builder based on the context (searchable or updatable) and the type of builder required.
+     * Get the appropriate query builder based on the context "Searchable" or "Updatable" and the type of builder.
      *
      * @param  bool  $isQueryBuilder
      * @return \\Illuminate\Database\Eloquent\Builder|Illuminate\Database\Query\Builder
@@ -163,15 +163,17 @@ trait Updatable
      */
     protected function getSearchOrUpdateQuery(bool $isQueryBuilder = false)
     {
+        // If the "getSearchableQueryBuilder" method exists, it means the request is coming
+        // from the "Searchable" context since the "Updatable" trait is used there.
         if ($isQueryBuilder) {
-            return method_exists($this, 'getSearchableQueryBuilder')
-                ? $this->getSearchableQueryBuilder()
-                : $this->getUpdatableQueryBuilder();
+            return method_exists($this, 'getSearchableQueryBuilder') ?
+                $this->getSearchableQueryBuilder() :
+                $this->getUpdatableQueryBuilder();
         }
 
-        return method_exists($this, 'getSearchableEloquentBuilder')
-            ? $this->getSearchableEloquentBuilder()
-            : $this->getUpdatableEloquentBuilder();
+        return method_exists($this, 'getSearchableEloquentBuilder') ?
+            $this->getSearchableEloquentBuilder() :
+            $this->getUpdatableEloquentBuilder();
     }
 
     /**

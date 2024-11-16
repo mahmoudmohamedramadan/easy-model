@@ -308,6 +308,7 @@ trait Searchable
     public function execute(bool $iNeedEloquentBuilderInstance = true)
     {
         return $iNeedEloquentBuilderInstance ?
-            $this->getSearchableEloquentBuilder() : $this->getSearchableQueryBuilder();
+            $this->getSearchableEloquentBuilder() :
+            $this->getSearchableQueryBuilder();
     }
 }
