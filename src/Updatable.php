@@ -29,16 +29,41 @@ trait Updatable
     }
 
     /**
+     * Get an updatable query builder.
+     *
+     * @param  string|null  $relationship
+     * @return \Illuminate\Database\Query\Builder
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
+     */
+    protected function getUpdatableQueryBuilder(string $relationship = null)
+    {
+        return $this->getUpdatableEloquentBuilder($relationship)->toBase();
+    }
+
+    /**
      * Update records in the database.
      *
      * @param  array  $values
+     * @param  array  $incrementEach
+     * @param  array  $decrementEach
      * @return $this
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
-    public function performUpdateQuery(array $values)
+    public function performUpdateQuery(array $values, array $incrementEach = [], array $decrementEach = [])
     {
-        return $this->performOnSearchOrUpdateQuery('update', $values);
+        $this->getSearchOrUpdateQuery()->update($values);
+
+        if (!empty($incrementEach)) {
+            $this->getSearchOrUpdateQuery(true)->incrementEach($incrementEach);
+        }
+
+        if (!empty($decrementEach)) {
+            $this->getSearchOrUpdateQuery(true)->decrementEach($decrementEach);
+        }
+
+        return $this;
     }
 
     /**
@@ -50,7 +75,7 @@ trait Updatable
      */
     public function performDeleteQuery()
     {
-        return $this->performOnSearchOrUpdateQuery('delete');
+        return $this->getSearchOrUpdateQuery()->delete();
     }
 
     /**
@@ -59,17 +84,33 @@ trait Updatable
      * @param  array  $attributes
      * @param  array  $values
      * @param  \Illuminate\Database\Eloquent\Model|string|null  $model
+     * @param  string|null  $relationship
+     * @param  array  $incrementEach
+     * @param  array  $decrementEach
      * @return $this
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
-    public function upsertModel(array $attributes, array $values = [], $model = null)
-    {
+    public function updateOrCreateModel(
+        array $attributes,
+        array $values = [],
+        $model = null,
+        array $incrementEach = [],
+        array $decrementEach = []
+    ) {
         if (!empty($model)) {
             $this->setUpdatableModel($model);
         }
 
         $this->updatableModel = $this->getUpdatableEloquentBuilder()->updateOrCreate($attributes, $values);
+
+        if (!empty($incrementEach)) {
+            $this->getUpdatableQueryBuilder()->incrementEach($incrementEach);
+        }
+
+        if (!empty($decrementEach)) {
+            $this->getUpdatableQueryBuilder()->decrementEach($decrementEach);
+        }
 
         return $this;
     }
@@ -80,37 +121,57 @@ trait Updatable
      * @param  string  $relationship
      * @param  array  $attributes
      * @param  array  $values
+     * @param  \Illuminate\Database\Eloquent\Model|string|null  $model
+     * @param  array  $incrementEach
+     * @param  array  $decrementEach
      * @return $this
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
-    public function upsertRelationship(string $relationship, array $attributes, array $values = [])
-    {
+    public function updateOrCreateRelationship(
+        string $relationship,
+        array $attributes,
+        array $values = [],
+        $model = null,
+        array $incrementEach = [],
+        array $decrementEach = []
+    ) {
+        if (!empty($model)) {
+            $this->setUpdatableModel($model);
+        }
+
         $this->getUpdatableEloquentBuilder($relationship)->updateOrCreate($attributes, $values);
+
+        if (!empty($incrementEach)) {
+            $this->getUpdatableQueryBuilder($relationship)->incrementEach($incrementEach);
+        }
+
+        if (!empty($decrementEach)) {
+            $this->getUpdatableQueryBuilder($relationship)->decrementEach($decrementEach);
+        }
 
         return $this;
     }
 
     /**
-     * Perform the given action method on the "Search" or "Update" query.
+     * Get the appropriate query builder based on the context (searchable or updatable) and the type of builder required.
      *
-     * @param  string  $method
-     * @param  mixed|null  $paramters
-     * @return $this
+     * @param  bool  $isQueryBuilder
+     * @return \\Illuminate\Database\Eloquent\Builder|Illuminate\Database\Query\Builder
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
-    protected function performOnSearchOrUpdateQuery(string $method, mixed $parameters = null)
+    protected function getSearchOrUpdateQuery(bool $isQueryBuilder = false)
     {
-        if (method_exists($this, 'getSearchableEloquentBuilder')) {
-            $this->getSearchableEloquentBuilder()->{$method}($parameters);
-
-            return $this;
+        if ($isQueryBuilder) {
+            return method_exists($this, 'getSearchableQueryBuilder')
+                ? $this->getSearchableQueryBuilder()
+                : $this->getUpdatableQueryBuilder();
         }
 
-        $this->getUpdatableEloquentBuilder()->{$method}($parameters);
-
-        return $this;
+        return method_exists($this, 'getSearchableEloquentBuilder')
+            ? $this->getSearchableEloquentBuilder()
+            : $this->getUpdatableEloquentBuilder();
     }
 
     /**
@@ -120,6 +181,6 @@ trait Updatable
      */
     public function fetch()
     {
-        return $this->getUpdatableModel();
+        return $this->getUpdatableModel()->refresh();
     }
 }
