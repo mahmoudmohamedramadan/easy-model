@@ -25,7 +25,7 @@ trait Orderable
      */
     public function addOrderBy(array $orders, Builder $query = null)
     {
-        $queryBuilder = $this->getQueryBuilder($query);
+        $queryBuilder = $this->getSearchableQueryBuilder($query);
         foreach ($orders as $order) {
             if (!is_string($order) && !is_array($order)) {
                 throw new InvalidArrayStructure("The `orderBy` array must be well defined.");

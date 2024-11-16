@@ -275,7 +275,7 @@ trait Searchable
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
-    protected function getQueryBuilder(EloquentBuilder $givenQuery = null)
+    protected function getSearchableQueryBuilder(EloquentBuilder $givenQuery = null)
     {
         $this->setQuery($givenQuery);
 
@@ -307,6 +307,7 @@ trait Searchable
      */
     public function execute(bool $iNeedEloquentBuilderInstance = true)
     {
-        return $iNeedEloquentBuilderInstance ? $this->getSearchableEloquentBuilder() : $this->getQueryBuilder();
+        return $iNeedEloquentBuilderInstance ?
+            $this->getSearchableEloquentBuilder() : $this->getSearchableQueryBuilder();
     }
 }

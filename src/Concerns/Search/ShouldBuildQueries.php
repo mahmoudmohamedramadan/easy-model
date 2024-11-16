@@ -33,7 +33,7 @@ trait ShouldBuildQueries
      */
     public function buildQueryUsingWheres($wheres, $method = 'where')
     {
-        $queryBuilder = $this->getQueryBuilder();
+        $queryBuilder = $this->getSearchableQueryBuilder();
         foreach ($wheres as $where) {
             $this->{(match (gettype($where)) {
                 'object' => 'prepareClosuresForWheres',
