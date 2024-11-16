@@ -279,7 +279,7 @@ trait Searchable
     {
         $this->setQuery($givenQuery);
 
-        return !empty($this->queryBuilder) ? $this->queryBuilder : $this->getSearchableEloquentBuilder()->getQuery();
+        return !empty($this->queryBuilder) ? $this->queryBuilder : $this->getSearchableEloquentBuilder()->toBase();
     }
 
     /**
