@@ -60,29 +60,6 @@ trait HasModel
     }
 
     /**
-     * Resolve and return the model or relationship based on the given parameters.
-     *
-     * @param  string|null  $givenRelationship
-     * @param  \Illuminate\Database\Eloquent\Model|null  $givenModel
-     * @return \Illuminate\Database\Eloquent\Model
-     */
-    public function resolveModelOrRelation($givenRelationship = null, $givenModel = null)
-    {
-        if (!empty($this->modelOrRelation)) {
-            return $this->modelOrRelation;
-        }
-
-        if (!empty($givenRelationship) && !empty($givenModel)) {
-            return $givenModel->{$givenRelationship}()->getRelated();
-        }
-
-        $relationship = $this->getRelationship();
-        $model        = $this->getSearchableModel();
-
-        return empty($relationship) ? $model : $model->{$relationship}()->getRelated();
-    }
-
-    /**
      * Set the searchable model then chain the query.
      *
      * @param  \Illuminate\Database\Eloquent\Model|string  $model
@@ -90,7 +67,7 @@ trait HasModel
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
-    public function setSearchableChainableModel($model)
+    public function setChainableModel($model)
     {
         $this->setSearchableModel($model);
 
@@ -169,5 +146,28 @@ trait HasModel
         }
 
         return $this;
+    }
+
+    /**
+     * Resolve and return the model or relationship based on the given parameters.
+     *
+     * @param  string|null  $givenRelationship
+     * @param  \Illuminate\Database\Eloquent\Model|null  $givenModel
+     * @return \Illuminate\Database\Eloquent\Model
+     */
+    public function resolveModelOrRelation($givenRelationship = null, $givenModel = null)
+    {
+        if (!empty($this->modelOrRelation)) {
+            return $this->modelOrRelation;
+        }
+
+        if (!empty($givenRelationship) && !empty($givenModel)) {
+            return $givenModel->{$givenRelationship}()->getRelated();
+        }
+
+        $relationship = $this->getRelationship();
+        $model        = $this->getSearchableModel();
+
+        return empty($relationship) ? $model : $model->{$relationship}()->getRelated();
     }
 }
