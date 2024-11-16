@@ -158,7 +158,7 @@ trait Updatable
      *
      * @param  string|null  $relationship
      * @param  bool  $isQueryBuilder
-     * @return \\Illuminate\Database\Eloquent\Builder|Illuminate\Database\Query\Builder
+     * @return \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
