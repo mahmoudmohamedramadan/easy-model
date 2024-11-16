@@ -15,7 +15,7 @@ trait HasModel
     protected $updatableModel;
 
     /**
-     * Set the updatable model without chaining the query.
+     * Set the updatable model.
      *
      * @param  \Illuminate\Database\Eloquent\Model|string  $model
      * @return void
@@ -41,10 +41,6 @@ trait HasModel
      */
     public function getUpdatableModel()
     {
-        if (is_string($this->updatableModel)) {
-            return new $this->updatableModel;
-        }
-
-        return $this->updatableModel;
+        return is_string($this->updatableModel) ? new $this->updatableModel : $this->updatableModel;
     }
 }
