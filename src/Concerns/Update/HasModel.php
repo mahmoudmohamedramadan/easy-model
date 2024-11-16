@@ -39,7 +39,7 @@ trait HasModel
      *
      * @return \Illuminate\Database\Eloquent\Model
      */
-    public function getUpdatableModel()
+    protected function getUpdatableModel()
     {
         return is_string($this->updatableModel) ? new $this->updatableModel : $this->updatableModel;
     }
