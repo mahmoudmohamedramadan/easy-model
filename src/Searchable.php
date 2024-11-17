@@ -249,7 +249,7 @@ trait Searchable
         // There is no ability to search when providing a relationship
         // and the model is anonymous (e.g., User::class, new User).
         if (!empty($relationship) && !$model->exists) {
-            throw new InvalidModel('Cannot search in a relationship with anonymous model.');
+            throw new InvalidModel("Cannot search in a relationship with anonymous model.");
         }
 
         if (empty($this->eloquentBuilder) && !empty($this->queryBuilder)) {

@@ -41,7 +41,7 @@ trait HasModel
     {
         if (!is_string($model) && !is_a($model, Model::class, true)) {
             throw new InvalidModel(sprintf(
-                'The model must be string or instance of \Illuminate\Database\Eloquent\Model. Given [%s].',
+                "The model must be string or instance of \Illuminate\Database\Eloquent\Model. Given [%s].",
                 gettype($model)
             ));
         }
@@ -75,7 +75,7 @@ trait HasModel
     }
 
     /**
-     * Set the searchable model relationship.
+     * Set the searchable relationship.
      *
      * @param  string  $relationship
      * @return $this
@@ -88,7 +88,7 @@ trait HasModel
     }
 
     /**
-     * Get the current searchable model relationship.
+     * Get the current searchable relationship.
      *
      * @return string
      */
@@ -106,9 +106,9 @@ trait HasModel
      */
     protected function resolveModel()
     {
-        // We will check if the model has been set using the "setModel" or "setChainableModel"
-        // method as a manual setting is more of a priority otherwise it means the developer
-        // uses the "Searchable" trait in the model itself.
+        // We will check if the model has been set using the "setSearchableModel" or "setChainableModel"
+        // method as a manual setting is more of a priority otherwise it means the developer uses
+        // the "Searchable" trait in the model itself.
         if (!empty($this->getSearchableModel())) {
             return;
         }
@@ -118,7 +118,7 @@ trait HasModel
             return;
         }
 
-        throw new InvalidModel('Cannot resolve the searchable model.');
+        throw new InvalidModel("Cannot resolve the searchable model.");
     }
 
     /**
@@ -165,8 +165,8 @@ trait HasModel
             return $givenModel->{$givenRelationship}()->getRelated();
         }
 
-        $relationship = $this->getRelationship();
         $model        = $this->getSearchableModel();
+        $relationship = $this->getRelationship();
 
         return empty($relationship) ? $model : $model->{$relationship}()->getRelated();
     }

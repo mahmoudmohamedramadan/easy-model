@@ -141,7 +141,7 @@ trait Orderable
 
             if (empty($currentTableName) || empty($relatedTableName)) {
                 throw new InvalidOrderableRelationship(
-                    sprintf('The orderable relationship [%s] is unsupported.', get_class($currentRelationship))
+                    sprintf("The orderable relationship [%s] is unsupported.", get_class($currentRelationship))
                 );
             }
 

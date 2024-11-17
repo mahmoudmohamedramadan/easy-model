@@ -20,7 +20,7 @@ trait Updatable
     protected function getUpdatableEloquentBuilder(string $relationship = null)
     {
         if (empty($this->getUpdatableModel())) {
-            throw new InvalidModel('You must set the updatable model first.');
+            throw new InvalidModel("You must set the updatable model first.");
         }
 
         return empty($relationship) ?

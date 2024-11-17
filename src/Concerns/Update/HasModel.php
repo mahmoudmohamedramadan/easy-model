@@ -26,7 +26,7 @@ trait HasModel
     {
         if (!is_string($model) && !is_a($model, Model::class, true)) {
             throw new InvalidModel(sprintf(
-                'The model must be string or instance of \Illuminate\Database\Eloquent\Model. Given [%s].',
+                "The model must be string or instance of \Illuminate\Database\Eloquent\Model. Given [%s].",
                 gettype($model)
             ));
         }
