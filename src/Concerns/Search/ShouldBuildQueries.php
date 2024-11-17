@@ -92,7 +92,7 @@ trait ShouldBuildQueries
     {
         foreach ($wheres as $relation => $closure) {
             if (!is_string($closure) && !is_callable($closure)) {
-                throw new InvalidArrayStructure("The `{$method}` array must be well defined.");
+                throw new InvalidArrayStructure(sprintf("The [%s] method must be well defined.", __METHOD__));
             }
 
             $paramters = $this->prepareParamtersForWhereHasAndDoesntHave(
@@ -126,7 +126,7 @@ trait ShouldBuildQueries
     {
         foreach ($wheres as $relation => $closure) {
             if ((!is_string($relation) && !is_callable($closure)) && !is_array($closure)) {
-                throw new InvalidArrayStructure("The `{$method}` array must be well defined.");
+                throw new InvalidArrayStructure(sprintf("The [%s] method must be well defined.", __METHOD__));
             }
 
             $paramters = $this->prepareParamtersForWhereRelation($relation, $closure);
@@ -260,7 +260,7 @@ trait ShouldBuildQueries
         $value    = count($closure) === 4 ? $closure[3] : $closure[2];
 
         if (!in_array(strtolower($operator), $this->allowedOperators, true)) {
-            throw new InvalidArrayStructure("The `{$operator}` is not a valid operator.");
+            throw new InvalidArrayStructure(sprintf("The [%s] is not a valid operator.", $operator));
         }
 
         return [

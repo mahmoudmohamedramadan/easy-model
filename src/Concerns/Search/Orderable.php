@@ -28,7 +28,7 @@ trait Orderable
         $queryBuilder = $this->getSearchableQueryBuilder($query);
         foreach ($orders as $order) {
             if (!is_string($order) && !is_array($order)) {
-                throw new InvalidArrayStructure("The `orderBy` array must be well defined.");
+                throw new InvalidArrayStructure(sprintf("The [%s] method must be well defined.", __METHOD__));
             }
 
             $paramters = $this->prepareParamtersForOrderBy($order, $queryBuilder);
@@ -82,7 +82,7 @@ trait Orderable
         }
 
         if (in_array(strtolower($column), ['asc', 'desc'], true)) {
-            throw new InvalidArrayStructure('Provide correct orderable column.');
+            throw new InvalidArrayStructure("Provide correct orderable column.");
         }
 
         if (count($parts) > 1) {
