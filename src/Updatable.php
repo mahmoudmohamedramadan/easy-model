@@ -38,7 +38,7 @@ trait Updatable
      */
     protected function getUpdatableQueryBuilder(string $relationship = null)
     {
-        return $this->getUpdatableEloquentBuilder($relationship)->toBase();
+        return $this->getUpdatableEloquentBuilder($relationship)->getQuery();
     }
 
     /**
