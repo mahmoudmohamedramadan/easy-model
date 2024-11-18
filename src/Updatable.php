@@ -56,11 +56,11 @@ trait Updatable
         $affectedRecords = $this->getSearchOrUpdateQuery()->update($values);
 
         if (!empty($incrementEach)) {
-            $this->getSearchOrUpdateQuery(true)->incrementEach($incrementEach);
+            $this->getSearchOrUpdateQuery(isQueryBuilder: true)->incrementEach($incrementEach);
         }
 
         if (!empty($decrementEach)) {
-            $this->getSearchOrUpdateQuery(true)->decrementEach($decrementEach);
+            $this->getSearchOrUpdateQuery(isQueryBuilder: true)->decrementEach($decrementEach);
         }
 
         return $affectedRecords;
