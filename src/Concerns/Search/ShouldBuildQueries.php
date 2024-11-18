@@ -1,6 +1,6 @@
 <?php
 
-namespace Ramadan\EasyModel\Concerns;
+namespace Ramadan\EasyModel\Concerns\Search;
 
 use Ramadan\EasyModel\Exceptions\InvalidArrayStructure;
 use Illuminate\Contracts\Database\Query\Expression as ExpressionContract;
@@ -29,11 +29,11 @@ trait ShouldBuildQueries
      * @param  string  $method
      * @return $this
      *
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
     public function buildQueryUsingWheres($wheres, $method = 'where')
     {
-        $queryBuilder = $this->getQueryBuilder();
+        $queryBuilder = $this->getSearchableQueryBuilder();
         foreach ($wheres as $where) {
             $this->{(match (gettype($where)) {
                 'object' => 'prepareClosuresForWheres',
@@ -55,7 +55,7 @@ trait ShouldBuildQueries
      * @return $this
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
     protected function buildQueryUsingRelationConditions(
         $has = [],
@@ -86,13 +86,13 @@ trait ShouldBuildQueries
      * @return $this
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
     protected function buildQueryUsingWhereHasAndDoesntHave($wheres, $method = 'whereHas')
     {
         foreach ($wheres as $relation => $closure) {
             if (!is_string($closure) && !is_callable($closure)) {
-                throw new InvalidArrayStructure("The `{$method}` array must be well defined.");
+                throw new InvalidArrayStructure(sprintf("The [%s] method must be well defined.", __METHOD__));
             }
 
             $paramters = $this->prepareParamtersForWhereHasAndDoesntHave(
@@ -120,13 +120,13 @@ trait ShouldBuildQueries
      * @return $this
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
     protected function buildQueryUsingWhereRelation($wheres, $method = 'whereRelation')
     {
         foreach ($wheres as $relation => $closure) {
             if ((!is_string($relation) && !is_callable($closure)) && !is_array($closure)) {
-                throw new InvalidArrayStructure("The `{$method}` array must be well defined.");
+                throw new InvalidArrayStructure(sprintf("The [%s] method must be well defined.", __METHOD__));
             }
 
             $paramters = $this->prepareParamtersForWhereRelation($relation, $closure);
@@ -157,12 +157,12 @@ trait ShouldBuildQueries
      * @param  \Closure|null  $closure
      * @return \Illuminate\Database\Query\Builder
      *
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
     protected function buildQueryUsingHas($relation, $operator = '>=', $count = 1, $boolean = 'and', $closure = null)
     {
         return $this
-            ->getEloquentBuilder()
+            ->getSearchableEloquentBuilder()
             ->has(...func_get_args())
             ->getQuery();
     }
@@ -200,7 +200,7 @@ trait ShouldBuildQueries
         $value    = count($where) === 3 ? $where[2] : $where[1];
         $boolean  = $method === 'where' ? 'and' : 'or';
 
-        if (! $value instanceof ExpressionContract) {
+        if (!($value instanceof ExpressionContract)) {
             $queryBuilder->addBinding(is_array($value) ? reset(Arr::flatten($value)) : $value, 'where');
         }
 
@@ -260,7 +260,7 @@ trait ShouldBuildQueries
         $value    = count($closure) === 4 ? $closure[3] : $closure[2];
 
         if (!in_array(strtolower($operator), $this->allowedOperators, true)) {
-            throw new InvalidArrayStructure("The `{$operator}` is not a valid operator.");
+            throw new InvalidArrayStructure(sprintf("The [%s] is not a valid operator.", $operator));
         }
 
         return [

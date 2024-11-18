@@ -4,7 +4,7 @@ namespace Ramadan\EasyModel\Exceptions;
 
 use Exception;
 
-class InvalidSearchableModel extends Exception
+class InvalidModel extends Exception
 {
     /**
      * Create a new exception instance.

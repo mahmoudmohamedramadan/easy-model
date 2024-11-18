@@ -1,6 +1,6 @@
 <?php
 
-namespace Ramadan\EasyModel\Concerns;
+namespace Ramadan\EasyModel\Concerns\Search;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -19,16 +19,16 @@ trait Orderable
      * @param  \Illuminate\Database\Eloquent\Builder|null  $query
      * @return $this
      *
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidSearchableModel
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      * @throws \Ramadan\EasyModel\Exceptions\InvalidOrderableRelationship
      */
     public function addOrderBy(array $orders, Builder $query = null)
     {
-        $queryBuilder = $this->getQueryBuilder($query);
+        $queryBuilder = $this->getSearchableQueryBuilder($query);
         foreach ($orders as $order) {
             if (!is_string($order) && !is_array($order)) {
-                throw new InvalidArrayStructure("The `orderBy` array must be well defined.");
+                throw new InvalidArrayStructure(sprintf("The [%s] method must be well defined.", __METHOD__));
             }
 
             $paramters = $this->prepareParamtersForOrderBy($order, $queryBuilder);
@@ -82,7 +82,7 @@ trait Orderable
         }
 
         if (in_array(strtolower($column), ['asc', 'desc'], true)) {
-            throw new InvalidArrayStructure('Provide correct orderable column.');
+            throw new InvalidArrayStructure("Provide correct orderable column.");
         }
 
         if (count($parts) > 1) {
@@ -141,7 +141,7 @@ trait Orderable
 
             if (empty($currentTableName) || empty($relatedTableName)) {
                 throw new InvalidOrderableRelationship(
-                    sprintf('The orderable relationship [%s] is unsupported.', get_class($currentRelationship))
+                    sprintf("The orderable relationship [%s] is unsupported.", get_class($currentRelationship))
                 );
             }
 
