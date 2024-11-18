@@ -154,7 +154,7 @@ trait Updatable
     }
 
     /**
-     * Get the appropriate query builder based on the context "Searchable" or "Updatable" and the type of builder.
+     * Get an appropriate builder based on the context ("Searchable" or "Updatable").
      *
      * @param  string|null  $relationship
      * @param  bool  $isQueryBuilder
@@ -182,7 +182,7 @@ trait Updatable
     }
 
     /**
-     * Retrieve the result of the query.
+     * Fetch the model after it was updated.
      *
      * @return \Illuminate\Database\Eloquent\Model
      */
