@@ -10,6 +10,13 @@ trait Updatable
     use UpdatableModel;
 
     /**
+     * The changes that have been made.
+     *
+     * @var \Illuminate\Database\Eloquent\Model
+     */
+    protected $appliedChanges;
+
+    /**
      * Get an updatable eloquent query builder.
      *
      * @param  string|null  $relationship
@@ -102,7 +109,7 @@ trait Updatable
             $this->setUpdatableModel($model);
         }
 
-        $this->updatableModel = $this->getSearchOrUpdateQuery()->updateOrCreate($attributes, $values);
+        $this->appliedChanges = $this->getSearchOrUpdateQuery()->updateOrCreate($attributes, $values);
 
         if (!empty($incrementEach)) {
             $this->getSearchOrUpdateQuery(isQueryBuilder: true)->incrementEach($incrementEach);
@@ -140,7 +147,7 @@ trait Updatable
             $this->setUpdatableModel($model);
         }
 
-        $this->getSearchOrUpdateQuery($relationship)->updateOrCreate($attributes, $values);
+        $this->appliedChanges = $this->getSearchOrUpdateQuery($relationship)->updateOrCreate($attributes, $values);
 
         if (!empty($incrementEach)) {
             $this->getSearchOrUpdateQuery($relationship, true)->incrementEach($incrementEach);
@@ -182,12 +189,12 @@ trait Updatable
     }
 
     /**
-     * Fetch the model after it was updated.
+     * Fetch the changes result that have been applied to the model.
      *
      * @return \Illuminate\Database\Eloquent\Model
      */
     public function fetch()
     {
-        return $this->getUpdatableModel()->refresh();
+        return $this->appliedChanges->refresh();
     }
 }
