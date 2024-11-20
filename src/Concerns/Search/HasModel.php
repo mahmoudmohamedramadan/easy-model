@@ -5,6 +5,7 @@ namespace Ramadan\EasyModel\Concerns\Search;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
 use Ramadan\EasyModel\Exceptions\InvalidModel;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 trait HasModel
 {
@@ -149,7 +150,7 @@ trait HasModel
     }
 
     /**
-     * Ignore the global scopes or specific passed scopes for the current query..
+     * Ignore the global scopes or specific passed scopes for the current query.
      *
      * @param  array|null  $scopes
      * @return $this
@@ -157,6 +158,18 @@ trait HasModel
     public function ignoreGlobalScopes(?array $scopes = null)
     {
         $this->getSearchableEloquentBuilder()->withoutGlobalScopes($scopes);
+
+        return $this;
+    }
+    
+    /**
+     * Include soft-deleted records in the query results.
+     *
+     * @return $this
+     */
+    public function includeSoftDeleted()
+    {
+         $this->getSearchableEloquentBuilder()->withoutGlobalScope(SoftDeletingScope::class);
 
         return $this;
     }
