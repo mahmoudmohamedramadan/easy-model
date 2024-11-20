@@ -152,10 +152,10 @@ trait HasModel
     /**
      * Ignore the global scopes or specific passed scopes for the current query.
      *
-     * @param  array|null  $scopes
+     * @param  array  $scopes
      * @return $this
      */
-    public function ignoreGlobalScopes(?array $scopes = null)
+    public function ignoreGlobalScopes(array $scopes = [])
     {
         $this->getSearchableEloquentBuilder()->withoutGlobalScopes($scopes);
 
