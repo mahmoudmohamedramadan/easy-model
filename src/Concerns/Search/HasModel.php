@@ -149,6 +149,19 @@ trait HasModel
     }
 
     /**
+     * Ignore the global scopes or specific passed scopes for the current query..
+     *
+     * @param  array|null  $scopes
+     * @return $this
+     */
+    public function ignoreGlobalScopes(?array $scopes = null)
+    {
+        $this->getSearchableEloquentBuilder()->withoutGlobalScopes($scopes);
+
+        return $this;
+    }
+
+    /**
      * Resolve and return the model or relationship based on the given parameters.
      *
      * @param  string|null  $givenRelationship
