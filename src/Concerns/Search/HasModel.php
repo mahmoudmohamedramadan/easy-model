@@ -152,16 +152,16 @@ trait HasModel
     /**
      * Ignore the global scopes or specific passed scopes for the current query.
      *
-     * @param  array  $scopes
+     * @param  array|null  $scopes
      * @return $this
      */
-    public function ignoreGlobalScopes(array $scopes = [])
+    public function ignoreGlobalScopes(?array $scopes = null)
     {
         $this->getSearchableEloquentBuilder()->withoutGlobalScopes($scopes);
 
         return $this;
     }
-    
+
     /**
      * Include soft-deleted records in the query results.
      *
@@ -169,7 +169,7 @@ trait HasModel
      */
     public function includeSoftDeleted()
     {
-         $this->getSearchableEloquentBuilder()->withoutGlobalScope(SoftDeletingScope::class);
+        $this->getSearchableEloquentBuilder()->withoutGlobalScope(SoftDeletingScope::class);
 
         return $this;
     }
