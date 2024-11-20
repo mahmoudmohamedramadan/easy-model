@@ -52,7 +52,7 @@ public function index()
 ```
 
 > [!IMPORTANT]
-> You must provide an array of arrays or closures to these methods since the first element of array refers to the `column` and the second to the `operator` (default value is `=` in case you do not provide this element), and the third to the `value` in the array structure.
+> You must provide an array of arrays or closures to these methods since the first element of the array refers to the `column` and the second to the `operator` (default value is `=` in case you do not provide this element), and the third to the `value` in the array structure.
 
 Also, you can search in the model relationships using the `addWhereHas`, and `addWhereDoesntHave` methods:
 
