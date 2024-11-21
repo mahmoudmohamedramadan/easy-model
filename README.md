@@ -38,15 +38,15 @@ composer require ramadan/easy-model
 ## Usage
 
 > [!WARNING]
-> Do not use both traits together, as doing so may lead to unexpected issues.
+> Do not use both traits together, as doing so may lead to unexpected output. However, if you do, the most priority will be given to the **Searchable** trait.
 
 ### Search Features
 
-Check out [SEARCH.md](SEARCH.md) for comprehensive examples and in-depth usage guidelines.
+Check out [search.md](SEARCH.md) for comprehensive examples and in-depth usage guidelines.
 
 ### Update Features
 
-Check out [UPDATE.md](UPDATE.md) for comprehensive examples and in-depth usage guidelines.
+Check out [update.md](UPDATE.md) for comprehensive examples and in-depth usage guidelines.
 
 ## Credits
 
