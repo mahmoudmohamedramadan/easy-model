@@ -127,6 +127,8 @@ trait HasModel
      *
      * @param  array  $scopes
      * @return $this
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
     public function usingScopes(array $scopes)
     {
@@ -154,6 +156,8 @@ trait HasModel
      *
      * @param  array|null  $scopes
      * @return $this
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
     public function ignoreGlobalScopes(?array $scopes = null)
     {
@@ -166,6 +170,8 @@ trait HasModel
      * Include soft-deleted records in the query results.
      *
      * @return $this
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
     public function includeSoftDeleted()
     {
