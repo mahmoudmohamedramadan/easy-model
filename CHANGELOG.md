@@ -1,16 +1,25 @@
 # Release Notes for 1.x
 
-## [Unreleased](https://github.com/mahmoudmohamedramadan/easy-model/compare/v1.1.0...1.x)
+## [Unreleased](https://github.com/mahmoudmohamedramadan/easy-model/compare/v1.1.1...1.x)
+
+## [v1.1.1](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.1.1)
+
+- [1.x] Adds the `Updatable` trait.
+- [1.x] Adds the `ignoreGlobalScopes` method.
+- [1.x] Adds the `includeSoftDeleted` method.
+- [1.x] Renames the `setModel` method to `setSearchableModel`.
+- [1.x] Refactors the code.
+- [1.x] Improves the code's readability.
 
 ## [v1.1.0](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.1.0)
 
 - [1.x] Refactors the code.
-- [1.x] Fixes the issue of providing columns and values only to `addWheres` and `addOrWheres`.
+- [1.x] Fixes the issue of providing columns and values only to `addWheres` and `addOrWheres` methods.
 
 ## [v1.0.9](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.9)
 
 - [1.x] Fixes the issue of ordering the result by the same model and its relationship column.
-- [1.x] Adds the ability to pass closures to the `addWheres` and `addOrWheres`.
+- [1.x] Adds the ability to pass closures to the `addWheres` and `addOrWheres` methods.
 
 ## [v1.0.8](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.8)
 
@@ -24,7 +33,7 @@
 
 - [1.x] Fixes the issue of searching in the relationship with an anonymous model.
 - [1.x] Fixes the issue of searching within the model itself.
-- [1.x] Renames the `addAllWheres` and `addOrAllWheres` to `addRelationConditions` and `addOrRelationConditions`.
+- [1.x] Renames the `addAllWheres` and `addOrAllWheres` methods to `addRelationConditions` and `addOrRelationConditions`.
 - [1.x] Improves the code's readability.
 - [1.x] Updates the `order by` query by replacing the foreign with the primary key.
 
@@ -62,7 +71,7 @@
 ## [v1.0.1](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.1)
 
 - [1.x] Speeds up the query time using the `Query Builder` instead of `Eloquent Builder`.
-- [1.x] Adds the ability to order the results using `addOrderBy`.
+- [1.x] Adds the ability to order the results using the `addOrderBy` method.
 - [1.x] Renames the methods to be more descriptive.
 
 ## [v1.0.0](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.0)
@@ -72,12 +81,11 @@
 ## [v1.0.0 (alpha.3)](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.0-alpha.3)
 
 - [1.x] Renames the method that adds all relationships checking to `addAllWheres` and `addAllOrWheres`.
-- [1.x] Adds the ability to search the model using `addWheres` and `addOrWheres`.
-- [1.x] Adds the ability to search the model relationships using `addWheres` and `addOrWheres`.
+- [1.x] Adds the ability to search the models and their relationships using `addWheres` and `addOrWheres` methods.
 
 ## [v1.0.0 (alpha.2)](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.0-alpha.2)
 
-- [1.x] Adds the ability to search in the model relationships using `addWhereRelation` and `addOrWhereRelation`.
+- [1.x] Adds the ability to search within model relationships using `addWhereRelation` and `addOrWhereRelation` methods.
 
 ## [v1.0.0 (alpha.1)](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.0-alpha.1)
 
