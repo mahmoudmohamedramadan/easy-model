@@ -19,7 +19,7 @@
 ## [v1.0.9](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.9)
 
 - [1.x] Fixes the issue of ordering the result by the same model and its relationship column.
-- [1.x] Adds the ability to pass closures to the `addWheres` and `addOrWheres` methods.
+- [1.x] Adds the ability to pass closures to `addWheres` and `addOrWheres` methods.
 
 ## [v1.0.8](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.8)
 
@@ -40,8 +40,8 @@
 ## [v1.0.6](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.6)
 
 - [1.x] Optimizes the query time.
-- [1.x] Adds the `ext-pdo` to the `require` key.
-- [1.x] Adds the `laravel/framework` to the `require` key.
+- [1.x] Adds the `ext-pdo` to `require` key.
+- [1.x] Adds the `laravel/framework` to `require` key.
 - [1.x] Removes the `illuminate/database` from the `require` key.
 - [1.x] Removes the `illuminate/contracts` from the `require` key.
 - [1.x] Removes the `illuminate/pagination` from the `require` key.
@@ -70,7 +70,7 @@
 
 ## [v1.0.1](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.1)
 
-- [1.x] Speeds up the query time using the `Query Builder` instead of `Eloquent Builder`.
+- [1.x] Speeds up the query time using `Query Builder` instead of `Eloquent Builder`.
 - [1.x] Adds the ability to order the results using the `addOrderBy` method.
 - [1.x] Renames the methods to be more descriptive.
 
@@ -81,7 +81,7 @@
 ## [v1.0.0 (alpha.3)](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.0-alpha.3)
 
 - [1.x] Renames the method that adds all relationships checking to `addAllWheres` and `addAllOrWheres`.
-- [1.x] Adds the ability to search the models and their relationships using `addWheres` and `addOrWheres` methods.
+- [1.x] Adds the ability to search within the models and their relationships using `addWheres` and `addOrWheres` methods.
 
 ## [v1.0.0 (alpha.2)](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.0-alpha.2)
 
