@@ -27,13 +27,13 @@
   - Provides a unified, consistent syntax for `Query Builder` and `Eloquent Builder`.
 
 - **Resolved Ambiguous Exception:**
-  - Fixes the ambiguous exception that can occur when using the same column in both models and their relationships during ordering.
+  - Fixes the ambiguous exception that arises when using the same column in both models and their relationships during ordering.
 
 - **Simplified Relationship Ordering:**
-  - Easily order results by model relationships (`HasOne`, `HasMany`, `BelongsTo`, `BelongsToMany`) without using manual joins ([fig. 3.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-vs-laravel-03.png)).
+  - Easily order results by model relationships (`HasOne`, `HasMany`, `BelongsTo`, `BelongsToMany`) without referring to manual joins ([fig. 3.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-vs-laravel-03.png)).
 
-- **Efficient Batch Updates:**
-  - Streamline multiple updates with a single, concise method; for more details, refer to [update.md](UPDATE.md).
+- **Streamline Batch Updates:**
+  - Effortlessly perform multiple updates using concise methods. For detailed information, consult [update.md](UPDATE.md).
 
 > The package was considerably FASTER than the Laravel query when tested on over **1k records** ([fig. 2.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-vs-laravel-02.png)). 🥵
 
