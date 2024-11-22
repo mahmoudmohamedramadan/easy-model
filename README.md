@@ -20,12 +20,22 @@
 
  What makes this package featured?
 
-- Improves the **query time** more than any package, even **Laravel** itself ([fig. 1.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-vs-laravel-01.png)).
-- Gives you a `Query Builder` and `Eloquent Builder` instances via **ONLY one syntax**.
-- Fixes the **Ambiguous Exception** thrown by Laravel when the same column is used from the model and its relationship in the "order" query.
-- IMO, The most wonderful feature is that it enables you to order the result by the model relationships (`HasOne`, `HasMany`, `BelongsTo`, and `BelongsToMany`) and keeps you away from performing the "join" manually ([fig. 3.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-vs-laravel-03.png)).
+- **Accelerated Query Performance:**
+  - Significantly  improved query performance compared to native Laravel ([fig. 1.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-vs-laravel-01.png)).
 
-> The package was significantly FASTER than the Laravel query when tested on over **1k records** ([fig. 2.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-vs-laravel-02.png)). 🥵
+- **Straightforward and Unified Syntax:**
+  - Provides a unified, consistent syntax for `Query Builder` and `Eloquent Builder`.
+
+- **Resolved Ambiguous Exception:**
+  - Fixes the ambiguous exception that can occur when using the same column in both models and their relationships during ordering.
+
+- **Simplified Relationship Ordering:**
+  - Easily order results by model relationships (`HasOne`, `HasMany`, `BelongsTo`, `BelongsToMany`) without using manual joins ([fig. 3.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-vs-laravel-03.png)).
+
+- **Efficient Batch Updates:**
+  - Streamline multiple updates with a single, concise method; for more details, refer to [update.md](UPDATE.md).
+
+> The package was considerably FASTER than the Laravel query when tested on over **1k records** ([fig. 2.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-vs-laravel-02.png)). 🥵
 
 ## Installation
 
