@@ -8,8 +8,8 @@
   - [Soft Deletes](#soft-deletes)
   - [Update Operations](#update-operations)
 - [Other Contexts](#other-contexts)
-  - [Models](#models)
   - [Chainable Methods](#chainable-methods)
+  - [Models](#models)
 
 ## Controllers / Services Context
 
@@ -300,7 +300,7 @@ public function destroy()
 
 ### Chainable Methods
 
-On the other hand, if you do not like to specify the Model over the whole **Controller / Service** you can do so in each method separately using the `setChainableModel` method:
+On the other hand, if you do not like to specify the model over the whole **Controller / Service** you can do so in each method separately using the `setChainableModel` method:
 
 ```PHP
 /**
