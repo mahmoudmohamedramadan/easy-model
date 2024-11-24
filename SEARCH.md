@@ -1,11 +1,17 @@
 # Search Features
 
-- [Controllers / Services](#controllers--services)
-- [Chainable Methods](#chainable-methods)
-- [Models](#models)
-- [Advanced Options](#advanced-options)
+- [Controllers / Services Context](#controllers--services-context)
+  - [Where Clauses](#where-clauses)
+  - [Relations](#relations)
+  - [Orders Clauses](#orders-clauses)
+  - [Scopes](#scopes)
+  - [Soft Deletes](#soft-deletes)
+  - [Update Operations](#update-operations)
+- [Other Contexts](#other-contexts)
+  - [Models](#models)
+  - [Chainable Methods](#chainable-methods)
 
-## Controllers / Services
+## Controllers / Services Context
 
 In the beginning, you can specify the **Searchable Model** in the `constructor` method:
 
@@ -29,6 +35,8 @@ class UserController extends Controller
     }
 }
 ```
+
+### Where Clauses
 
 After that, you can search in the model using the `addWheres`, and `addOrWheres` methods:
 
@@ -123,51 +131,7 @@ public function index()
 }
 ```
 
-## Chainable Methods
-
-On the other hand, if you do not like to specify the Model over the whole **Controller / Service** you can do so in each method separately using the `setChainableModel` method:
-
-```PHP
-/**
- * Display a listing of the resource.
- */
-public function index()
-{
-    return $this
-        ->setChainableModel(User::class)
-        ->addWhereRelation([
-            ['posts', 'title', 'Easy Model']
-        ])
-        ->execute()
-        ->get();
-}
-```
-
-## Models
-
-At last, you have control over these methods in the Model itself which enables you to use them in something like the [Local Scopes](https://laravel.com/docs/11.x/eloquent#local-scopes) methods:
-
-```PHP
-class Post extends Model
-{
-    use Searchable;
-
-    /**
-     * Get the posts that have more than two comments.
-     */
-    public function scopeHasComments($q)
-    {
-        $this
-            ->addRelationConditions(
-                has: ['comments>2'],
-                query: $q
-            )
-            ->execute();
-    }
-}
-```
-
-## Advanced Options
+### Relations
 
 It enables you also to search in the model relationship using the `setRelationship` method:
 
@@ -190,6 +154,8 @@ public function index()
         ->get();
 }
 ```
+
+### Orders Clauses
 
 Moreover, you can order the result by using the `addOrderBy` method:
 
@@ -238,6 +204,8 @@ public function index()
 > [!IMPORTANT]
 > The `addOrderBy` method accepts the column you need to be used in the order query (default direction is `ASC`) and agrees with an array where the key is the column and the value is the direction.
 
+### Scopes
+
 According to **Scopes**, it enables you to use the Local and Global Scopes together in an extremely awesome approach via the `usingScopes` method:
 
 ```PHP
@@ -262,6 +230,9 @@ public function index()
 }
 ```
 
+> [!NOTE]
+> The `usingScopes` method never overrides the [Global Scopes](https://laravel.com/docs/11.x/eloquent#applying-global-scopes) you already use in the model.
+
 Furthermore, you can ignore specific Global Scopes using the `ignoreGlobalScopes` method:
 
 ```PHP
@@ -285,6 +256,8 @@ public function index()
 }
 ```
 
+### Soft Deletes
+
 You know that the result will not always include the soft-deleted records therefore, you can explicitly include these records using the `includeSoftDeleted` method:
 
 ```PHP
@@ -304,10 +277,9 @@ public function index()
 }
 ```
 
-> [!NOTE]
-> The `usingScopes` method never overrides the [Global Scopes](https://laravel.com/docs/11.x/eloquent#applying-global-scopes) you already use in the model.
+### Update Operations
 
-You can also use both traits together, for example:
+The `Searchable` trait also includes the methods from the `Updatable` trait:
 
 ```PHP
 /**
@@ -321,5 +293,51 @@ public function destroy()
             ['id', '>', 1]
         ])
         ->performDeleteQuery();
+}
+```
+
+## Other Contexts
+
+### Chainable Methods
+
+On the other hand, if you do not like to specify the Model over the whole **Controller / Service** you can do so in each method separately using the `setChainableModel` method:
+
+```PHP
+/**
+ * Display a listing of the resource.
+ */
+public function index()
+{
+    return $this
+        ->setChainableModel(User::class)
+        ->addWhereRelation([
+            ['posts', 'title', 'Easy Model']
+        ])
+        ->execute()
+        ->get();
+}
+```
+
+### Models
+
+At last, you have control over these methods in the model itself which enables you to use them in something like the [Local Scopes](https://laravel.com/docs/11.x/eloquent#local-scopes) methods:
+
+```PHP
+class Post extends Model
+{
+    use Searchable;
+
+    /**
+     * Get the posts that have more than two comments.
+     */
+    public function scopeHasComments($q)
+    {
+        $this
+            ->addRelationConditions(
+                has: ['comments>2'],
+                query: $q
+            )
+            ->execute();
+    }
 }
 ```
