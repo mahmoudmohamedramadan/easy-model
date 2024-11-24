@@ -1,9 +1,10 @@
 # Update Features
 
-- [Controllers / Services](#controllers--services)
-- [Advanced Options](#advanced-options)
+- [Controllers / Services Context](#controllers--services-context)
+  - [Models](#models)
+  - [Relations](#relations)
 
-## Controllers / Services
+## Controllers / Services Context
 
 As well as the **Searchable** trait, you can specify the **Updatable Model** in the `constructor` method:
 
@@ -26,6 +27,8 @@ class UserController extends Controller
     }
 }
 ```
+
+### Models
 
 After that, you can start updating the models using the `updateOrCreateModel` method:
 
@@ -59,7 +62,7 @@ public function store()
 }
 ```
 
-## Advanced Options
+### Relations
 
 On top of that, you can update the relationship using the `updateOrCreateRelationship` method:
 
