@@ -3,7 +3,7 @@
 - [Controllers / Services Context](#controllers--services-context)
   - [Where Clauses](#where-clauses)
   - [Relations](#relations)
-  - [Orders Clauses](#orders-clauses)
+  - [Order Results](#order-results)
   - [Scopes](#scopes)
   - [Soft Deletes](#soft-deletes)
   - [Update Operations](#update-operations)
@@ -30,8 +30,8 @@ class UserController extends Controller
      */
     public function __construct()
     {
-        $this->setSearchableModel(new User); // Model in object
-        // $this->setSearchableModel(User::class); // Model in string
+        // $this->setSearchableModel(User::first());
+        $this->setSearchableModel(User::class);
     }
 }
 ```
@@ -155,7 +155,7 @@ public function index()
 }
 ```
 
-### Orders Clauses
+### Order Results
 
 Moreover, you can order the result by using the `addOrderBy` method:
 
@@ -320,7 +320,7 @@ public function index()
 
 ### Models
 
-At last, you have control over these methods in the model itself which enables you to use them in something like the [Local Scopes](https://laravel.com/docs/11.x/eloquent#local-scopes) methods:
+At last, you have control over these methods directly within the model, allowing you to use them in contexts such as [Local Scopes](https://laravel.com/docs/11.x/eloquent#local-scopes) methods:
 
 ```PHP
 class Post extends Model
