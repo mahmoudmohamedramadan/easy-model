@@ -185,6 +185,23 @@ trait Updatable
     }
 
     /**
+     * Toggle the given column's values.
+     *
+     * @param  array  $attributes
+     * @return $this
+     */
+    public function toggleColumns(array $attributes)
+    {
+        $columns = $this->appliedChanges->only($attributes);
+
+        $toggle = array_map(fn($value) => !$value, $columns);
+
+        $this->updatableQuery->update($toggle);
+
+        return $this;
+    }
+
+    /**
      * Get an appropriate builder based on the context ("Searchable" or "Updatable").
      *
      * @param  string|null  $relationship
