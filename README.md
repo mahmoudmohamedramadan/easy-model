@@ -61,7 +61,7 @@ Check out [update.md](UPDATE.md) for comprehensive examples and in-depth usage g
 ## Credits
 
 - [Mahmoud Ramadan](https://github.com/mahmoudmohamedramadan)
-- [Contributors](https://github.com/mahmoudmohamedramadan/custom-fresh/graphs/contributors)
+- [Contributors](https://github.com/mahmoudmohamedramadan/easy-model/graphs/contributors)
 
 ## Support me
 
