@@ -54,20 +54,22 @@ trait Updatable
      * @param  array  $values
      * @param  array  $incrementEach
      * @param  array  $decrementEach
-     * @return int
+     * @return array
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
     public function performUpdateQuery(array $values, array $incrementEach = [], array $decrementEach = [])
     {
-        $affectedRecords = $this->getSearchOrUpdateQuery()->update($values);
+        $affectedRecords['update'] = $this->getSearchOrUpdateQuery()->update($values);
 
         if (!empty($incrementEach)) {
-            $this->getSearchOrUpdateQuery(isQueryBuilder: true)->incrementEach($incrementEach);
+            $affectedRecords['incrementEach'] = $this->getSearchOrUpdateQuery(isQueryBuilder: true)
+                ->incrementEach($incrementEach);
         }
 
         if (!empty($decrementEach)) {
-            $this->getSearchOrUpdateQuery(isQueryBuilder: true)->decrementEach($decrementEach);
+            $affectedRecords['decrementEach'] = $this->getSearchOrUpdateQuery(isQueryBuilder: true)
+                ->decrementEach($decrementEach);
         }
 
         return $affectedRecords;
