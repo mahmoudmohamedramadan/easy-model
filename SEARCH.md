@@ -6,6 +6,7 @@
   - [Order Results](#order-results)
   - [Scopes](#scopes)
   - [Soft Deletes](#soft-deletes)
+  - [Laravel Methods](#laravel-methods)
   - [Update Operations](#update-operations)
 - [Other Contexts](#other-contexts)
   - [Chainable Methods](#chainable-methods)
@@ -31,7 +32,7 @@ class UserController extends Controller
     public function __construct()
     {
         // $this->setSearchableModel(User::first());
-        $this->setSearchableModel(User::class);
+        $this->setSearchableModel(new User);
     }
 }
 ```
@@ -258,7 +259,7 @@ public function index()
 
 ### Soft Deletes
 
-You know that the result will not always include the soft-deleted records therefore, you can explicitly include these records using the `includeSoftDeleted` method:
+By default, the result excludes soft-deleted records. However, you can explicitly include them by using the `includeSoftDeleted` method:
 
 ```PHP
 /**
@@ -277,9 +278,35 @@ public function index()
 }
 ```
 
+### Laravel Methods
+
+On top of that, you can seamlessly take advantage of all the methods in Laravel's `Query Builder` and `Eloquent Builder`:
+
+```PHP
+/**
+ * Display a listing of the resource.
+ */
+public function index()
+{
+    return $this
+        ->setChainableModel(User::class)
+        ->usingScopes([
+            EmailVerifiedScope::class,
+        ])
+        ->execute()
+        ->chunk(50, function ($users) {
+            foreach ($users as $user) {
+                DB::table('users')
+                    ->where('id', $user->id)
+                    ->update(['credits' => 3]);
+            }
+        });
+}
+```
+
 ### Update Operations
 
-The `Searchable` trait also includes the methods from the `Updatable` trait:
+The `Searchable` trait also includes the methods from the [`Updatable`](UPDATE.md) trait:
 
 ```PHP
 /**
