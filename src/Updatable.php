@@ -17,14 +17,14 @@ trait Updatable
     protected $appliedChanges;
 
     /**
-     * The updatable query.
+     * The search or update builder.
      *
      * @var \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder
      */
-    protected $updatableQuery;
+    protected $searchOrUpdateQuery;
 
     /**
-     * Get an updatable eloquent query builder.
+     * Get an updatable eloquent builder.
      *
      * @param  string|null  $relationship
      * @return \Illuminate\Database\Eloquent\Builder
@@ -59,39 +59,27 @@ trait Updatable
      * Update records in the database.
      *
      * @param  array  $values
-     * @param  array  $incrementEach
-     * @param  array  $decrementEach
+     * @param  bool  $usingQueryBuilder
      * @return array
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
-    public function performUpdateQuery(array $values, array $incrementEach = [], array $decrementEach = [])
+    public function performUpdateQuery(array $values, bool $usingQueryBuilder = false)
     {
-        $affectedRecords['update'] = $this->getSearchOrUpdateQuery()->update($values);
-
-        if (!empty($incrementEach)) {
-            $affectedRecords['incrementEach'] = $this->getSearchOrUpdateQuery(isQueryBuilder: true)
-                ->incrementEach($incrementEach);
-        }
-
-        if (!empty($decrementEach)) {
-            $affectedRecords['decrementEach'] = $this->getSearchOrUpdateQuery(isQueryBuilder: true)
-                ->decrementEach($decrementEach);
-        }
-
-        return $affectedRecords;
+        return $this->getSearchOrUpdateQuery(isQueryBuilder: $usingQueryBuilder)->update($values);
     }
 
     /**
      * Delete records from the database.
      *
+     * @param  bool  $usingQueryBuilder
      * @return int
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
-    public function performDeleteQuery()
+    public function performDeleteQuery(bool $usingQueryBuilder = false)
     {
-        return $this->getSearchOrUpdateQuery()->delete();
+        return $this->getSearchOrUpdateQuery(isQueryBuilder: $usingQueryBuilder)->delete();
     }
 
     /**
@@ -110,9 +98,9 @@ trait Updatable
             $this->setUpdatableModel($model);
         }
 
-        $this->updatableQuery = $this->getSearchOrUpdateQuery();
+        $this->searchOrUpdateQuery = $this->getSearchOrUpdateQuery();
 
-        $this->appliedChanges = $this->updatableQuery->updateOrCreate($attributes, $values);
+        $this->appliedChanges = $this->searchOrUpdateQuery->updateOrCreate($attributes, $values);
 
         return $this;
     }
@@ -138,9 +126,9 @@ trait Updatable
             $this->setUpdatableModel($model);
         }
 
-        $this->updatableQuery = $this->getSearchOrUpdateQuery($relationship);
+        $this->searchOrUpdateQuery = $this->getSearchOrUpdateQuery($relationship);
 
-        $this->appliedChanges = $this->updatableQuery->updateOrCreate($attributes, $values);
+        $this->appliedChanges = $this->searchOrUpdateQuery->updateOrCreate($attributes, $values);
 
         return $this;
     }
@@ -149,11 +137,16 @@ trait Updatable
      * Increment the given column's values by the given amounts.
      *
      * @param  array  $attributes
+     * @param  bool  $usingQueryBuilder
      * @return $this
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
-    public function incrementEach(array $attributes)
+    public function incrementEach(array $attributes, bool $usingQueryBuilder = false)
     {
-        $this->updatableQuery->incrementEach($attributes);
+        $this->setSearchOrUpdateQuery($usingQueryBuilder);
+
+        $this->searchOrUpdateQuery->incrementEach($attributes);
 
         return $this;
     }
@@ -162,11 +155,16 @@ trait Updatable
      * Decrement the given column's values by the given amounts.
      *
      * @param  array  $attributes
+     * @param  bool  $usingQueryBuilder
      * @return $this
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
-    public function decrementEach(array $attributes)
+    public function decrementEach(array $attributes, bool $usingQueryBuilder = false)
     {
-        $this->updatableQuery->decrementEach($attributes);
+        $this->setSearchOrUpdateQuery($usingQueryBuilder);
+
+        $this->searchOrUpdateQuery->decrementEach($attributes);
 
         return $this;
     }
@@ -175,11 +173,16 @@ trait Updatable
      * Reset the given column's values to zero.
      *
      * @param  array  $attributes
+     * @param  bool  $usingQueryBuilder
      * @return $this
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
-    public function zeroOutColumns(array $attributes)
+    public function zeroOutColumns(array $attributes, $usingQueryBuilder = false)
     {
-        $this->updatableQuery->update(array_fill_keys($attributes, 0));
+        $this->setSearchOrUpdateQuery($usingQueryBuilder);
+
+        $this->searchOrUpdateQuery->update(array_fill_keys($attributes, 0));
 
         return $this;
     }
@@ -188,15 +191,24 @@ trait Updatable
      * Toggle the given column's values.
      *
      * @param  array  $attributes
+     * @param  bool  $usingQueryBuilder
      * @return $this
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
-    public function toggleColumns(array $attributes)
+    public function toggleColumns(array $attributes, $usingQueryBuilder = false)
     {
-        $columns = $this->appliedChanges->only($attributes);
+        $this->setSearchOrUpdateQuery($usingQueryBuilder);
 
-        $toggle = array_map(fn($value) => !$value, $columns);
+        $toggle = $this->searchOrUpdateQuery->get($attributes)->map(function ($attribute) {
+            foreach ($attribute as $key => $value) {
+                $attribute->{$key} = !$value;
+            }
 
-        $this->updatableQuery->update($toggle);
+            return (array)$attribute;
+        })->toArray();
+
+        $this->searchOrUpdateQuery->update(...$toggle);
 
         return $this;
     }
@@ -212,6 +224,10 @@ trait Updatable
      */
     protected function getSearchOrUpdateQuery(string $relationship = null, bool $isQueryBuilder = false)
     {
+        if (!empty($this->searchOrUpdateQuery)) {
+            return $this->searchOrUpdateQuery;
+        }
+
         // If the "setRelationship" method exists, it means the request is coming
         // from the "Searchable" context since the "Updatable" trait is used there.
         if (!empty($relationship) && method_exists($this, 'setRelationship')) {
@@ -230,12 +246,33 @@ trait Updatable
     }
 
     /**
-     * Fetch the changes result that have been applied to the model.
+     * Set the builder for the current context ("Searchable" or "Updatable").
      *
-     * @return \Illuminate\Database\Eloquent\Model
+     * @param  bool  $usingQueryBuilder
+     * @return void
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
+     */
+    protected function setSearchOrUpdateQuery(bool $usingQueryBuilder = false)
+    {
+        if (empty($this->searchOrUpdateQuery)) {
+            $this->searchOrUpdateQuery = $this->getSearchOrUpdateQuery(isQueryBuilder: $usingQueryBuilder);
+        }
+
+        if (empty($this->searchOrUpdateQuery)) {
+            throw new InvalidModel("Cannot set the builder.");
+        }
+    }
+
+    /**
+     * Fetch the changes result that have been applied to the model or collection.
+     *
+     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Collection
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
     public function fetch()
     {
-        return $this->appliedChanges->refresh();
+        return $this->appliedChanges?->refresh() ?? $this->getSearchOrUpdateQuery()->get();
     }
 }
