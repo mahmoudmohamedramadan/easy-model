@@ -172,6 +172,19 @@ trait Updatable
     }
 
     /**
+     * Reset the given column's values to zero.
+     *
+     * @param  array  $attributes
+     * @return $this
+     */
+    public function zeroOutColumns(array $attributes)
+    {
+        $this->updatableQuery->update(array_fill_keys($attributes, 0));
+
+        return $this;
+    }
+
+    /**
      * Get an appropriate builder based on the context ("Searchable" or "Updatable").
      *
      * @param  string|null  $relationship
