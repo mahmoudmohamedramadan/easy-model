@@ -17,6 +17,13 @@ trait Updatable
     protected $appliedChanges;
 
     /**
+     * The updatable query.
+     *
+     * @var \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder
+     */
+    protected $updatableQuery;
+
+    /**
      * Get an updatable eloquent query builder.
      *
      * @param  string|null  $relationship
@@ -93,33 +100,19 @@ trait Updatable
      * @param  array  $attributes
      * @param  array  $values
      * @param  \Illuminate\Database\Eloquent\Model|string|null  $model
-     * @param  string|null  $relationship
-     * @param  array  $incrementEach
-     * @param  array  $decrementEach
      * @return $this
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
-    public function updateOrCreateModel(
-        array $attributes,
-        array $values = [],
-        $model = null,
-        array $incrementEach = [],
-        array $decrementEach = []
-    ) {
+    public function updateOrCreateModel(array $attributes, array $values = [], $model = null)
+    {
         if (!empty($model)) {
             $this->setUpdatableModel($model);
         }
 
-        $this->appliedChanges = $this->getSearchOrUpdateQuery()->updateOrCreate($attributes, $values);
+        $this->updatableQuery = $this->getSearchOrUpdateQuery();
 
-        if (!empty($incrementEach)) {
-            $this->getSearchOrUpdateQuery(isQueryBuilder: true)->incrementEach($incrementEach);
-        }
-
-        if (!empty($decrementEach)) {
-            $this->getSearchOrUpdateQuery(isQueryBuilder: true)->decrementEach($decrementEach);
-        }
+        $this->appliedChanges = $this->updatableQuery->updateOrCreate($attributes, $values);
 
         return $this;
     }
@@ -131,8 +124,6 @@ trait Updatable
      * @param  array  $attributes
      * @param  array  $values
      * @param  \Illuminate\Database\Eloquent\Model|string|null  $model
-     * @param  array  $incrementEach
-     * @param  array  $decrementEach
      * @return $this
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
@@ -141,23 +132,41 @@ trait Updatable
         string $relationship,
         array $attributes,
         array $values = [],
-        $model = null,
-        array $incrementEach = [],
-        array $decrementEach = []
+        $model = null
     ) {
         if (!empty($model)) {
             $this->setUpdatableModel($model);
         }
 
-        $this->appliedChanges = $this->getSearchOrUpdateQuery($relationship)->updateOrCreate($attributes, $values);
+        $this->updatableQuery = $this->getSearchOrUpdateQuery($relationship);
 
-        if (!empty($incrementEach)) {
-            $this->getSearchOrUpdateQuery($relationship, true)->incrementEach($incrementEach);
-        }
+        $this->appliedChanges = $this->updatableQuery->updateOrCreate($attributes, $values);
 
-        if (!empty($decrementEach)) {
-            $this->getSearchOrUpdateQuery($relationship, true)->decrementEach($decrementEach);
-        }
+        return $this;
+    }
+
+    /**
+     * Increment the given column's values by the given amounts.
+     *
+     * @param  array  $attributes
+     * @return $this
+     */
+    public function incrementEach(array $attributes)
+    {
+        $this->updatableQuery->incrementEach($attributes);
+
+        return $this;
+    }
+
+    /**
+     * Decrement the given column's values by the given amounts.
+     *
+     * @param  array  $attributes
+     * @return $this
+     */
+    public function decrementEach(array $attributes)
+    {
+        $this->updatableQuery->decrementEach($attributes);
 
         return $this;
     }
