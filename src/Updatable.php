@@ -276,9 +276,7 @@ trait Updatable
         $this->setSearchOrUpdateQuery($usingQueryBuilder);
 
         $toggle = $this->searchOrUpdateQuery->get($attributes)->map(function (Model $attribute) {
-            return array_map(function ($value) {
-                return !$value;
-            }, $attribute->toArray());
+            return array_map(fn($value) => !$value, $attribute->toArray());
         })->toArray();
 
         $this->searchOrUpdateQuery->update(...$toggle);
