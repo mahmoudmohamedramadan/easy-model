@@ -187,7 +187,7 @@ trait HasModel
      * @param  \Illuminate\Database\Eloquent\Model|null  $givenModel
      * @return \Illuminate\Database\Eloquent\Model
      */
-    public function resolveModelOrRelation($givenRelationship = null, $givenModel = null)
+    protected function resolveModelOrRelation($givenRelationship = null, $givenModel = null)
     {
         if (!empty($this->modelOrRelation)) {
             return $this->modelOrRelation;

@@ -280,7 +280,7 @@ public function index()
 
 ### Laravel Methods
 
-On top of that, you can seamlessly take advantage of all the methods in Laravel's `Query Builder` and `Eloquent Builder`:
+On top of that, you can seamlessly take advantage of all Laravel methods:
 
 ```PHP
 /**
@@ -319,6 +319,7 @@ public function destroy()
         ->addWheres([
             ['id', '>', 1]
         ])
+        // ->performUpdateQuery(['name' => fake()->name()])
         ->performDeleteQuery();
 }
 ```
