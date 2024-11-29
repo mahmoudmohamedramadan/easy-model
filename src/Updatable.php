@@ -162,7 +162,14 @@ trait Updatable
 
         $this->setSearchOrUpdateQuery($usingQueryBuilder);
 
-        $this->searchOrUpdateQuery->incrementEach($attributes);
+        /**
+         * @see https://php.net/manual/en/closure.call.php
+         */
+        $extra = !$usingQueryBuilder ?
+            (fn($args) => $this->addUpdatedAtColumn($args))->call($this->getUpdatableEloquentBuilder(), []) :
+            [];
+
+        $this->searchOrUpdateQuery->incrementEach($attributes, $extra);
 
         return $this;
     }
@@ -196,7 +203,14 @@ trait Updatable
 
         $this->setSearchOrUpdateQuery($usingQueryBuilder);
 
-        $this->searchOrUpdateQuery->decrementEach($attributes);
+        /**
+         * @see https://php.net/manual/en/closure.call.php
+         */
+        $extra = !$usingQueryBuilder ?
+            (fn($args) => $this->addUpdatedAtColumn($args))->call($this->getUpdatableEloquentBuilder(), []) :
+            [];
+
+        $this->searchOrUpdateQuery->decrementEach($attributes, $extra);
 
         return $this;
     }
