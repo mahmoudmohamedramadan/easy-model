@@ -144,6 +144,18 @@ trait Updatable
      */
     public function incrementEach(array $attributes, bool $usingQueryBuilder = false)
     {
+        // The model that has been created or updated will receive the most priority;
+        // therefore, we will increment its column values when it exists.
+        if (!empty($this->appliedChanges)) {
+            foreach ($attributes as $column => $value) {
+                $this->appliedChanges->{$column} += $value;
+            }
+
+            $this->appliedChanges->save();
+
+            return $this;
+        }
+
         $this->setSearchOrUpdateQuery($usingQueryBuilder);
 
         $this->searchOrUpdateQuery->incrementEach($attributes);
@@ -162,6 +174,18 @@ trait Updatable
      */
     public function decrementEach(array $attributes, bool $usingQueryBuilder = false)
     {
+        // The model that has been created or updated will receive the most priority;
+        // therefore, we will decrement its column values when it exists.
+        if (!empty($this->appliedChanges)) {
+            foreach ($attributes as $column => $value) {
+                $this->appliedChanges->{$column} -= $value;
+            }
+
+            $this->appliedChanges->save();
+
+            return $this;
+        }
+
         $this->setSearchOrUpdateQuery($usingQueryBuilder);
 
         $this->searchOrUpdateQuery->decrementEach($attributes);
@@ -180,6 +204,14 @@ trait Updatable
      */
     public function zeroOutColumns(array $attributes, $usingQueryBuilder = false)
     {
+        // The model that has been created or updated will receive the most priority;
+        // therefore, we will zero out its column values when it exists.
+        if (!empty($this->appliedChanges)) {
+            $this->appliedChanges->update(array_fill_keys($attributes, 0));
+
+            return $this;
+        }
+
         $this->setSearchOrUpdateQuery($usingQueryBuilder);
 
         $this->searchOrUpdateQuery->update(array_fill_keys($attributes, 0));
@@ -198,6 +230,18 @@ trait Updatable
      */
     public function toggleColumns(array $attributes, $usingQueryBuilder = false)
     {
+        // The model that has been created or updated will receive the most priority;
+        // therefore, we will toggle its column values when it exists.
+        if (!empty($this->appliedChanges)) {
+            $columns = $this->appliedChanges->only($attributes);
+
+            $toggle = array_map(fn($value) => !$value, $columns);
+
+            $this->appliedChanges->update($toggle);
+
+            return $this;
+        }
+
         $this->setSearchOrUpdateQuery($usingQueryBuilder);
 
         $toggle = $this->searchOrUpdateQuery->get($attributes)->map(function ($attribute) {
