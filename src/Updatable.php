@@ -202,7 +202,7 @@ trait Updatable
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
-    public function zeroOutColumns(array $attributes, $usingQueryBuilder = false)
+    public function zeroOutColumns(array $attributes, bool $usingQueryBuilder = false)
     {
         // The model that has been created or updated will receive the most priority;
         // therefore, we will zero out its column values when it exists.
@@ -228,7 +228,7 @@ trait Updatable
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
-    public function toggleColumns(array $attributes, $usingQueryBuilder = false)
+    public function toggleColumns(array $attributes, bool $usingQueryBuilder = false)
     {
         // The model that has been created or updated will receive the most priority;
         // therefore, we will toggle its column values when it exists.
@@ -301,10 +301,6 @@ trait Updatable
     {
         if (empty($this->searchOrUpdateQuery)) {
             $this->searchOrUpdateQuery = $this->getSearchOrUpdateQuery(isQueryBuilder: $usingQueryBuilder);
-        }
-
-        if (empty($this->searchOrUpdateQuery)) {
-            throw new InvalidModel("Cannot set the builder.");
         }
     }
 
