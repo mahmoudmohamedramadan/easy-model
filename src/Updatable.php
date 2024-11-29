@@ -10,7 +10,7 @@ trait Updatable
     use UpdatableModel;
 
     /**
-     * The changes that have been made.
+     * The changes that have been made to the model.
      *
      * @var \Illuminate\Database\Eloquent\Model
      */
@@ -138,6 +138,8 @@ trait Updatable
      *
      * @param  array  $attributes
      * @param  bool  $usingQueryBuilder
+     * - Works only with the builder, not with a model instance that gets back when you
+     * - call methods like "updateOrCreateModel".
      * @return $this
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
@@ -168,6 +170,8 @@ trait Updatable
      *
      * @param  array  $attributes
      * @param  bool  $usingQueryBuilder
+     * - Works only with the builder, not with a model instance that gets back when you
+     * - call methods like "updateOrCreateModel".
      * @return $this
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
@@ -198,6 +202,8 @@ trait Updatable
      *
      * @param  array  $attributes
      * @param  bool  $usingQueryBuilder
+     * - Works only with the builder, not with a model instance that gets back when you
+     * - call methods like "updateOrCreateModel".
      * @return $this
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
@@ -224,6 +230,8 @@ trait Updatable
      *
      * @param  array  $attributes
      * @param  bool  $usingQueryBuilder
+     * - Works only with the builder, not with a model instance that gets back when you
+     * - call methods like "updateOrCreateModel".
      * @return $this
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
@@ -305,7 +313,7 @@ trait Updatable
     }
 
     /**
-     * Fetch the changes result that have been applied to the model or collection.
+     * Fetch the changes result.
      *
      * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Collection
      *
