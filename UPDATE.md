@@ -95,7 +95,7 @@ public function Update()
 {
     return $this
         ->updateOrCreateRelationship('posts', ['title' => 'Welcome "Updatable" trait!', 'user_id' => 1], [
-            'body' => 'Thats a nice title',
+            'body' => 'Easy Model package for enjoyably managing database queries.',
         ])
         ->decrementEach(['views' => 3])
         ->fetch();

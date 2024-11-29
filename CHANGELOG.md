@@ -7,7 +7,7 @@
 - [1.x] Adds the `zeroOutColumns` method.
 - [1.x] Adds the `toggleColumns` method.
 - [1.x] Updates the functionality of incrementing and decrementing the columns.
-- [1.x] Adds the ability to execute update operations using `Query Builder` or `Eloquent Builder`.
+- [1.x] Adds the ability to execute update operations using `Query Builder` and `Eloquent Builder`.
 
 ## [v1.1.1](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.1.1)
 
