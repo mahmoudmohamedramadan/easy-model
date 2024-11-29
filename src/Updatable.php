@@ -138,16 +138,18 @@ trait Updatable
      *
      * @param  array  $attributes
      * @param  bool  $usingQueryBuilder
-     * - Works only with the builder, not with a model instance that gets back when you
-     * - call methods like "updateOrCreateModel".
+     *
+     * The "usingQueryBuilder" parameter works only with the builder, not with a model instance
+     * that gets back when you call methods like "updateOrCreateModel".
+     *
      * @return $this
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
     public function incrementEach(array $attributes, bool $usingQueryBuilder = false)
     {
-        // The model that has been created or updated will receive the most priority;
-        // therefore, we will increment its column values when it exists.
+        // If a model has been created or updated, it takes precedence. In such cases,
+        // we will increment the values of its columns.
         if (!empty($this->appliedChanges)) {
             foreach ($attributes as $column => $value) {
                 $this->appliedChanges->{$column} += $value;
@@ -170,16 +172,18 @@ trait Updatable
      *
      * @param  array  $attributes
      * @param  bool  $usingQueryBuilder
-     * - Works only with the builder, not with a model instance that gets back when you
-     * - call methods like "updateOrCreateModel".
+     *
+     * The "usingQueryBuilder" parameter works only with the builder, not with a model instance
+     * that gets back when you call methods like "updateOrCreateModel".
+     *
      * @return $this
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
     public function decrementEach(array $attributes, bool $usingQueryBuilder = false)
     {
-        // The model that has been created or updated will receive the most priority;
-        // therefore, we will decrement its column values when it exists.
+        // If a model has been created or updated, it takes precedence. In such cases,
+        // we will decrement the values of its columns.
         if (!empty($this->appliedChanges)) {
             foreach ($attributes as $column => $value) {
                 $this->appliedChanges->{$column} -= $value;
@@ -202,16 +206,18 @@ trait Updatable
      *
      * @param  array  $attributes
      * @param  bool  $usingQueryBuilder
-     * - Works only with the builder, not with a model instance that gets back when you
-     * - call methods like "updateOrCreateModel".
+     *
+     * The "usingQueryBuilder" parameter works only with the builder, not with a model instance
+     * that gets back when you call methods like "updateOrCreateModel".
+     *
      * @return $this
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
     public function zeroOutColumns(array $attributes, bool $usingQueryBuilder = false)
     {
-        // The model that has been created or updated will receive the most priority;
-        // therefore, we will zero out its column values when it exists.
+        // If a model has been created or updated, it takes precedence. In such cases,
+        // we will zero out the values of its columns.
         if (!empty($this->appliedChanges)) {
             $this->appliedChanges->update(array_fill_keys($attributes, 0));
 
@@ -230,16 +236,18 @@ trait Updatable
      *
      * @param  array  $attributes
      * @param  bool  $usingQueryBuilder
-     * - Works only with the builder, not with a model instance that gets back when you
-     * - call methods like "updateOrCreateModel".
+     *
+     * The "usingQueryBuilder" parameter works only with the builder, not with a model instance
+     * that gets back when you call methods like "updateOrCreateModel".
+     *
      * @return $this
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
     public function toggleColumns(array $attributes, bool $usingQueryBuilder = false)
     {
-        // The model that has been created or updated will receive the most priority;
-        // therefore, we will toggle its column values when it exists.
+        // If a model has been created or updated, it takes precedence. In such cases,
+        // we will toggle the values of its columns.
         if (!empty($this->appliedChanges)) {
             $columns = $this->appliedChanges->only($attributes);
 
@@ -313,7 +321,7 @@ trait Updatable
     }
 
     /**
-     * Fetch the changes result.
+     * Fetch the result.
      *
      * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Collection
      *
