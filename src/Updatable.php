@@ -2,6 +2,7 @@
 
 namespace Ramadan\EasyModel;
 
+use Illuminate\Database\Eloquent\Model;
 use Ramadan\EasyModel\Concerns\Update\HasModel as UpdatableModel;
 use Ramadan\EasyModel\Exceptions\InvalidModel;
 
@@ -274,12 +275,10 @@ trait Updatable
 
         $this->setSearchOrUpdateQuery($usingQueryBuilder);
 
-        $toggle = $this->searchOrUpdateQuery->get($attributes)->map(function ($attribute) {
-            foreach ($attribute as $key => $value) {
-                $attribute->{$key} = !$value;
-            }
-
-            return (array)$attribute;
+        $toggle = $this->searchOrUpdateQuery->get($attributes)->map(function (Model $attribute) {
+            return array_map(function ($value) {
+                return !$value;
+            }, $attribute->toArray());
         })->toArray();
 
         $this->searchOrUpdateQuery->update(...$toggle);
