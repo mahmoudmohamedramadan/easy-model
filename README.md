@@ -18,10 +18,10 @@
 
 ## Overview
 
- What makes this package featured?
+What makes this package featured?
 
 - **Accelerated Query Performance:**
-  - Significantly  improved query performance compared to native Laravel ([fig. 1.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-vs-laravel-01.png)).
+  - Significantly  improved query performance compared to native Laravel ([fig. 1.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-vs-laravel-01.png), and [fig. 2.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-vs-laravel-02.png)).
 
 - **Straightforward and Unified Syntax:**
   - Provides a unified, consistent syntax for `Query Builder` and `Eloquent Builder`.
@@ -33,9 +33,9 @@
   - Easily order results by model relationships (`HasOne`, `HasMany`, `BelongsTo`, `BelongsToMany`) without referring to manual joins ([fig. 3.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-vs-laravel-03.png)).
 
 - **Streamline Batch Updates:**
-  - Effortlessly perform multiple updates using concise methods. For detailed information, consult [update.md](UPDATE.md).
+  - Effortlessly perform multiple updates using concise methods, consult [update.md](UPDATE.md).
 
-> The package was considerably FASTER than the Laravel query when tested on over **1k records** ([fig. 2.](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-vs-laravel-02.png)). 🥵
+- And more...
 
 ## Installation
 
