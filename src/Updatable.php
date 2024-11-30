@@ -61,7 +61,7 @@ trait Updatable
      *
      * @param  array  $values
      * @param  bool  $usingQueryBuilder
-     * @return array
+     * @return int
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
