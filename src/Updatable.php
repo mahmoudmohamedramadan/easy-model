@@ -279,7 +279,9 @@ trait Updatable
             return array_map(fn($value) => !$value, $attribute->toArray());
         })->toArray();
 
-        $this->searchOrUpdateQuery->update(...$toggle);
+        if (!empty($toggle)) {
+            $this->searchOrUpdateQuery->update(...$toggle);
+        }
 
         return $this;
     }
