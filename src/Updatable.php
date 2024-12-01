@@ -2,6 +2,7 @@
 
 namespace Ramadan\EasyModel;
 
+use Illuminate\Database\Eloquent\Model;
 use Ramadan\EasyModel\Concerns\Update\HasModel as UpdatableModel;
 use Ramadan\EasyModel\Exceptions\InvalidModel;
 
@@ -60,7 +61,7 @@ trait Updatable
      *
      * @param  array  $values
      * @param  bool  $usingQueryBuilder
-     * @return array
+     * @return int
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
@@ -162,7 +163,14 @@ trait Updatable
 
         $this->setSearchOrUpdateQuery($usingQueryBuilder);
 
-        $this->searchOrUpdateQuery->incrementEach($attributes);
+        /**
+         * @see https://php.net/manual/en/closure.call.php
+         */
+        $extra = !$usingQueryBuilder ?
+            (fn($args) => $this->addUpdatedAtColumn($args))->call($this->getSearchOrUpdateQuery(), []) :
+            [];
+
+        $this->searchOrUpdateQuery->incrementEach($attributes, $extra);
 
         return $this;
     }
@@ -196,7 +204,14 @@ trait Updatable
 
         $this->setSearchOrUpdateQuery($usingQueryBuilder);
 
-        $this->searchOrUpdateQuery->decrementEach($attributes);
+        /**
+         * @see https://php.net/manual/en/closure.call.php
+         */
+        $extra = !$usingQueryBuilder ?
+            (fn($args) => $this->addUpdatedAtColumn($args))->call($this->getSearchOrUpdateQuery(), []) :
+            [];
+
+        $this->searchOrUpdateQuery->decrementEach($attributes, $extra);
 
         return $this;
     }
@@ -260,15 +275,13 @@ trait Updatable
 
         $this->setSearchOrUpdateQuery($usingQueryBuilder);
 
-        $toggle = $this->searchOrUpdateQuery->get($attributes)->map(function ($attribute) {
-            foreach ($attribute as $key => $value) {
-                $attribute->{$key} = !$value;
-            }
-
-            return (array)$attribute;
+        $toggle = $this->searchOrUpdateQuery->get($attributes)->map(function (Model $attribute) {
+            return array_map(fn($value) => !$value, $attribute->toArray());
         })->toArray();
 
-        $this->searchOrUpdateQuery->update(...$toggle);
+        if (!empty($toggle)) {
+            $this->searchOrUpdateQuery->update(...$toggle);
+        }
 
         return $this;
     }
