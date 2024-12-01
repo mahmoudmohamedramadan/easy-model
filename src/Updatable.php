@@ -334,6 +334,19 @@ trait Updatable
     }
 
     /**
+     * Fetch the builder instance.
+     *
+     * @param  bool  $isQueryBuilder
+     * @return \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
+     */
+    public function fetchBuilder(bool $isQueryBuilder = false)
+    {
+        return $this->getSearchOrUpdateQuery(isQueryBuilder: $isQueryBuilder);
+    }
+
+    /**
      * Fetch the result.
      *
      * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Collection
