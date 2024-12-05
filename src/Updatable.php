@@ -84,57 +84,6 @@ trait Updatable
     }
 
     /**
-     * Create or update a record matching the attributes against the model, and fill it with values.
-     *
-     * @param  array  $attributes
-     * @param  array  $values
-     * @param  \Illuminate\Database\Eloquent\Model|string|null  $model
-     * @return $this
-     *
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
-     */
-    public function updateOrCreateModel(array $attributes, array $values = [], $model = null)
-    {
-        if (!empty($model)) {
-            $this->setUpdatableModel($model);
-        }
-
-        $this->searchOrUpdateQuery = $this->getSearchOrUpdateQuery();
-
-        $this->appliedChanges = $this->searchOrUpdateQuery->updateOrCreate($attributes, $values);
-
-        return $this;
-    }
-
-    /**
-     * Create or update a record matching the attributes against the relationship, and fill it with values.
-     *
-     * @param  string  $relationship
-     * @param  array  $attributes
-     * @param  array  $values
-     * @param  \Illuminate\Database\Eloquent\Model|string|null  $model
-     * @return $this
-     *
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
-     */
-    public function updateOrCreateRelationship(
-        string $relationship,
-        array $attributes,
-        array $values = [],
-        $model = null
-    ) {
-        if (!empty($model)) {
-            $this->setUpdatableModel($model);
-        }
-
-        $this->searchOrUpdateQuery = $this->getSearchOrUpdateQuery($relationship);
-
-        $this->appliedChanges = $this->searchOrUpdateQuery->updateOrCreate($attributes, $values);
-
-        return $this;
-    }
-
-    /**
      * Increment the given column's values by the given amounts.
      *
      * @param  array  $attributes
