@@ -13,11 +13,11 @@ trait Updatable
     use UpdatableModel;
 
     /**
-     * The changes that have been made to the model.
+     * The model that has been updated or is about to be updated.
      *
      * @var \Illuminate\Database\Eloquent\Model
      */
-    protected $appliedChanges;
+    protected $modelForUpdate;
 
     /**
      * The search or update builder.
@@ -69,7 +69,7 @@ trait Updatable
      */
     public function performUpdateQuery(array $values, bool $usingQueryBuilder = false)
     {
-        return $this->getSearchOrUpdateQuery(isQueryBuilder: $usingQueryBuilder)->update($values);
+        return $this->getSearchOrUpdateBuilder(isQueryBuilder: $usingQueryBuilder)->update($values);
     }
 
     /**
@@ -84,7 +84,7 @@ trait Updatable
      */
     public function performDeleteQuery(bool $usingQueryBuilder = false)
     {
-        return $this->getSearchOrUpdateQuery(isQueryBuilder: $usingQueryBuilder)->delete();
+        return $this->getSearchOrUpdateBuilder(isQueryBuilder: $usingQueryBuilder)->delete();
     }
 
     /**
@@ -98,25 +98,25 @@ trait Updatable
      */
     public function incrementEach(array $attributes, bool $usingQueryBuilder = false)
     {
+        $this->prepareUpdateQuery($usingQueryBuilder);
+
         // If a model has been created or updated, it takes precedence. In such cases,
         // we will increment the values of its columns.
-        if (!empty($this->appliedChanges)) {
+        if (!empty($this->modelForUpdate)) {
             foreach ($attributes as $column => $value) {
-                $this->appliedChanges->{$column} += $value;
+                $this->modelForUpdate->{$column} += $value;
             }
 
-            $this->appliedChanges->save();
+            $this->modelForUpdate->save();
 
             return $this;
         }
-
-        $this->setSearchOrUpdateQuery($usingQueryBuilder);
 
         /**
          * @see https://php.net/manual/en/closure.call.php
          */
         $extra = !$usingQueryBuilder ?
-            (fn($args) => $this->addUpdatedAtColumn($args))->call($this->getSearchOrUpdateQuery(), []) :
+            (fn($args) => $this->addUpdatedAtColumn($args))->call($this->getSearchOrUpdateBuilder(), []) :
             [];
 
         $this->searchOrUpdateQuery->incrementEach($attributes, $extra);
@@ -135,25 +135,25 @@ trait Updatable
      */
     public function decrementEach(array $attributes, bool $usingQueryBuilder = false)
     {
+        $this->prepareUpdateQuery($usingQueryBuilder);
+
         // If a model has been created or updated, it takes precedence. In such cases,
         // we will decrement the values of its columns.
-        if (!empty($this->appliedChanges)) {
+        if (!empty($this->modelForUpdate)) {
             foreach ($attributes as $column => $value) {
-                $this->appliedChanges->{$column} -= $value;
+                $this->modelForUpdate->{$column} -= $value;
             }
 
-            $this->appliedChanges->save();
+            $this->modelForUpdate->save();
 
             return $this;
         }
-
-        $this->setSearchOrUpdateQuery($usingQueryBuilder);
 
         /**
          * @see https://php.net/manual/en/closure.call.php
          */
         $extra = !$usingQueryBuilder ?
-            (fn($args) => $this->addUpdatedAtColumn($args))->call($this->getSearchOrUpdateQuery(), []) :
+            (fn($args) => $this->addUpdatedAtColumn($args))->call($this->getSearchOrUpdateBuilder(), []) :
             [];
 
         $this->searchOrUpdateQuery->decrementEach($attributes, $extra);
@@ -172,15 +172,15 @@ trait Updatable
      */
     public function zeroOutColumns(array $attributes, bool $usingQueryBuilder = false)
     {
+        $this->prepareUpdateQuery($usingQueryBuilder);
+
         // If a model has been created or updated, it takes precedence. In such cases,
         // we will zero out the values of its columns.
-        if (!empty($this->appliedChanges)) {
-            $this->appliedChanges->update(array_fill_keys($attributes, 0));
+        if (!empty($this->modelForUpdate)) {
+            $this->modelForUpdate->update(array_fill_keys($attributes, 0));
 
             return $this;
         }
-
-        $this->setSearchOrUpdateQuery($usingQueryBuilder);
 
         $this->searchOrUpdateQuery->update(array_fill_keys($attributes, 0));
 
@@ -198,19 +198,19 @@ trait Updatable
      */
     public function toggleColumns(array $attributes, bool $usingQueryBuilder = false)
     {
+        $this->prepareUpdateQuery($usingQueryBuilder);
+
         // If a model has been created or updated, it takes precedence. In such cases,
         // we will toggle the values of its columns.
-        if (!empty($this->appliedChanges)) {
-            $columns = $this->appliedChanges->only($attributes);
+        if (!empty($this->modelForUpdate)) {
+            $columns = $this->modelForUpdate->only($attributes);
 
             $toggle = array_map(fn($value) => !$value, $columns);
 
-            $this->appliedChanges->update($toggle);
+            $this->modelForUpdate->update($toggle);
 
             return $this;
         }
-
-        $this->setSearchOrUpdateQuery($usingQueryBuilder);
 
         $columns = collect($attributes)
             ->mapWithKeys(fn($attribute) => [$attribute => DB::raw("NOT $attribute")])
@@ -230,7 +230,7 @@ trait Updatable
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
-    protected function getSearchOrUpdateQuery(string $relationship = null, bool $isQueryBuilder = false)
+    protected function getSearchOrUpdateBuilder(string $relationship = null, bool $isQueryBuilder = false)
     {
         // If the "setRelationship" method exists, it means the request is coming
         // from the "Searchable" context since the "Updatable" trait is used there.
@@ -250,17 +250,23 @@ trait Updatable
     }
 
     /**
-     * Set the builder for the current context "Searchable" or "Updatable".
+     * Prepare the update query.
      *
      * @param  bool  $usingQueryBuilder
      * @return void
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
-    protected function setSearchOrUpdateQuery(bool $usingQueryBuilder = false)
+    protected function prepareUpdateQuery(bool $usingQueryBuilder = false)
     {
+        $model = $this->getUpdatableModel();
+
+        if (!empty($model) && $model->exists) {
+            $this->modelForUpdate = $model;
+        }
+
         if (empty($this->searchOrUpdateQuery)) {
-            $this->searchOrUpdateQuery = $this->getSearchOrUpdateQuery(isQueryBuilder: $usingQueryBuilder);
+            $this->searchOrUpdateQuery = $this->getSearchOrUpdateBuilder(isQueryBuilder: $usingQueryBuilder);
         }
     }
 
@@ -291,7 +297,7 @@ trait Updatable
      */
     public function fetchBuilder(bool $isQueryBuilder = false)
     {
-        return $this->getSearchOrUpdateQuery(isQueryBuilder: $isQueryBuilder);
+        return $this->getSearchOrUpdateBuilder(isQueryBuilder: $isQueryBuilder);
     }
 
     /**
@@ -304,6 +310,6 @@ trait Updatable
      */
     public function fetch(bool $usingQueryBuilder = false)
     {
-        return $this->appliedChanges?->refresh() ?? $this->fetchBuilder($usingQueryBuilder)->get();
+        return $this->modelForUpdate?->refresh() ?? $this->fetchBuilder($usingQueryBuilder)->get();
     }
 }
