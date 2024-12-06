@@ -2,7 +2,9 @@
 
 namespace Ramadan\EasyModel;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Ramadan\EasyModel\Concerns\Update\HasModel as UpdatableModel;
 use Ramadan\EasyModel\Exceptions\InvalidModel;
 
@@ -11,11 +13,11 @@ trait Updatable
     use UpdatableModel;
 
     /**
-     * The changes that have been made to the model.
+     * The model that has been updated or is about to be updated.
      *
      * @var \Illuminate\Database\Eloquent\Model
      */
-    protected $appliedChanges;
+    protected $modelForUpdate;
 
     /**
      * The search or update builder.
@@ -67,71 +69,22 @@ trait Updatable
      */
     public function performUpdateQuery(array $values, bool $usingQueryBuilder = false)
     {
-        return $this->getSearchOrUpdateQuery(isQueryBuilder: $usingQueryBuilder)->update($values);
+        return $this->getSearchOrUpdateBuilder(isQueryBuilder: $usingQueryBuilder)->update($values);
     }
 
     /**
      * Delete records from the database.
      *
-     * @param  bool  $usingQueryBuilder
+     * @param  bool  $usingQueryBuilder  Whether to use the query builder to perform the delete.
+     *                                   If true, the delete will bypass any soft deletes and
+     *                                   permanently delete the records.
      * @return int
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
     public function performDeleteQuery(bool $usingQueryBuilder = false)
     {
-        return $this->getSearchOrUpdateQuery(isQueryBuilder: $usingQueryBuilder)->delete();
-    }
-
-    /**
-     * Create or update a record matching the attributes against the model, and fill it with values.
-     *
-     * @param  array  $attributes
-     * @param  array  $values
-     * @param  \Illuminate\Database\Eloquent\Model|string|null  $model
-     * @return $this
-     *
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
-     */
-    public function updateOrCreateModel(array $attributes, array $values = [], $model = null)
-    {
-        if (!empty($model)) {
-            $this->setUpdatableModel($model);
-        }
-
-        $this->searchOrUpdateQuery = $this->getSearchOrUpdateQuery();
-
-        $this->appliedChanges = $this->searchOrUpdateQuery->updateOrCreate($attributes, $values);
-
-        return $this;
-    }
-
-    /**
-     * Create or update a record matching the attributes against the relationship, and fill it with values.
-     *
-     * @param  string  $relationship
-     * @param  array  $attributes
-     * @param  array  $values
-     * @param  \Illuminate\Database\Eloquent\Model|string|null  $model
-     * @return $this
-     *
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
-     */
-    public function updateOrCreateRelationship(
-        string $relationship,
-        array $attributes,
-        array $values = [],
-        $model = null
-    ) {
-        if (!empty($model)) {
-            $this->setUpdatableModel($model);
-        }
-
-        $this->searchOrUpdateQuery = $this->getSearchOrUpdateQuery($relationship);
-
-        $this->appliedChanges = $this->searchOrUpdateQuery->updateOrCreate($attributes, $values);
-
-        return $this;
+        return $this->getSearchOrUpdateBuilder(isQueryBuilder: $usingQueryBuilder)->delete();
     }
 
     /**
@@ -139,35 +92,31 @@ trait Updatable
      *
      * @param  array  $attributes
      * @param  bool  $usingQueryBuilder
-     *
-     * The "usingQueryBuilder" parameter works only with the builder, not with a model instance
-     * that gets back when you call methods like "updateOrCreateModel".
-     *
      * @return $this
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
     public function incrementEach(array $attributes, bool $usingQueryBuilder = false)
     {
+        $this->prepareUpdateQuery($usingQueryBuilder);
+
         // If a model has been created or updated, it takes precedence. In such cases,
         // we will increment the values of its columns.
-        if (!empty($this->appliedChanges)) {
+        if (!empty($this->modelForUpdate)) {
             foreach ($attributes as $column => $value) {
-                $this->appliedChanges->{$column} += $value;
+                $this->modelForUpdate->{$column} += $value;
             }
 
-            $this->appliedChanges->save();
+            $this->modelForUpdate->save();
 
             return $this;
         }
-
-        $this->setSearchOrUpdateQuery($usingQueryBuilder);
 
         /**
          * @see https://php.net/manual/en/closure.call.php
          */
         $extra = !$usingQueryBuilder ?
-            (fn($args) => $this->addUpdatedAtColumn($args))->call($this->getSearchOrUpdateQuery(), []) :
+            (fn($args) => $this->addUpdatedAtColumn($args))->call($this->getSearchOrUpdateBuilder(), []) :
             [];
 
         $this->searchOrUpdateQuery->incrementEach($attributes, $extra);
@@ -180,35 +129,31 @@ trait Updatable
      *
      * @param  array  $attributes
      * @param  bool  $usingQueryBuilder
-     *
-     * The "usingQueryBuilder" parameter works only with the builder, not with a model instance
-     * that gets back when you call methods like "updateOrCreateModel".
-     *
      * @return $this
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
     public function decrementEach(array $attributes, bool $usingQueryBuilder = false)
     {
+        $this->prepareUpdateQuery($usingQueryBuilder);
+
         // If a model has been created or updated, it takes precedence. In such cases,
         // we will decrement the values of its columns.
-        if (!empty($this->appliedChanges)) {
+        if (!empty($this->modelForUpdate)) {
             foreach ($attributes as $column => $value) {
-                $this->appliedChanges->{$column} -= $value;
+                $this->modelForUpdate->{$column} -= $value;
             }
 
-            $this->appliedChanges->save();
+            $this->modelForUpdate->save();
 
             return $this;
         }
-
-        $this->setSearchOrUpdateQuery($usingQueryBuilder);
 
         /**
          * @see https://php.net/manual/en/closure.call.php
          */
         $extra = !$usingQueryBuilder ?
-            (fn($args) => $this->addUpdatedAtColumn($args))->call($this->getSearchOrUpdateQuery(), []) :
+            (fn($args) => $this->addUpdatedAtColumn($args))->call($this->getSearchOrUpdateBuilder(), []) :
             [];
 
         $this->searchOrUpdateQuery->decrementEach($attributes, $extra);
@@ -221,25 +166,21 @@ trait Updatable
      *
      * @param  array  $attributes
      * @param  bool  $usingQueryBuilder
-     *
-     * The "usingQueryBuilder" parameter works only with the builder, not with a model instance
-     * that gets back when you call methods like "updateOrCreateModel".
-     *
      * @return $this
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
     public function zeroOutColumns(array $attributes, bool $usingQueryBuilder = false)
     {
+        $this->prepareUpdateQuery($usingQueryBuilder);
+
         // If a model has been created or updated, it takes precedence. In such cases,
         // we will zero out the values of its columns.
-        if (!empty($this->appliedChanges)) {
-            $this->appliedChanges->update(array_fill_keys($attributes, 0));
+        if (!empty($this->modelForUpdate)) {
+            $this->modelForUpdate->update(array_fill_keys($attributes, 0));
 
             return $this;
         }
-
-        $this->setSearchOrUpdateQuery($usingQueryBuilder);
 
         $this->searchOrUpdateQuery->update(array_fill_keys($attributes, 0));
 
@@ -251,43 +192,37 @@ trait Updatable
      *
      * @param  array  $attributes
      * @param  bool  $usingQueryBuilder
-     *
-     * The "usingQueryBuilder" parameter works only with the builder, not with a model instance
-     * that gets back when you call methods like "updateOrCreateModel".
-     *
      * @return $this
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
     public function toggleColumns(array $attributes, bool $usingQueryBuilder = false)
     {
+        $this->prepareUpdateQuery($usingQueryBuilder);
+
         // If a model has been created or updated, it takes precedence. In such cases,
         // we will toggle the values of its columns.
-        if (!empty($this->appliedChanges)) {
-            $columns = $this->appliedChanges->only($attributes);
+        if (!empty($this->modelForUpdate)) {
+            $columns = $this->modelForUpdate->only($attributes);
 
             $toggle = array_map(fn($value) => !$value, $columns);
 
-            $this->appliedChanges->update($toggle);
+            $this->modelForUpdate->update($toggle);
 
             return $this;
         }
 
-        $this->setSearchOrUpdateQuery($usingQueryBuilder);
+        $columns = collect($attributes)
+            ->mapWithKeys(fn($attribute) => [$attribute => DB::raw("NOT $attribute")])
+            ->toArray();
 
-        $toggle = $this->searchOrUpdateQuery->get($attributes)->map(function (Model $attribute) {
-            return array_map(fn($value) => !$value, $attribute->toArray());
-        })->toArray();
-
-        if (!empty($toggle)) {
-            $this->searchOrUpdateQuery->update(...$toggle);
-        }
+        $this->searchOrUpdateQuery->update($columns);
 
         return $this;
     }
 
     /**
-     * Get an appropriate builder based on the context ("Searchable" or "Updatable").
+     * Get an appropriate builder based on the context "Searchable" or "Updatable".
      *
      * @param  string|null  $relationship
      * @param  bool  $isQueryBuilder
@@ -295,12 +230,8 @@ trait Updatable
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
-    protected function getSearchOrUpdateQuery(string $relationship = null, bool $isQueryBuilder = false)
+    protected function getSearchOrUpdateBuilder(string $relationship = null, bool $isQueryBuilder = false)
     {
-        if (!empty($this->searchOrUpdateQuery)) {
-            return $this->searchOrUpdateQuery;
-        }
-
         // If the "setRelationship" method exists, it means the request is coming
         // from the "Searchable" context since the "Updatable" trait is used there.
         if (!empty($relationship) && method_exists($this, 'setRelationship')) {
@@ -319,18 +250,40 @@ trait Updatable
     }
 
     /**
-     * Set the builder for the current context ("Searchable" or "Updatable").
+     * Prepare the update query.
      *
      * @param  bool  $usingQueryBuilder
      * @return void
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
-    protected function setSearchOrUpdateQuery(bool $usingQueryBuilder = false)
+    protected function prepareUpdateQuery(bool $usingQueryBuilder = false)
     {
-        if (empty($this->searchOrUpdateQuery)) {
-            $this->searchOrUpdateQuery = $this->getSearchOrUpdateQuery(isQueryBuilder: $usingQueryBuilder);
+        $model = $this->getUpdatableModel();
+
+        // If the developer has set a model for update, it takes precedence.
+        if (!empty($model) && $model->exists) {
+            $this->modelForUpdate = $model;
+        } elseif (empty($this->searchOrUpdateQuery)) {
+            $this->searchOrUpdateQuery = $this->getSearchOrUpdateBuilder(isQueryBuilder: $usingQueryBuilder);
         }
+    }
+
+    /**
+     * Set the given query according to its type.
+     *
+     * @param  \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|null  $query
+     * @return $this
+     */
+    public function setUpdatableQuery($query = null)
+    {
+        if ($query instanceof EloquentBuilder) {
+            $this->searchOrUpdateQuery = $query->getQuery();
+        } elseif ($query instanceof QueryBuilder) {
+            $this->searchOrUpdateQuery = $query;
+        }
+
+        return $this;
     }
 
     /**
@@ -343,18 +296,19 @@ trait Updatable
      */
     public function fetchBuilder(bool $isQueryBuilder = false)
     {
-        return $this->getSearchOrUpdateQuery(isQueryBuilder: $isQueryBuilder);
+        return $this->getSearchOrUpdateBuilder(isQueryBuilder: $isQueryBuilder);
     }
 
     /**
      * Fetch the result.
      *
-     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Collection
+     * @param  bool  $usingQueryBuilder
+     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Support\Collection|\Illuminate\Database\Eloquent\Collection
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
-    public function fetch()
+    public function fetch(bool $usingQueryBuilder = false)
     {
-        return $this->appliedChanges?->refresh() ?? $this->getSearchOrUpdateQuery()->get();
+        return $this->modelForUpdate?->refresh() ?? $this->fetchBuilder($usingQueryBuilder)->get();
     }
 }
