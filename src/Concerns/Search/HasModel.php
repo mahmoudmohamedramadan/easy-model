@@ -86,30 +86,6 @@ trait HasModel
     }
 
     /**
-     * Resolve the model for the current context.
-     *
-     * @return void
-     *
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
-     */
-    protected function resolveModel()
-    {
-        // We will check if the model has been set using the "setSearchableModel" or "setSearchableModel"
-        // method as a manual setting is more of a priority otherwise it means the developer uses
-        // the "Searchable" trait in the model itself.
-        if (!empty($this->getSearchableModel())) {
-            return;
-        }
-
-        if (is_a(self::class, Model::class, true)) {
-            $this->setSearchableModel(self::class);
-            return;
-        }
-
-        throw new InvalidModel("Cannot resolve the searchable model.");
-    }
-
-    /**
      * Apply the scopes to the query.
      *
      * @param  array  $scopes
