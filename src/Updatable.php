@@ -218,7 +218,7 @@ trait Updatable
     }
 
     /**
-     * Get an appropriate builder based on the context ("Searchable" or "Updatable").
+     * Get an appropriate builder based on the context "Searchable" or "Updatable".
      *
      * @param  string|null  $relationship
      * @param  bool  $isQueryBuilder
@@ -246,7 +246,7 @@ trait Updatable
     }
 
     /**
-     * Set the builder for the current context ("Searchable" or "Updatable").
+     * Set the builder for the current context "Searchable" or "Updatable".
      *
      * @param  bool  $usingQueryBuilder
      * @return void
