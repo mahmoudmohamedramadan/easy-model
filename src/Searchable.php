@@ -51,9 +51,9 @@ trait Searchable
      */
     public function addWheres(array $wheres, EloquentBuilder $query = null)
     {
-        $this->setQuery($query);
-
-        return $this->buildQueryUsingWheres($wheres);
+        return $this
+            ->setSearchableQuery($query)
+            ->buildQueryUsingWheres($wheres);
     }
 
     /**
@@ -67,9 +67,9 @@ trait Searchable
      */
     public function addOrWheres(array $wheres, EloquentBuilder $query = null)
     {
-        $this->setQuery($query);
-
-        return $this->buildQueryUsingWheres($wheres, 'orWhere');
+        return $this
+            ->setSearchableQuery($query)
+            ->buildQueryUsingWheres($wheres, 'orWhere');
     }
 
     /**
@@ -90,9 +90,9 @@ trait Searchable
         array $relation = [],
         EloquentBuilder $query = null
     ) {
-        $this->setQuery($query);
-
-        return $this->buildQueryUsingRelationConditions($has, $doesntHave, $relation);
+        return $this
+            ->setSearchableQuery($query)
+            ->buildQueryUsingRelationConditions($has, $doesntHave, $relation);
     }
 
     /**
@@ -113,9 +113,9 @@ trait Searchable
         array $relation = [],
         EloquentBuilder $query = null
     ) {
-        $this->setQuery($query);
-
-        return $this->buildQueryUsingRelationConditions($has, $doesntHave, $relation, 'orWhere');
+        return $this
+            ->setSearchableQuery($query)
+            ->buildQueryUsingRelationConditions($has, $doesntHave, $relation, 'orWhere');
     }
 
     /**
@@ -130,11 +130,9 @@ trait Searchable
      */
     public function addWhereHas(array $wheres, EloquentBuilder $query = null)
     {
-        $this->setQuery($query);
-
-        $this->buildQueryUsingWhereHasAndDoesntHave($wheres);
-
-        return $this;
+        return $this
+            ->setSearchableQuery($query)
+            ->buildQueryUsingWhereHasAndDoesntHave($wheres);
     }
 
     /**
@@ -149,11 +147,9 @@ trait Searchable
      */
     public function addOrWhereHas(array $wheres, EloquentBuilder $query = null)
     {
-        $this->setQuery($query);
-
-        $this->buildQueryUsingWhereHasAndDoesntHave($wheres, 'orWhereHas');
-
-        return $this;
+        return $this
+            ->setSearchableQuery($query)
+            ->buildQueryUsingWhereHasAndDoesntHave($wheres, 'orWhereHas');
     }
 
     /**
@@ -168,11 +164,9 @@ trait Searchable
      */
     public function addWhereDoesntHave(array $wheres, EloquentBuilder $query = null)
     {
-        $this->setQuery($query);
-
-        $this->buildQueryUsingWhereHasAndDoesntHave($wheres, 'whereDoesntHave');
-
-        return $this;
+        return $this
+            ->setSearchableQuery($query)
+            ->buildQueryUsingWhereHasAndDoesntHave($wheres, 'whereDoesntHave');
     }
 
     /**
@@ -187,11 +181,9 @@ trait Searchable
      */
     public function addOrWhereDoesntHave(array $wheres, EloquentBuilder $query = null)
     {
-        $this->setQuery($query);
-
-        $this->buildQueryUsingWhereHasAndDoesntHave($wheres, 'orWhereDoesntHave');
-
-        return $this;
+        return $this
+            ->setSearchableQuery($query)
+            ->buildQueryUsingWhereHasAndDoesntHave($wheres, 'orWhereDoesntHave');
     }
 
     /**
@@ -206,11 +198,9 @@ trait Searchable
      */
     public function addWhereRelation(array $wheres, EloquentBuilder $query = null)
     {
-        $this->setQuery($query);
-
-        $this->buildQueryUsingWhereRelation($wheres, 'whereRelation');
-
-        return $this;
+        return $this
+            ->setSearchableQuery($query)
+            ->buildQueryUsingWhereRelation($wheres, 'whereRelation');
     }
 
     /**
@@ -225,11 +215,9 @@ trait Searchable
      */
     public function addOrWhereRelation(array $wheres, EloquentBuilder $query = null)
     {
-        $this->setQuery($query);
-
-        $this->buildQueryUsingWhereRelation($wheres, 'orWhereRelation');
-
-        return $this;
+        return $this
+            ->setSearchableQuery($query)
+            ->buildQueryUsingWhereRelation($wheres, 'orWhereRelation');
     }
 
     /**
@@ -277,7 +265,7 @@ trait Searchable
      */
     protected function getSearchableQueryBuilder(EloquentBuilder $givenQuery = null)
     {
-        $this->setQuery($givenQuery);
+        $this->setSearchableQuery($givenQuery);
 
         return !empty($this->queryBuilder) ?
             $this->queryBuilder :
@@ -288,15 +276,17 @@ trait Searchable
      * Set the given query according to its type.
      *
      * @param  \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|null  $query
-     * @return void
+     * @return $this
      */
-    protected function setQuery($query = null)
+    public function setSearchableQuery($query = null)
     {
         if ($query instanceof EloquentBuilder) {
             $this->queryBuilder = $query->getQuery();
         } elseif ($query instanceof QueryBuilder) {
             $this->queryBuilder = $query;
         }
+
+        return $this;
     }
 
     /**
