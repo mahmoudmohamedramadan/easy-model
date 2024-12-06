@@ -31,10 +31,10 @@ trait HasModel
     protected $modelOrRelation;
 
     /**
-     * Set the searchable model without chaining the query.
+     * Set the searchable model.
      *
      * @param  \Illuminate\Database\Eloquent\Model|string  $model
-     * @return void
+     * @return $this
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
@@ -48,6 +48,8 @@ trait HasModel
         }
 
         $this->searchableModel = $model;
+
+        return $this;
     }
 
     /**
@@ -58,21 +60,6 @@ trait HasModel
     protected function getSearchableModel()
     {
         return is_string($this->searchableModel) ? new $this->searchableModel : $this->searchableModel;
-    }
-
-    /**
-     * Set the searchable model then chain the query.
-     *
-     * @param  \Illuminate\Database\Eloquent\Model|string  $model
-     * @return $this
-     *
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
-     */
-    public function setChainableModel($model)
-    {
-        $this->setSearchableModel($model);
-
-        return $this;
     }
 
     /**
@@ -107,7 +94,7 @@ trait HasModel
      */
     protected function resolveModel()
     {
-        // We will check if the model has been set using the "setSearchableModel" or "setChainableModel"
+        // We will check if the model has been set using the "setSearchableModel" or "setSearchableModel"
         // method as a manual setting is more of a priority otherwise it means the developer uses
         // the "Searchable" trait in the model itself.
         if (!empty($this->getSearchableModel())) {
