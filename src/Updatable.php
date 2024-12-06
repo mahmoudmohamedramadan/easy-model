@@ -261,11 +261,10 @@ trait Updatable
     {
         $model = $this->getUpdatableModel();
 
+        // If the developer has set a model for update, it takes precedence.
         if (!empty($model) && $model->exists) {
             $this->modelForUpdate = $model;
-        }
-
-        if (empty($this->searchOrUpdateQuery)) {
+        } elseif (empty($this->searchOrUpdateQuery)) {
             $this->searchOrUpdateQuery = $this->getSearchOrUpdateBuilder(isQueryBuilder: $usingQueryBuilder);
         }
     }
