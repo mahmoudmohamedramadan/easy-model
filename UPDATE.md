@@ -108,9 +108,9 @@ Alternatively, if you prefer not to define the model at the class level, you can
 
 ```PHP
 /**
- * Store a newly created resource in storage.
+ * Update the specified resource in storage.
  */
-public function store()
+public function update()
 {
     return $this
         ->setUpdatableModel(Post::find(4))
@@ -121,7 +121,7 @@ public function store()
 
 ## Establish Query
 
-As an added bonus, you can effortlessly set a eloquent or query builder to begin building by using the `setUpdatableQuery` method:
+Additionally, you can easily configure either an Eloquent or query builder to start building by using the `setUpdatableQuery` method:
 
 ```PHP
 /**
