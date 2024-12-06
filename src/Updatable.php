@@ -88,10 +88,6 @@ trait Updatable
      *
      * @param  array  $attributes
      * @param  bool  $usingQueryBuilder
-     *
-     * The "usingQueryBuilder" parameter works only with the builder, not with a model instance
-     * that gets back when you call methods like "updateOrCreateModel".
-     *
      * @return $this
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
@@ -129,10 +125,6 @@ trait Updatable
      *
      * @param  array  $attributes
      * @param  bool  $usingQueryBuilder
-     *
-     * The "usingQueryBuilder" parameter works only with the builder, not with a model instance
-     * that gets back when you call methods like "updateOrCreateModel".
-     *
      * @return $this
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
@@ -170,10 +162,6 @@ trait Updatable
      *
      * @param  array  $attributes
      * @param  bool  $usingQueryBuilder
-     *
-     * The "usingQueryBuilder" parameter works only with the builder, not with a model instance
-     * that gets back when you call methods like "updateOrCreateModel".
-     *
      * @return $this
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
@@ -200,10 +188,6 @@ trait Updatable
      *
      * @param  array  $attributes
      * @param  bool  $usingQueryBuilder
-     *
-     * The "usingQueryBuilder" parameter works only with the builder, not with a model instance
-     * that gets back when you call methods like "updateOrCreateModel".
-     *
      * @return $this
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
@@ -224,8 +208,8 @@ trait Updatable
 
         $this->setSearchOrUpdateQuery($usingQueryBuilder);
 
-        $toggle = $this->searchOrUpdateQuery->get($attributes)->map(function (Model $attribute) {
-            return array_map(fn($value) => !$value, $attribute->toArray());
+        $toggle = $this->searchOrUpdateQuery->get($attributes)->map(function (Model $model) {
+            return array_map(fn($value) => !$value, $model->toArray());
         })->toArray();
 
         if (!empty($toggle)) {
