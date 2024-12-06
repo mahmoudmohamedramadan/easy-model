@@ -11,6 +11,7 @@
 - [Other Contexts](#other-contexts)
   - [Chainable Methods](#chainable-methods)
   - [Models](#models)
+- [Establish Query](#establish-query)
 
 ## Controllers / Services Context
 
@@ -143,7 +144,7 @@ It enables you also to search in the model relationship using the `setRelationsh
 public function index()
 {
     return $this
-        ->setChainableModel(User::first())
+        ->setSearchableModel(User::first())
         ->setRelationship('posts')
         ->addWheres([
             ['title', 'Easy Model']
@@ -167,7 +168,7 @@ Moreover, you can order the result by using the `addOrderBy` method:
 public function index()
 {
     return $this
-        ->setChainableModel(new User)
+        ->setSearchableModel(new User)
         ->addWhereRelation([
             ['posts', 'title', 'LIKE', '%Easy Model%']
         ])
@@ -189,7 +190,7 @@ Besides, you can amazingly order the model by its relationships:
 public function index()
 {
     return $this
-        ->setChainableModel(new User)
+        ->setSearchableModel(new User)
         ->addWhereHas([
             'posts>1'
         ])
@@ -216,7 +217,7 @@ According to **Scopes**, it enables you to use the Local and Global Scopes toget
 public function index()
 {
     return $this
-        ->setChainableModel(User::class)
+        ->setSearchableModel(User::class)
         ->addWheres([
             ['name', 'Mahmoud Ramadan']
         ])
@@ -243,7 +244,7 @@ Furthermore, you can ignore specific Global Scopes using the `ignoreGlobalScopes
 public function index()
 {
     return $this
-        ->setChainableModel(User::class)
+        ->setSearchableModel(User::class)
         ->addWheres([
             ['name', 'Mahmoud Ramadan']
         ])
@@ -268,7 +269,7 @@ By default, the result excludes soft-deleted records. However, you can explicitl
 public function index()
 {
     return $this
-        ->setChainableModel(User::class)
+        ->setSearchableModel(User::class)
         ->addWheres([
             ['name', 'Mahmoud Ramadan']
         ])
@@ -289,7 +290,7 @@ On top of that, you can seamlessly take advantage of all Laravel methods:
 public function index()
 {
     return $this
-        ->setChainableModel(User::class)
+        ->setSearchableModel(User::class)
         ->usingScopes([
             EmailVerifiedScope::class,
         ])
@@ -315,7 +316,7 @@ The `Searchable` trait also includes the methods from the [`Updatable`](UPDATE.m
 public function destroy()
 {
     return $this
-        ->setChainableModel(User::class)
+        ->setSearchableModel(User::class)
         ->addWheres([
             ['id', '>', 1]
         ])
@@ -328,7 +329,7 @@ public function destroy()
 
 ### Chainable Methods
 
-On the other hand, if you do not like to specify the model over the whole **Controller / Service** you can do so in each method separately using the `setChainableModel` method:
+On the other hand, if you do not like to specify the model over the whole **Controller / Service** you can do so in each method separately:
 
 ```PHP
 /**
@@ -337,7 +338,7 @@ On the other hand, if you do not like to specify the model over the whole **Cont
 public function index()
 {
     return $this
-        ->setChainableModel(User::class)
+        ->setSearchableModel(User::class)
         ->addWhereRelation([
             ['posts', 'title', 'Easy Model']
         ])
@@ -367,5 +368,28 @@ class Post extends Model
             )
             ->execute();
     }
+}
+```
+
+## Establish Query
+
+As an added bonus, you can effortlessly set a eloquent or query builder to begin building by using the `setSearchableQuery` method:
+
+```PHP
+/**
+ * Update the specified resource in storage.
+ */
+public function update()
+{
+    $query = DB::table('contributors')->where('id', '>', 4);
+
+    return $this
+        ->setSearchableModel(Contributor::class)
+        ->setSearchableQuery($query)
+        ->addWhereRelation([
+            ['projects', 'tags', 'Laravel']
+        ])
+        ->incrementEach(['commits' => 500])
+        ->fetch();
 }
 ```
