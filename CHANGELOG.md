@@ -1,6 +1,21 @@
 # Release Notes for 1.x
 
-## [Unreleased](https://github.com/mahmoudmohamedramadan/easy-model/compare/v1.1.2...1.x)
+## [Unreleased](https://github.com/mahmoudmohamedramadan/easy-model/compare/v1.1.3...1.x)
+
+## [v1.1.3](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.1.3)
+
+- [1.x] Adds the `setUpdatableQuery` method.
+- [1.x] Adds the `fetchBuilder` method.
+- [1.x] Adds the `setSearchableQuery` method.
+- [1.x] Adds the ability to specify the builder type that is getting back.
+- [1.x] Updates the return type of the `setUpdatableModel` method.
+- [1.x] Removes the `setChainableModel` method.
+- [1.x] Removes the `updateOrCreateModel` and `updateOrCreateRelationship` methods.
+- [1.x] Fixes the issue of updating single model instances.
+- [1.x] Fixes the issue of populating the `updated_at` column when incrementing and decrementing values.
+- [1.x] Fixes the issue of toggling many columns at a bunch of records.
+- [1.x] Fixes the model serialization issue encountered in the `toggleColumns` method.
+- [1.x] Fixes the issue of updating an empty array of togglable columns.
 
 ## [v1.1.2](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.1.2)
 
