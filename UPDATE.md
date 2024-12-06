@@ -88,9 +88,9 @@ As a bonus, you can effortlessly leverage all the built-in Laravel methods:
 
 ```PHP
 /**
- * Update the specified resource in storage.
+ * Store a newly created resource in storage.
  */
-public function update()
+public function store()
 {
     return $this
         ->fetchBuilder()
