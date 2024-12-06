@@ -18,7 +18,7 @@ trait HasModel
      * Set the updatable model.
      *
      * @param  \Illuminate\Database\Eloquent\Model|string  $model
-     * @return void
+     * @return $this
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
@@ -32,6 +32,8 @@ trait HasModel
         }
 
         $this->updatableModel = $model;
+
+        return $this;
     }
 
     /**
