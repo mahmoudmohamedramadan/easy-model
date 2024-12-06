@@ -277,7 +277,7 @@ trait Updatable
      * Fetch the result.
      *
      * @param  bool  $usingQueryBuilder
-     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Collection
+     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Support\Collection|\Illuminate\Database\Eloquent\Collection
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
