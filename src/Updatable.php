@@ -210,9 +210,11 @@ trait Updatable
 
         $this->setSearchOrUpdateQuery($usingQueryBuilder);
 
-        $this->searchOrUpdateQuery->update(
-            array_map(fn($attribute) => [$attribute => DB::raw("NOT $attribute")], $attributes)[0]
-        );
+        $columns = collect($attributes)
+            ->mapWithKeys(fn($attribute) => [$attribute => DB::raw("NOT $attribute")])
+            ->toArray();
+
+        $this->searchOrUpdateQuery->update($columns);
 
         return $this;
     }
