@@ -228,10 +228,6 @@ trait Updatable
      */
     protected function getSearchOrUpdateQuery(string $relationship = null, bool $isQueryBuilder = false)
     {
-        if (!empty($this->searchOrUpdateQuery)) {
-            return $this->searchOrUpdateQuery;
-        }
-
         // If the "setRelationship" method exists, it means the request is coming
         // from the "Searchable" context since the "Updatable" trait is used there.
         if (!empty($relationship) && method_exists($this, 'setRelationship')) {
@@ -280,12 +276,13 @@ trait Updatable
     /**
      * Fetch the result.
      *
+     * @param  bool  $usingQueryBuilder
      * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Collection
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
-    public function fetch()
+    public function fetch(bool $usingQueryBuilder = false)
     {
-        return $this->appliedChanges?->refresh() ?? $this->getSearchOrUpdateQuery()->get();
+        return $this->appliedChanges?->refresh() ?? $this->fetchBuilder($usingQueryBuilder)->get();
     }
 }
