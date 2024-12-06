@@ -73,7 +73,9 @@ trait Updatable
     /**
      * Delete records from the database.
      *
-     * @param  bool  $usingQueryBuilder
+     * @param  bool  $usingQueryBuilder  Whether to use the query builder to perform the delete.
+     *                                   If true, the delete will bypass any soft deletes and
+     *                                   permanently delete the records.
      * @return int
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
