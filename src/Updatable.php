@@ -3,6 +3,8 @@
 namespace Ramadan\EasyModel;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Ramadan\EasyModel\Concerns\Update\HasModel as UpdatableModel;
 use Ramadan\EasyModel\Exceptions\InvalidModel;
 
@@ -260,6 +262,23 @@ trait Updatable
         if (empty($this->searchOrUpdateQuery)) {
             $this->searchOrUpdateQuery = $this->getSearchOrUpdateQuery(isQueryBuilder: $usingQueryBuilder);
         }
+    }
+
+    /**
+     * Set the given query according to its type.
+     *
+     * @param  \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|null  $query
+     * @return $this
+     */
+    public function setUpdatableQuery($query = null)
+    {
+        if ($query instanceof EloquentBuilder) {
+            $this->searchOrUpdateQuery = $query->getQuery();
+        } elseif ($query instanceof QueryBuilder) {
+            $this->searchOrUpdateQuery = $query;
+        }
+
+        return $this;
     }
 
     /**
