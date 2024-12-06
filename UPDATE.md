@@ -1,10 +1,13 @@
 # Update Features
 
 - [Controllers / Services Context](#controllers--services-context)
-  - [Models](#models)
-  - [Relations](#relations)
+  - [Flipping Attributes](#flipping-attributes)
+  - [Reset Attributes](#reset-attributes)
+  - [Increment / Decrement Attributes](#increment--decrement-attributes)
+  - [Laravel Methods](#laravel-methods)
 - [Other Contexts](#other-contexts)
-  - [Model Injection](#model-injection)
+  - [Chainable Methods](#chainable-methods)
+- [Establish Query](#establish-query)
 
 ## Controllers / Services Context
 
@@ -30,26 +33,9 @@ class UserController extends Controller
 }
 ```
 
-### Models
+### Flipping Attributes
 
-After that, you can start updating the models using the `updateOrCreateModel` method:
-
-```PHP
-/**
- * Store a newly created resource in storage.
- */
-public function store()
-{
-    return $this
-        ->updateOrCreateModel(['name' => 'Mahmoud Ramadan', 'email' => 'easymodel@updatable.org'], [
-            'password' => bcrypt('admin'),
-        ])
-        ->incrementEach(['points' => 2])
-        ->fetch();
-}
-```
-
-After incrementing specific columns, you can easily reset them to zero using the `zeroOutColumns` method:
+If you have boolean columns and you need to toggle them simply, you can use the `toggleColumns` method:
 
 ```PHP
 /**
@@ -58,55 +44,67 @@ After incrementing specific columns, you can easily reset them to zero using the
 public function update()
 {
     return $this
-        ->updateOrCreateModel(['name' => 'Mahmoud Ramadan', 'email' => 'easymodel@updatable.org'], [
-            'password' => bcrypt('admin'),
-        ])
-        ->zeroOutColumns(['points', 'views'])
-        ->fetch();
-}
-```
-
-Moreover, if you have boolean columns and you need to toggle them simply, you can use the `toggleColumns` method:
-
-```PHP
-/**
- * Update the specified resource in storage.
- */
-public function update()
-{
-    return $this
-        ->updateOrCreateModel(['name' => 'Mahmoud Ramadan'], [
-            'password' => bcrypt('creator'),
-        ])
         ->toggleColumns(['is_admin', 'is_available'])
         ->fetch();
 }
 ```
 
-### Relations
+### Reset Attributes
 
-What's more, you can update the relationship using the `updateOrCreateRelationship` method:
+Also, you can easily reset them to zero using the `zeroOutColumns` method:
 
 ```PHP
 /**
  * Update the specified resource in storage.
  */
-public function Update()
+public function update()
 {
     return $this
-        ->updateOrCreateRelationship('posts', ['title' => 'Welcome "Updatable" trait!', 'user_id' => 1], [
-            'body' => 'Easy Model package for enjoyably managing database queries.',
-        ])
+        ->zeroOutColumns(['points', 'views'])
+        ->fetch();
+}
+```
+
+### Increment / Decrement Attributes
+
+In addition, you can adjust the models using the `incrementEach` and `decrementEach` methods:
+
+```PHP
+/**
+ * Update the specified resource in storage.
+ */
+public function update()
+{
+    return $this
+        ->incrementEach(['points' => 2])
         ->decrementEach(['views' => 3])
         ->fetch();
 }
 ```
 
+### Laravel Methods
+
+As a bonus, you can effortlessly leverage all the built-in Laravel methods:
+
+```PHP
+/**
+ * Update the specified resource in storage.
+ */
+public function update()
+{
+    return $this
+        ->fetchBuilder()
+        ->insertGetId(
+            ['name' => 'Mateo Stark', 'email' => 'mateostark@example.com', 'password' => bcrypt('mateostark')]
+        );
+}
+```
+
 ## Other Contexts
 
-### Model Injection
+### Chainable Methods
 
-Alternatively, if you prefer not to define the model at the class level, you can optionally pass the model directly:
+Alternatively, if you prefer not to define the model at the class level, you can do so in each method separately:
 
 ```PHP
 /**
@@ -115,10 +113,28 @@ Alternatively, if you prefer not to define the model at the class level, you can
 public function store()
 {
     return $this
-        ->updateOrCreateModel(['name' => 'Mahmoud Ramadan', 'email' => 'easymodel@updatable.org'], [
-            'password' => bcrypt('admin'),
-        ], User::class)
-        ->incrementEach(['points' => 2])
+        ->setUpdatableModel(Post::find(4))
+        ->incrementEach(['views' => 3])
+        ->fetch();
+}
+```
+
+## Establish Query
+
+As an added bonus, you can effortlessly set a eloquent or query builder to begin building by using the `setUpdatableQuery` method:
+
+```PHP
+/**
+ * Update the specified resource in storage.
+ */
+public function update()
+{
+    $query = DB::table('projects')->where('name', 'Easy Model');
+
+    return $this
+        ->setUpdatableModel(Project::class)
+        ->setUpdatableQuery($query)
+        ->incrementEach(['prs' => 2])
         ->fetch();
 }
 ```
