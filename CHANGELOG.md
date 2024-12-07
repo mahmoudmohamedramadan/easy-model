@@ -11,11 +11,11 @@
 - [1.x] Updates the return type of the `setUpdatableModel` method.
 - [1.x] Removes the `setChainableModel` method.
 - [1.x] Removes the `updateOrCreateModel` and `updateOrCreateRelationship` methods.
-- [1.x] Fixes the issue of updating single model instances.
-- [1.x] Fixes the issue of populating the `updated_at` column when incrementing and decrementing values.
-- [1.x] Fixes the issue of toggling many columns at a bunch of records.
+- [1.x] Fixes updating single model instances.
+- [1.x] Fixes populating the `updated_at` column when incrementing and decrementing values.
+- [1.x] Fixes toggling many columns at a bunch of records.
 - [1.x] Fixes the model serialization issue encountered in the `toggleColumns` method.
-- [1.x] Fixes the issue of updating an empty array of togglable columns.
+- [1.x] Fixes updating an empty array of togglable columns.
 
 ## [v1.1.2](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.1.2)
 
@@ -36,25 +36,25 @@
 ## [v1.1.0](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.1.0)
 
 - [1.x] Refactors the code.
-- [1.x] Fixes the issue of providing columns and values only to `addWheres` and `addOrWheres` methods.
+- [1.x] Fixes the providing columns and values only to the `addWheres` and `addOrWheres` methods.
 
 ## [v1.0.9](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.9)
 
-- [1.x] Fixes the issue of ordering the result by the same model and its relationship column.
+- [1.x] Fixes the result ordering by the same model and its relationship column.
 - [1.x] Adds the ability to pass closures to `addWheres` and `addOrWheres` methods.
 
 ## [v1.0.8](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.8)
 
 - [1.x] Adds the ability to order the result using `HasOne`, `HasMany`, `BelongsTo`, and `BelongsToMany` relationships.
-- [1.x] Fixes the issue of ordering the result by model relationship.
+- [1.x] Fixes the result of ordering by model relationship.
 - [1.x] Optimizes the query time.
 - [1.x] Improves the code's readability.
 - [1.x] Adds the ability to use `Local Scopes` and `Global Scopes`.
 
 ## [v1.0.7](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.7)
 
-- [1.x] Fixes the issue of searching in the relationship with an anonymous model.
-- [1.x] Fixes the issue of searching within the model itself.
+- [1.x] Fixes searching in the relationship with an anonymous model.
+- [1.x] Fixes searching within the model itself.
 - [1.x] Renames the `addAllWheres` and `addOrAllWheres` methods to `addRelationConditions` and `addOrRelationConditions`.
 - [1.x] Improves the code's readability.
 - [1.x] Updates the `order by` query by replacing the foreign with the primary key.
