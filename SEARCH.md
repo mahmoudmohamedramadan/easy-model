@@ -54,7 +54,7 @@ public function index()
              fn($q) => $q->whereNotNull('email_verified_at')
         ])
         ->addOrWheres([
-            ['email', 'LIKE', '%example.org%']
+            ['email', 'LIKE', '%@easymodel.org']
         ])
         ->execute()
         ->get();
@@ -75,7 +75,7 @@ public function index()
     return $this
         ->addWhereHas([
             // 'posts>2',
-            'posts' => fn($q) => $q->where('title', 'LIKE','%Foo%'),
+            'posts' => fn($q) => $q->where('title', 'LIKE', 'It\'s finally here! 🚀'),
         ])
         ->addWhereDoesntHave([
             'comments'
@@ -98,10 +98,10 @@ public function index()
 {
     return $this
         ->addWhereRelation([
-            'posts' => fn($q) => $q->where('title', 'LIKE','%Foo%'),
+            'platforms' => fn($q) => $q->where('name', 'DEV'),
         ])
         ->addOrWhereRelation([
-            ['comments', 'body', 'LIKE', '%Easy Model%']
+            ['platforms', 'joined_on', 'Jan 15, 2024']
         ])
         ->execute()
         ->get();
@@ -125,7 +125,7 @@ public function index()
                 'posts>1'
             ],
             relation: [
-                'posts.comments' => fn($q) => $q->where('body', 'LIKE', '%sit%'),
+                'posts.tags' => fn($q) => $q->where('name', 'laravel'),
             ]
         )
         ->execute()
@@ -144,13 +144,13 @@ It enables you also to search in the model relationship using the `setRelationsh
 public function index()
 {
     return $this
-        ->setSearchableModel(User::first())
-        ->setRelationship('posts')
+        ->setSearchableModel(Contributor::first())
+        ->setRelationship('packages')
         ->addWheres([
-            ['title', 'Easy Model']
+            ['is_public', true]
         ])
         ->addWhereRelation([
-            ['comments', 'body', 'LIKE', '%Laravel%']
+            ['pullRequests', 'title', 'LIKE', '[1.x]%']
         ])
         ->execute()
         ->get();
@@ -168,9 +168,9 @@ Moreover, you can order the result by using the `addOrderBy` method:
 public function index()
 {
     return $this
-        ->setSearchableModel(new User)
+        ->setSearchableModel(new Influencer)
         ->addWhereRelation([
-            ['posts', 'title', 'LIKE', '%Easy Model%']
+            ['articles', 'share_count', '>', 5000]
         ])
         ->addOrderBy([
             'name',
@@ -190,13 +190,13 @@ Besides, you can amazingly order the model by its relationships:
 public function index()
 {
     return $this
-        ->setSearchableModel(new User)
+        ->setSearchableModel(new Influencer)
         ->addWhereHas([
-            'posts>1'
+            'articles>200'
         ])
         ->addOrderBy([
             // 'created_at',
-            ['posts.comments.created_at' => 'desc']
+            ['articles.comments.created_at' => 'desc']
         ])
         ->execute()
         ->get();
@@ -217,15 +217,15 @@ According to **Scopes**, it enables you to use the Local and Global Scopes toget
 public function index()
 {
     return $this
-        ->setSearchableModel(User::class)
+        ->setSearchableModel(Developer::class)
         ->addWheres([
-            ['name', 'Mahmoud Ramadan']
+            ['specialize', 'Back-end']
         ])
         ->usingScopes([
-            // new EmailVerifiedScope, // Global Scope in object
-            EmailVerifiedScope::class, // Global Scope in string
+            // new HasManyUpvotesScope, // Global Scope in object
+            HasManyUpvotesScope::class, // Global Scope in string
             // 'isActive', // Local Scope method does not require additional parameters
-            'isAdmin' => [false, fn($q) => $q->where('id', '>', 2)], // Local Scope requires additional parameters
+            'askQuestions' => [true, fn($q) => $q->has('answers')], // Local Scope requires additional parameters
         ])
         ->execute()
         ->get();
@@ -244,15 +244,14 @@ Furthermore, you can ignore specific Global Scopes using the `ignoreGlobalScopes
 public function index()
 {
     return $this
-        ->setSearchableModel(User::class)
+        ->setSearchableModel(Merchant::class)
         ->addWheres([
-            ['name', 'Mahmoud Ramadan']
+            ['rate_avg', '>=', 3]
         ])
         ->usingScopes([
-            UserIsAdminScope::class,
-            EmailVerifiedScope::class,
+            HasManyBranchesScope::class,
         ])
-        ->ignoreGlobalScopes([UserIsAdminScope::class])
+        ->ignoreGlobalScopes([ManagerIsYoungScope::class])
         ->execute()
         ->get();
 }
@@ -269,9 +268,9 @@ By default, the result excludes soft-deleted records. However, you can explicitl
 public function index()
 {
     return $this
-        ->setSearchableModel(User::class)
+        ->setSearchableModel(Admin::class)
         ->addWheres([
-            ['name', 'Mahmoud Ramadan']
+            ['email', 'LIKE', '%.net']
         ])
         ->includeSoftDeleted()
         ->execute()
@@ -292,7 +291,7 @@ public function index()
     return $this
         ->setSearchableModel(User::class)
         ->usingScopes([
-            EmailVerifiedScope::class,
+            BadgesScope::class,
         ])
         ->execute()
         ->chunk(50, function ($users) {
@@ -316,12 +315,12 @@ The `Searchable` trait also includes the methods from the [`Updatable`](UPDATE.m
 public function destroy()
 {
     return $this
-        ->setSearchableModel(User::class)
+        ->setSearchableModel(Admin::class)
         ->addWheres([
-            ['id', '>', 1]
+            ['role_id', 2]
         ])
-        // ->performUpdateQuery(['name' => fake()->name()])
-        ->performDeleteQuery();
+        // ->performUpdateQuery(['is_blocked' => true])
+        ->performDeleteQuery(true);
 }
 ```
 
@@ -340,7 +339,7 @@ public function index()
     return $this
         ->setSearchableModel(User::class)
         ->addWhereRelation([
-            ['posts', 'title', 'Easy Model']
+            ['interests', 'name', 'Open-Source']
         ])
         ->execute()
         ->get();
@@ -381,15 +380,15 @@ As an added bonus, you can effortlessly set a eloquent or query builder to begin
  */
 public function update()
 {
-    $query = DB::table('contributors')->where('id', '>', 4);
+    $query = DB::table('contributors')->where('name', 'Taylor Otwell');
 
     return $this
         ->setSearchableModel(Contributor::class)
         ->setSearchableQuery($query)
         ->addWhereRelation([
-            ['projects', 'tags', 'Laravel']
+            ['projects', 'name', 'Laravel']
         ])
-        ->incrementEach(['commits' => 500])
+        ->incrementEach(['commits' => 12])
         ->fetch();
 }
 ```

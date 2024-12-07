@@ -14,10 +14,10 @@
 As well as the **Searchable** trait, you can specify the **Updatable Model** in the `constructor` method:
 
 ```PHP
-use App\Models\User;
+use App\Models\Car;
 use Ramadan\EasyModel\Updatable;
 
-class UserController extends Controller
+class CarController extends Controller
 {
     use Updatable;
 
@@ -28,7 +28,7 @@ class UserController extends Controller
      */
     public function __construct()
     {
-        $this->setUpdatableModel(User::class);
+        $this->setUpdatableModel(Car::class);
     }
 }
 ```
@@ -44,7 +44,7 @@ If you have boolean columns and you need to toggle them simply, you can use the 
 public function update()
 {
     return $this
-        ->toggleColumns(['is_admin', 'is_available'])
+        ->toggleColumns(['is_new', 'is_automatic'])
         ->fetch();
 }
 ```
@@ -60,7 +60,7 @@ Also, you can easily reset them to zero using the `zeroOutColumns` method:
 public function update()
 {
     return $this
-        ->zeroOutColumns(['points', 'views'])
+        ->zeroOutColumns(['stock_count', 'discount_percentage'])
         ->fetch();
 }
 ```
@@ -76,8 +76,8 @@ In addition, you can adjust the models using the `incrementEach` and `decrementE
 public function update()
 {
     return $this
-        ->incrementEach(['points' => 2])
-        ->decrementEach(['views' => 3])
+        ->incrementEach(['mileage' => 100])
+        ->decrementEach(['discount_percentage' => 5])
         ->fetch();
 }
 ```
@@ -94,9 +94,11 @@ public function store()
 {
     return $this
         ->fetchBuilder()
-        ->insertGetId(
-            ['name' => 'Mateo Stark', 'email' => 'mateostark@example.com', 'password' => bcrypt('mateostark')]
-        );
+        ->insertGetId([
+            'make'  => 'Toyota',
+            'model' => 'Corolla',
+            'color' => 'red', 
+        ]);
 }
 ```
 
@@ -113,8 +115,8 @@ Alternatively, if you prefer not to define the model at the class level, you can
 public function update()
 {
     return $this
-        ->setUpdatableModel(Post::find(4))
-        ->incrementEach(['views' => 3])
+        ->setUpdatableModel(Car::find(4))
+        ->incrementEach(['discount_percentage' => 3])
         ->fetch();
 }
 ```
@@ -134,7 +136,7 @@ public function update()
     return $this
         ->setUpdatableModel(Project::class)
         ->setUpdatableQuery($query)
-        ->incrementEach(['prs' => 2])
+        ->incrementEach(['prs' => 3])
         ->fetch();
 }
 ```
