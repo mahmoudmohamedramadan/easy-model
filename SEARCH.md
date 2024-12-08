@@ -190,7 +190,7 @@ Besides, you can amazingly order the model by its relationships:
 public function index()
 {
     return $this
-        ->setSearchableModel(new Influencer)
+        ->setSearchableModel(Influencer::class)
         ->addWhereHas([
             'articles>200'
         ])
@@ -339,7 +339,7 @@ public function index()
     return $this
         ->setSearchableModel(User::class)
         ->addWhereRelation([
-            ['interests', 'name', 'Open-Source']
+            ['interests', 'slug', 'open-source']
         ])
         ->execute()
         ->get();
