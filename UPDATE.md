@@ -1,9 +1,9 @@
 # Update Features
 
 - [Controllers / Services Context](#controllers--services-context)
-  - [Flipping Attributes](#flipping-attributes)
-  - [Reset Attributes](#reset-attributes)
-  - [Increment / Decrement Attributes](#increment--decrement-attributes)
+  - [Flipping](#flipping)
+  - [Reset](#reset)
+  - [Increment / Decrement](#increment--decrement)
   - [Laravel Methods](#laravel-methods)
 - [Other Contexts](#other-contexts)
   - [Chainable Methods](#chainable-methods)
@@ -33,7 +33,7 @@ class CarController extends Controller
 }
 ```
 
-### Flipping Attributes
+### Flipping
 
 If you have boolean columns and you need to toggle them simply, you can use the `toggleColumns` method:
 
@@ -49,7 +49,7 @@ public function update()
 }
 ```
 
-### Reset Attributes
+### Reset
 
 Also, you can easily reset them to zero using the `zeroOutColumns` method:
 
@@ -65,7 +65,7 @@ public function update()
 }
 ```
 
-### Increment / Decrement Attributes
+### Increment / Decrement
 
 In addition, you can adjust the models using the `incrementEach` and `decrementEach` methods:
 
