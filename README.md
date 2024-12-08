@@ -20,7 +20,7 @@
 
 Why this package?
 
-**I am focused on simplifying the syntax to match my vision, making it easier for you to perform tasks that would typically require more lines of code or effort in Laravel, as well as addressing issues that Laravel still faces. The package is actively maintained, and I regularly review closed PRs in Laravel to find methods that can help achieve this.**
+**I am focused on simplifying the syntax to match my vision, making it easier for you to perform tasks that typically require more lines of code or effort in Laravel. I am also addressing issues that Laravel still faces. The package is actively maintained, and I regularly review closed PRs in Laravel to find methods to help achieve this.**
 
 What makes this package featured?
 
