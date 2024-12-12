@@ -25,7 +25,7 @@ Why this package?
 What makes this package featured?
 
 - **Accelerated Query Performance:**
-  - Significantly  improved query performance compared to native Laravel (see [fig. 1](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-vs-laravel-01.png) and [fig. 2](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-vs-laravel-02.png)).
+  - Significantly  improved query performance compared to native Laravel.
 
 - **Straightforward and Unified Syntax:**
   - Provides a unified, consistent syntax for `Query Builder` and `Eloquent Builder`.
@@ -34,7 +34,7 @@ What makes this package featured?
   - Fixes the ambiguous exception that arises when using the same column in both models and their relationships during ordering.
 
 - **Simplified Relationship Ordering:**
-  - Easily order results by model relationships (`HasOne`, `HasMany`, `BelongsTo`, `BelongsToMany`) without referring to manual joins ([fig. 3](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model-vs-laravel-03.png)).
+  - Easily order results by [model relationships](SEARCH.md#order-results) (`HasOne`, `HasMany`, `BelongsTo`, `BelongsToMany`) without referring to manual joins.
 
 - **Streamline Batch Updates:**
   - Effortlessly perform multiple updates using concise methods, consult [update.md](UPDATE.md).
