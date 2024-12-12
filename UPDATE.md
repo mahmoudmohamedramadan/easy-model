@@ -2,8 +2,8 @@
 
 - [Controllers / Services Context](#controllers--services-context)
   - [Flipping](#flipping)
-  - [Reset](#reset)
   - [Increment / Decrement](#increment--decrement)
+  - [Reset](#reset)
   - [Laravel Methods](#laravel-methods)
 - [Other Contexts](#other-contexts)
   - [Chainable Methods](#chainable-methods)
@@ -49,6 +49,23 @@ public function update()
 }
 ```
 
+### Increment / Decrement
+
+In addition, you can adjust the models using the `incrementEach` and `decrementEach` methods:
+
+```PHP
+/**
+ * Update the specified resource in storage.
+ */
+public function update()
+{
+    return $this
+        ->incrementEach(['stock_count' => 100])
+        ->decrementEach(['discount_percentage' => 5])
+        ->fetch();
+}
+```
+
 ### Reset
 
 Also, you can easily reset them to zero using the `zeroOutColumns` method:
@@ -61,23 +78,6 @@ public function update()
 {
     return $this
         ->zeroOutColumns(['stock_count', 'discount_percentage'])
-        ->fetch();
-}
-```
-
-### Increment / Decrement
-
-In addition, you can adjust the models using the `incrementEach` and `decrementEach` methods:
-
-```PHP
-/**
- * Update the specified resource in storage.
- */
-public function update()
-{
-    return $this
-        ->incrementEach(['mileage' => 100])
-        ->decrementEach(['discount_percentage' => 5])
         ->fetch();
 }
 ```

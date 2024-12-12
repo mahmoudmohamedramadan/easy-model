@@ -222,9 +222,8 @@ public function index()
             ['specialize', 'Back-end']
         ])
         ->usingScopes([
-            // new HasManyUpvotesScope, // Global Scope in object
-            HasManyUpvotesScope::class, // Global Scope in string
-            // 'isActive', // Local Scope method does not require additional parameters
+            HasManyUpvotesScope::class,
+            // 'isActive', // Local Scope does not require additional parameters
             'askQuestions' => [true, fn($q) => $q->has('answers')], // Local Scope requires additional parameters
         ])
         ->execute()
