@@ -229,8 +229,6 @@ trait Searchable
      */
     protected function getSearchableEloquentBuilder()
     {
-        $this->resolveModel();
-
         $model        = $this->getSearchableModel();
         $relationship = $this->getRelationship();
 
