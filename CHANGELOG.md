@@ -4,7 +4,8 @@
 
 ## [v1.1.4](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.1.4)
 
-- [1.x] Removes the `resolveModel` method.
+- [1.x] Refactors the code.
+- [1.x] Improves the code's readability.
 
 ## [v1.1.3](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.1.3)
 
