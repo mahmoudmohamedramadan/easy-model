@@ -4,8 +4,8 @@
 
 ## [v1.1.4](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.1.4)
 
-- [1.x] Restores the resolveModel method.
-- [1.x] Removes the resolveModel method.
+- [1.x] Restores the `resolveModel` method.
+- [1.x] Removes the `resolveModel` method.
 
 ## [v1.1.3](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.1.3)
 
