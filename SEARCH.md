@@ -295,9 +295,7 @@ public function index()
         ->execute()
         ->chunk(50, function ($users) {
             foreach ($users as $user) {
-                DB::table('users')
-                    ->where('id', $user->id)
-                    ->update(['credits' => 3]);
+                // do something here...
             }
         });
 }
