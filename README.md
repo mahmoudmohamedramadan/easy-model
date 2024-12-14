@@ -11,8 +11,6 @@
 - [Overview](#overview)
 - [Installation](#installation)
 - [Usage](#usage)
-  - [Search Features](#search-features)
-  - [Update Features](#update-features)
 - [Credits](#credits)
 - [Support Me](#support-me)
 
@@ -25,7 +23,7 @@ Why this package?
 What makes this package featured?
 
 - **Accelerated Query Performance:**
-  - Significantly  improved query performance compared to native Laravel.
+  - Significantly improved query performance compared to native Laravel.
 
 - **Straightforward and Unified Syntax:**
   - Provides a unified, consistent syntax for `Query Builder` and `Eloquent Builder`.
@@ -34,7 +32,7 @@ What makes this package featured?
   - Fixes the ambiguous exception that arises when using the same column in both models and their relationships during ordering.
 
 - **Simplified Relationship Ordering:**
-  - Easily order results by [model relationships](SEARCH.md#order-results) (`HasOne`, `HasMany`, `BelongsTo`, `BelongsToMany`) without referring to manual joins.
+  - Easily order results by model relationships (`HasOne`, `HasMany`, `BelongsTo`, `BelongsToMany`) without referring to manual joins. Check out [Order Results](SEARCH.md#order-results) to learn more.
 
 - **Streamline Batch Updates:**
   - Effortlessly perform multiple updates using concise methods, consult [update.md](UPDATE.md).
@@ -54,13 +52,7 @@ composer require ramadan/easy-model
 > [!WARNING]
 > Do not use both traits together, as doing so may lead to unexpected output. However, if you do, the most priority will be given to the **Searchable** trait.
 
-### Search Features
-
-Check out [search.md](SEARCH.md) for comprehensive examples and in-depth usage guidelines.
-
-### Update Features
-
-Check out [update.md](UPDATE.md) for comprehensive examples and in-depth usage guidelines.
+For comprehensive examples and in-depth usage guidelines, check out [search.md](SEARCH.md) and [update.md](UPDATE.md).
 
 ## Credits
 

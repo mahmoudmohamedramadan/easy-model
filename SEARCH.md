@@ -371,7 +371,7 @@ class Post extends Model
 
 ## Establish Query
 
-As an added bonus, you can effortlessly set a eloquent or query builder to begin building by using the `setSearchableQuery` method:
+As an added bonus, you can effortlessly set a eloquent or query builder instance to begin building by using the `setSearchableQuery` method:
 
 ```PHP
 /**

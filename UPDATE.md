@@ -123,7 +123,7 @@ public function update()
 
 ## Establish Query
 
-Additionally, you can easily configure either an Eloquent or query builder to start building by using the `setUpdatableQuery` method:
+Additionally, you can easily configure either an eloquent or query builder instance to start building by using the `setUpdatableQuery` method:
 
 ```PHP
 /**
