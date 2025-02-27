@@ -12,25 +12,25 @@
 
 ## [v1.1.3](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.1.3)
 
-- [1.x] Adds the `setUpdatableQuery` method.
 - [1.x] Adds the `fetchBuilder` method.
 - [1.x] Adds the `setSearchableQuery` method.
+- [1.x] Adds the `setUpdatableQuery` method.
 - [1.x] Adds the ability to specify the builder type that is getting back.
-- [1.x] Updates the return type of the `setUpdatableModel` method.
-- [1.x] Removes the `setChainableModel` method.
 - [1.x] Removes the `updateOrCreateModel` and `updateOrCreateRelationship` methods.
-- [1.x] Fixes updating single model instances.
+- [1.x] Removes the `setChainableModel` method.
+- [1.x] Updates the return type of the `setUpdatableModel` method.
+- [1.x] Fixes updating an empty array of togglable columns.
+- [1.x] Fixes the model serialization issue encountered in the `toggleColumns` method.
 - [1.x] Fixes populating the `updated_at` column when incrementing and decrementing values.
 - [1.x] Fixes toggling many columns at a bunch of records.
-- [1.x] Fixes the model serialization issue encountered in the `toggleColumns` method.
-- [1.x] Fixes updating an empty array of togglable columns.
+- [1.x] Fixes updating single model instances.
 
 ## [v1.1.2](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.1.2)
 
 - [1.x] Adds the `zeroOutColumns` method.
 - [1.x] Adds the `toggleColumns` method.
-- [1.x] Updates the functionality of incrementing and decrementing the columns.
 - [1.x] Adds the ability to execute update operations using `Query Builder` and `Eloquent Builder`.
+- [1.x] Updates the functionality of incrementing and decrementing the columns.
 
 ## [v1.1.1](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.1.1)
 
@@ -48,30 +48,30 @@
 
 ## [v1.0.9](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.9)
 
-- [1.x] Fixes the result ordering by the same model and its relationship column.
 - [1.x] Adds the ability to pass closures to `addWheres` and `addOrWheres` methods.
+- [1.x] Fixes the result of ordering by the same column in the model and its relationship.
 
 ## [v1.0.8](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.8)
 
 - [1.x] Adds the ability to order the result using `HasOne`, `HasMany`, `BelongsTo`, and `BelongsToMany` relationships.
-- [1.x] Fixes the result of ordering by model relationship.
-- [1.x] Optimizes the query time.
-- [1.x] Improves the code's readability.
 - [1.x] Adds the ability to use `Local Scopes` and `Global Scopes`.
+- [1.x] Improves the code's readability.
+- [1.x] Optimizes the query time.
+- [1.x] Fixes the result of ordering by model relationship.
 
 ## [v1.0.7](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.7)
 
-- [1.x] Fixes searching in the relationship with an anonymous model.
-- [1.x] Fixes searching within the model itself.
-- [1.x] Renames the `addAllWheres` and `addOrAllWheres` methods to `addRelationConditions` and `addOrRelationConditions`.
-- [1.x] Improves the code's readability.
 - [1.x] Updates the `order by` query by replacing the foreign with the primary key.
+- [1.x] Improves the code's readability.
+- [1.x] Renames the `addAllWheres` and `addOrAllWheres` methods to `addRelationConditions` and `addOrRelationConditions`.
+- [1.x] Fixes searching in the model itself.
+- [1.x] Fixes searching in the relationship with an anonymous model.
 
 ## [v1.0.6](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.6)
 
-- [1.x] Optimizes the query time.
 - [1.x] Adds the `ext-pdo` to `require` key.
 - [1.x] Adds the `laravel/framework` to `require` key.
+- [1.x] Optimizes the query time.
 - [1.x] Removes the `illuminate/database` from the `require` key.
 - [1.x] Removes the `illuminate/contracts` from the `require` key.
 - [1.x] Removes the `illuminate/pagination` from the `require` key.
