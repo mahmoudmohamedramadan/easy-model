@@ -1,6 +1,10 @@
 # Release Notes for 1.x
 
-## [Unreleased](https://github.com/mahmoudmohamedramadan/easy-model/compare/v1.1.5...1.x)
+## [Unreleased](https://github.com/mahmoudmohamedramadan/easy-model/compare/v1.1.6...1.x)
+
+## [v1.1.6](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.1.6)
+
+- [1.x] Adds the compatibility to support **Laravel v12**.
 
 ## [v1.1.5](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.1.5)
 
