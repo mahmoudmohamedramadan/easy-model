@@ -1,6 +1,10 @@
 # Release Notes for 1.x
 
-## [Unreleased](https://github.com/mahmoudmohamedramadan/easy-model/compare/v1.1.6...1.x)
+## [Unreleased](https://github.com/mahmoudmohamedramadan/easy-model/compare/v1.1.7...1.x)
+
+## [v1.1.7](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.1.7)
+
+- [1.x] Fixes deprecated declarations of nullable parameters.
 
 ## [v1.1.6](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.1.6)
 
