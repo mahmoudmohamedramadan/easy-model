@@ -34,7 +34,7 @@ trait Updatable
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
-    protected function getUpdatableEloquentBuilder(string $relationship = null)
+    protected function getUpdatableEloquentBuilder(?string $relationship = null)
     {
         if (empty($this->getUpdatableModel())) {
             throw new InvalidModel("You must set the updatable model first.");
@@ -53,7 +53,7 @@ trait Updatable
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
-    protected function getUpdatableQueryBuilder(string $relationship = null)
+    protected function getUpdatableQueryBuilder(?string $relationship = null)
     {
         return $this->getUpdatableEloquentBuilder($relationship)->getQuery();
     }
@@ -230,7 +230,7 @@ trait Updatable
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
-    protected function getSearchOrUpdateBuilder(string $relationship = null, bool $isQueryBuilder = false)
+    protected function getSearchOrUpdateBuilder(?string $relationship = null, bool $isQueryBuilder = false)
     {
         // If the "setRelationship" method exists, it means the request is coming
         // from the "Searchable" context since the "Updatable" trait is used there.
