@@ -51,7 +51,12 @@ public function index()
     return $this
         ->addWheres([
             ['name', 'Mahmoud Ramadan'],
-             fn($q) => $q->whereNotNull('email_verified_at')
+            // function ($q) {
+            //     $q
+            //         ->where('email', 'LIKE', '%.org%')
+            //         ->orWhere('phone', 'LIKE', '45%');
+            // },
+            fn($q) => $q->whereNotNull('email_verified_at'),
         ])
         ->addOrWheres([
             ['email', 'LIKE', '%@easymodel.org']
@@ -181,6 +186,9 @@ public function index()
 }
 ```
 
+> [!IMPORTANT]
+> The `addOrderBy` method accepts the column you need to be used in the order query (default direction is `ASC`) and agrees with an array where the key is the column and the value is the direction.
+
 Besides, you can amazingly order the model by its relationships:
 
 ```PHP
@@ -203,8 +211,8 @@ public function index()
 }
 ```
 
-> [!IMPORTANT]
-> The `addOrderBy` method accepts the column you need to be used in the order query (default direction is `ASC`) and agrees with an array where the key is the column and the value is the direction.
+> [!NOTE]
+> By default, this method resolves the issue of ambiguous columns by assuming that you need to order by the parent relationship. However, you can modify this behavior if necessary.
 
 ### Scopes
 
