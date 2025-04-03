@@ -49,7 +49,7 @@ trait Searchable
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
-    public function addWheres(array $wheres, EloquentBuilder $query = null)
+    public function addWheres(array $wheres, ?EloquentBuilder $query = null)
     {
         return $this
             ->setSearchableQuery($query)
@@ -65,7 +65,7 @@ trait Searchable
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
-    public function addOrWheres(array $wheres, EloquentBuilder $query = null)
+    public function addOrWheres(array $wheres, ?EloquentBuilder $query = null)
     {
         return $this
             ->setSearchableQuery($query)
@@ -88,7 +88,7 @@ trait Searchable
         array $has = [],
         array $doesntHave = [],
         array $relation = [],
-        EloquentBuilder $query = null
+        ?EloquentBuilder $query = null
     ) {
         return $this
             ->setSearchableQuery($query)
@@ -111,7 +111,7 @@ trait Searchable
         array $has = [],
         array $doesntHave = [],
         array $relation = [],
-        EloquentBuilder $query = null
+        ?EloquentBuilder $query = null
     ) {
         return $this
             ->setSearchableQuery($query)
@@ -128,7 +128,7 @@ trait Searchable
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
-    public function addWhereHas(array $wheres, EloquentBuilder $query = null)
+    public function addWhereHas(array $wheres, ?EloquentBuilder $query = null)
     {
         return $this
             ->setSearchableQuery($query)
@@ -145,7 +145,7 @@ trait Searchable
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
-    public function addOrWhereHas(array $wheres, EloquentBuilder $query = null)
+    public function addOrWhereHas(array $wheres, ?EloquentBuilder $query = null)
     {
         return $this
             ->setSearchableQuery($query)
@@ -162,7 +162,7 @@ trait Searchable
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
-    public function addWhereDoesntHave(array $wheres, EloquentBuilder $query = null)
+    public function addWhereDoesntHave(array $wheres, ?EloquentBuilder $query = null)
     {
         return $this
             ->setSearchableQuery($query)
@@ -179,7 +179,7 @@ trait Searchable
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
-    public function addOrWhereDoesntHave(array $wheres, EloquentBuilder $query = null)
+    public function addOrWhereDoesntHave(array $wheres, ?EloquentBuilder $query = null)
     {
         return $this
             ->setSearchableQuery($query)
@@ -196,7 +196,7 @@ trait Searchable
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
-    public function addWhereRelation(array $wheres, EloquentBuilder $query = null)
+    public function addWhereRelation(array $wheres, ?EloquentBuilder $query = null)
     {
         return $this
             ->setSearchableQuery($query)
@@ -213,7 +213,7 @@ trait Searchable
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
-    public function addOrWhereRelation(array $wheres, EloquentBuilder $query = null)
+    public function addOrWhereRelation(array $wheres, ?EloquentBuilder $query = null)
     {
         return $this
             ->setSearchableQuery($query)
@@ -263,7 +263,7 @@ trait Searchable
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
-    protected function getSearchableQueryBuilder(EloquentBuilder $givenQuery = null)
+    protected function getSearchableQueryBuilder(?EloquentBuilder $givenQuery = null)
     {
         $this->setSearchableQuery($givenQuery);
 

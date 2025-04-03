@@ -23,7 +23,7 @@ trait Orderable
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      * @throws \Ramadan\EasyModel\Exceptions\InvalidOrderableRelationship
      */
-    public function addOrderBy(array $orders, Builder $query = null)
+    public function addOrderBy(array $orders, ?Builder $query = null)
     {
         $queryBuilder = $this->getSearchableQueryBuilder($query);
         foreach ($orders as $order) {
