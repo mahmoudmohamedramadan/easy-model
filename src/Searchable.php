@@ -278,12 +278,12 @@ trait Searchable
      * @param  \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|null  $query
      * @return $this
      */
-    public function setSearchableQuery($query = null)
+    public function setSearchableQuery(QueryBuilder|EloquentBuilder|null $query = null)
     {
-        if ($query instanceof EloquentBuilder) {
-            $this->queryBuilder = $query->getQuery();
-        } elseif ($query instanceof QueryBuilder) {
+        if ($query instanceof QueryBuilder) {
             $this->queryBuilder = $query;
+        } elseif ($query instanceof EloquentBuilder) {
+            $this->queryBuilder = $query->getQuery();
         }
 
         return $this;
