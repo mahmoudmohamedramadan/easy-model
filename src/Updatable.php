@@ -275,12 +275,12 @@ trait Updatable
      * @param  \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|null  $query
      * @return $this
      */
-    public function setUpdatableQuery($query = null)
+    public function setUpdatableQuery(QueryBuilder|EloquentBuilder|null $query = null)
     {
-        if ($query instanceof EloquentBuilder) {
-            $this->searchOrUpdateQuery = $query->getQuery();
-        } elseif ($query instanceof QueryBuilder) {
+        if ($query instanceof QueryBuilder) {
             $this->searchOrUpdateQuery = $query;
+        } elseif ($query instanceof EloquentBuilder) {
+            $this->searchOrUpdateQuery = $query->getQuery();
         }
 
         return $this;
