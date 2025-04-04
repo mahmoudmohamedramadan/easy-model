@@ -31,7 +31,7 @@ trait ShouldBuildQueries
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
-    public function buildQueryUsingWheres($wheres, $method = 'where')
+    protected function buildQueryUsingWheres($wheres, $method = 'where')
     {
         $queryBuilder = $this->getSearchableQueryBuilder();
         foreach ($wheres as $where) {
@@ -91,7 +91,7 @@ trait ShouldBuildQueries
     protected function buildQueryUsingWhereHasAndDoesntHave($wheres, $method = 'whereHas')
     {
         foreach ($wheres as $relation => $closure) {
-            if (!is_string($closure) && !is_callable($closure)) {
+            if (!is_string($closure) && (!is_string($relation) && !is_callable($closure))) {
                 throw new InvalidArrayStructure(sprintf("The [%s] method must be well defined.", __METHOD__));
             }
 
@@ -214,7 +214,7 @@ trait ShouldBuildQueries
      * @param  string  $method
      * @return array
      */
-    protected function prepareParamtersForWhereHasAndDoesntHave(string $subject, string $method)
+    protected function prepareParamtersForWhereHasAndDoesntHave($subject, $method)
     {
         if (in_array($method, ['whereDoesntHave', 'orWhereDoesntHave'], true)) {
             return [
@@ -243,7 +243,7 @@ trait ShouldBuildQueries
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      */
-    protected function prepareParamtersForWhereRelation(string $relation, array|\Closure $closure)
+    protected function prepareParamtersForWhereRelation($relation, $closure)
     {
         if (is_string($relation) && is_callable($closure)) {
             return [

@@ -53,7 +53,7 @@ trait Orderable
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      * @throws \Ramadan\EasyModel\Exceptions\InvalidOrderableRelationship
      */
-    protected function prepareParamtersForOrderBy(string|array $order, $queryBuilder)
+    protected function prepareParamtersForOrderBy($order, $queryBuilder)
     {
         $currentModel = $this->resolveModelOrRelation();
 
