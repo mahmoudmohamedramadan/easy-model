@@ -212,7 +212,7 @@ public function index()
 ```
 
 > [!NOTE]
-> By default, this method resolves the issue of ambiguous columns by assuming that you need to order by the parent relationship. However, you can modify this behavior if necessary.
+> By default, this method resolves the issue of ambiguous columns by assuming that you need to order by the **searchable model** (e.g., `Influencer::class`). However, you can modify this behavior if necessary.
 
 ### Scopes
 
