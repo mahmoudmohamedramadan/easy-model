@@ -14,27 +14,7 @@ trait Searchable
     use SearchableModel, Orderable, ShouldBuildQueries, Updatable;
 
     /**
-     * The allowed operators.
-     *
-     * @var array
-     */
-    protected $allowedOperators =  [
-        '=',
-        '!=',
-        '>',
-        '<',
-        '>=',
-        '<=',
-        'like',
-        'not like',
-        'ilike',
-        'not ilike',
-        'rlike',
-        'not rlike',
-    ];
-
-    /**
-     * The operators pattern.
+     * Regular expression pattern used to match relational operators (e.g., >, <, =, >=, <=).
      *
      * @var string
      */

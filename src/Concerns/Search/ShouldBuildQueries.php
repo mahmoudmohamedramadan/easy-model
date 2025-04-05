@@ -240,8 +240,6 @@ trait ShouldBuildQueries
      * @param  string  $relation
      * @param  array|\Closure  $closure
      * @return array
-     *
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      */
     protected function prepareWhereRelationQueryParameters($relation, $closure)
     {
@@ -258,10 +256,6 @@ trait ShouldBuildQueries
         $column   = $closure[1];
         $operator = count($closure) === 4 ? $closure[2] : '=';
         $value    = count($closure) === 4 ? $closure[3] : $closure[2];
-
-        if (!in_array(strtolower($operator), $this->allowedOperators, true)) {
-            throw new InvalidArrayStructure(sprintf("The [%s] is not a valid operator.", $operator));
-        }
 
         return [
             'relation' => $relation,
