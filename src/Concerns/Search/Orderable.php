@@ -59,14 +59,14 @@ trait Orderable
 
         // If the given string does not contain a dot, the order will be applied directly to the
         // model's column. However, if the string includes a dot, it indicates that the order should
-        // be applied to a related model. In this case, we need to split the string to separate the
+        // be applied to a relationship. In this case, we need to split the string to separate the
         // relationship and the column by which the model should be ordered.
         if (is_string($order)) {
             $parts = explode('.', $order);
 
             // If the developer attempts to order by the same column from both the model and its relationship,
-            // an "Ambiguous Exception" will occur. To prevent this, we explicitly use the searchable model's
-            // table for ordering by its column.
+            // an "Ambiguous Exception" will be thrown. To resolve this, we explicitly use the searchable model's
+            // table for ordering by its given column. However, this behavior can be overridden if needed.
             // Example usage of "addOrderBy" method:
             // ->setSearchableModel(User::class)
             // ->addOrderBy([
@@ -88,9 +88,10 @@ trait Orderable
         }
 
         if (count($parts) > 1) {
-            // In case the order is related to the model relationships, we need to get the last
-            // relationship and the column that needs to be ordered (e.g., "post.comments.created_at").
-            $column = $this->performJoinsForRelationships($currentModel, $parts, $queryBuilder);
+            // If the order is based on model relationships, we need to retrieve the last relationship
+            // and the column to be ordered by (e.g., "post.comments.created_at").
+            // In this case, the column is "created_at" and the relationship is "comments".
+            $column = $this->performRelationshipsJoins($currentModel, $parts, $queryBuilder);
         }
 
         if (!in_array($direction, ['asc', 'desc'], true)) {
@@ -113,7 +114,7 @@ trait Orderable
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidOrderableRelationship
      */
-    protected function performJoinsForRelationships($currentModel, $relationships, $queryBuilder)
+    protected function performRelationshipsJoins($currentModel, $relationships, $queryBuilder)
     {
         for ($i = 0; $i < count($relationships) - 1; $i++) {
             $currentRelationship = $currentModel->{$relationships[$i]}();
