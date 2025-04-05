@@ -31,7 +31,7 @@ trait Orderable
                 throw new InvalidArrayStructure(sprintf("The [%s] method must be well defined.", __METHOD__));
             }
 
-            $paramters = $this->prepareParamtersForOrderBy($order, $queryBuilder);
+            $paramters = $this->prepareOrderByQueryParamters($order, $queryBuilder);
 
             $queryBuilder->{$queryBuilder->unions ? 'unionOrders' : 'orders'}[] = [
                 'column'    => $paramters['column'],
@@ -44,7 +44,7 @@ trait Orderable
     }
 
     /**
-     * Prepare the "orderBy" parameters.
+     * Prepare the "order by" parameters.
      *
      * @param  string|array  $order
      * @param  \Illuminate\Database\Query\Builder  $queryBuilder
@@ -53,7 +53,7 @@ trait Orderable
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      * @throws \Ramadan\EasyModel\Exceptions\InvalidOrderableRelationship
      */
-    protected function prepareParamtersForOrderBy($order, $queryBuilder)
+    protected function prepareOrderByQueryParamters($order, $queryBuilder)
     {
         $currentModel = $this->resolveModelOrRelation();
 
@@ -64,12 +64,14 @@ trait Orderable
         if (is_string($order)) {
             $parts = explode('.', $order);
 
-            // If the developer attempts to use the same column from both the model and its relationship
-            // to order the results, it will trigger an "Ambiguous Exception" To resolve this, we must
-            // explicitly specify which table the column belongs to.
-            // addOrderBy([
-            //     ['created_at' => 'desc'],
-            //     'posts.created_at'
+            // If the developer attempts to order by the same column from both the model and its relationship,
+            // an "Ambiguous Exception" will occur. To prevent this, we explicitly use the searchable model's
+            // table for ordering by its column.
+            // Example usage of "addOrderBy" method:
+            // ->setSearchableModel(User::class)
+            // ->addOrderBy([
+            //     ['created_at' => 'desc'], // This will trigger an "order by" on the "users" table
+            //     'posts.created_at' // You can also specify which relationship's table to use for ordering by its column
             // ])
             $column    = "{$currentModel->getTable()}.{$order}";
             $direction = 'asc';
@@ -88,7 +90,7 @@ trait Orderable
         if (count($parts) > 1) {
             // In case the order is related to the model relationships, we need to get the last
             // relationship and the column that needs to be ordered (e.g., "post.comments.created_at").
-            $column = $this->performJoinsForOrderByRelationships($currentModel, $parts, $queryBuilder);
+            $column = $this->performJoinsForRelationships($currentModel, $parts, $queryBuilder);
         }
 
         if (!in_array($direction, ['asc', 'desc'], true)) {
@@ -102,7 +104,7 @@ trait Orderable
     }
 
     /**
-     * Perform the "orderBy" joins.
+     * Perform joins for relationships in the query builder.
      *
      * @param  \Illuminate\Database\Eloquent\Model  $currentModel
      * @param  array  $relationships
@@ -111,7 +113,7 @@ trait Orderable
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidOrderableRelationship
      */
-    protected function performJoinsForOrderByRelationships($currentModel, $relationships, $queryBuilder)
+    protected function performJoinsForRelationships($currentModel, $relationships, $queryBuilder)
     {
         for ($i = 0; $i < count($relationships) - 1; $i++) {
             $currentRelationship = $currentModel->{$relationships[$i]}();
