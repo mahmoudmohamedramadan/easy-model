@@ -26,7 +26,7 @@ What makes this package featured?
   - Significantly improved query performance compared to native Laravel.
 
 - **Straightforward and Unified Syntax:**
-  - Provides a unified, consistent syntax for `Query Builder` and `Eloquent Builder`.
+  - Provides a unified, consistent syntax for `Query Builder` and `Eloquent Builder`. For more details, see [Establish Query](SEARCH.md#establish-query).
 
 - **Resolved Ambiguous Exception:**
   - Fixes the ambiguous exception that arises when using the same column in both models and their relationships during ordering.
