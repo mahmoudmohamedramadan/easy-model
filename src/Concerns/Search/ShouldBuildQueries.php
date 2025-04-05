@@ -36,8 +36,8 @@ trait ShouldBuildQueries
         $queryBuilder = $this->getSearchableQueryBuilder();
         foreach ($wheres as $where) {
             $this->{(match (gettype($where)) {
-                'object' => 'prepareClosuresForWheres',
-                'array'  => 'prepareArraysForWheres',
+                'object' => 'prepareNestedWhereClosure',
+                'array'  => 'prepareWhereConditions',
             })}($where, $queryBuilder, $method);
         }
         $this->queryBuilder = $queryBuilder;
@@ -95,7 +95,7 @@ trait ShouldBuildQueries
                 throw new InvalidArrayStructure(sprintf("The [%s] method must be well defined.", __METHOD__));
             }
 
-            $paramters = $this->prepareParamtersForWhereHasAndDoesntHave(
+            $paramters = $this->prepareWhereHasAndDoesntHaveQueryParameters(
                 is_string($closure) ? $closure : $relation,
                 $method
             );
@@ -129,7 +129,7 @@ trait ShouldBuildQueries
                 throw new InvalidArrayStructure(sprintf("The [%s] method must be well defined.", __METHOD__));
             }
 
-            $paramters = $this->prepareParamtersForWhereRelation($relation, $closure);
+            $paramters = $this->prepareWhereRelationQueryParameters($relation, $closure);
 
             $this->queryBuilder = $this->buildQueryUsingHas(
                 relation: $paramters['relation'],
@@ -175,7 +175,7 @@ trait ShouldBuildQueries
      * @param string  $method
      * @return void
      */
-    protected function prepareClosuresForWheres($where, $queryBuilder, $method = 'where')
+    protected function prepareNestedWhereClosure($where, $queryBuilder, $method = 'where')
     {
         $where($query = $queryBuilder->forNestedWhere());
         $boolean = $method === 'where' ? 'and' : 'or';
@@ -184,14 +184,14 @@ trait ShouldBuildQueries
     }
 
     /**
-     * Prepare an array of conditions to be inserted into the "where" clause.
+     * Prepare conditions to be inserted into the "where" clause.
      *
      * @param array  $where
      * @param \Illuminate\Database\Query\Builder  $queryBuilder
      * @param string  $method
      * @return void
      */
-    protected function prepareArraysForWheres($where, $queryBuilder, $method = 'where')
+    protected function prepareWhereConditions($where, $queryBuilder, $method = 'where')
     {
         $type = 'Basic';
 
@@ -210,22 +210,22 @@ trait ShouldBuildQueries
     /**
      * Prepare the "whereHas", and "whereDoesntHave" parameters.
      *
-     * @param  string  $subject
+     * @param  string  $relation
      * @param  string  $method
      * @return array
      */
-    protected function prepareParamtersForWhereHasAndDoesntHave($subject, $method)
+    protected function prepareWhereHasAndDoesntHaveQueryParameters($relation, $method)
     {
         if (in_array($method, ['whereDoesntHave', 'orWhereDoesntHave'], true)) {
             return [
-                'relation' => $subject,
+                'relation' => $relation,
                 'operator' => '<',
                 'count'    => 1,
             ];
         }
 
-        preg_match($this->operatorsPattern, $subject, $operator);
-        $matches = preg_split($this->operatorsPattern, $subject);
+        preg_match($this->operatorsPattern, $relation, $operator);
+        $matches = preg_split($this->operatorsPattern, $relation);
 
         return [
             'relation' => $matches[0],
@@ -240,10 +240,8 @@ trait ShouldBuildQueries
      * @param  string  $relation
      * @param  array|\Closure  $closure
      * @return array
-     *
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      */
-    protected function prepareParamtersForWhereRelation($relation, $closure)
+    protected function prepareWhereRelationQueryParameters($relation, $closure)
     {
         if (is_string($relation) && is_callable($closure)) {
             return [
@@ -258,10 +256,6 @@ trait ShouldBuildQueries
         $column   = $closure[1];
         $operator = count($closure) === 4 ? $closure[2] : '=';
         $value    = count($closure) === 4 ? $closure[3] : $closure[2];
-
-        if (!in_array(strtolower($operator), $this->allowedOperators, true)) {
-            throw new InvalidArrayStructure(sprintf("The [%s] is not a valid operator.", $operator));
-        }
 
         return [
             'relation' => $relation,
