@@ -65,13 +65,13 @@ trait Orderable
             $parts = explode('.', $order);
 
             // If the developer attempts to order by the same column from both the model and its relationship,
-            // an "Ambiguous Exception" will be thrown. To resolve this, we explicitly use the searchable model's
-            // table for ordering by its given column. However, this behavior can be overridden if needed.
+            // an "Ambiguous Exception" will be thrown. To resolve this, we explicitly use the searchable model
+            // for ordering by its given column. However, this behavior can be overridden if needed.
             // Example usage of "addOrderBy" method:
             // ->setSearchableModel(User::class)
             // ->addOrderBy([
-            //     ['created_at' => 'desc'], // This will trigger an "order by" on the "users" table
-            //     'posts.created_at' // You can also specify which relationship's table to use for ordering by its column
+            //     ['created_at' => 'desc'], // This will trigger an "order by `created_at`" on the searchable model
+            //     'posts.created_at' // You can also specify which relationship to use for ordering by its column
             // ])
             $column    = "{$currentModel->getTable()}.{$order}";
             $direction = 'asc';
