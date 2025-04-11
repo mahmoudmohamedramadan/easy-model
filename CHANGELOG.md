@@ -1,6 +1,12 @@
 # Release Notes for 1.x
 
-## [Unreleased](https://github.com/mahmoudmohamedramadan/easy-model/compare/v1.1.7...1.x)
+## [Unreleased](https://github.com/mahmoudmohamedramadan/easy-model/compare/v1.1.8...1.x)
+
+## [v1.1.8](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.1.8)
+
+- [1.x] Updates the internal method names.
+- [1.x] Removes all additional parameter types.
+- [1.x] Adds the needed parameter types.
 
 ## [v1.1.7](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.1.7)
 
