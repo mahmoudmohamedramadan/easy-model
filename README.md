@@ -50,7 +50,7 @@ composer require ramadan/easy-model
 ## Usage
 
 > [!WARNING]
-> Do not use both traits together, as doing so may lead to unexpected output. However, if you do, the most priority will be given to the **Searchable** trait.
+> Do not use both traits together, as doing so may lead to unexpected output. However, if you do, the highest priority will be given to the **Searchable** trait.
 
 For comprehensive examples and in-depth usage guidelines, check out [search.md](SEARCH.md) and [update.md](UPDATE.md).
 
