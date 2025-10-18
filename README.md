@@ -61,7 +61,7 @@ For comprehensive examples and in-depth usage guidelines, check out [search.md](
 
 ## Support me
 
-- [PayPal](https://www.paypal.com/paypalme/mmramadan496)
+- [PayPal](https://paypal.com/paypalme/mmramadan496)
 
 ## License
 
