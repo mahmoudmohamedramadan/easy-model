@@ -1,10 +1,12 @@
 # Easy Model
 
-![Easy Model](https://raw.githubusercontent.com/mahmoudmohamedramadan/easy-model/refs/heads/main/assets/easy-model.png "Easy Model")
+![Easy Model](/art/logo.png "Easy Model")
 
-![License](https://img.shields.io/packagist/l/ramadan/easy-model "License")
-![Latest Version on Packagist](https://img.shields.io/packagist/v/ramadan/easy-model "Latest Version on Packagist")
-![Total Downloads](https://img.shields.io/packagist/dt/ramadan/easy-model "Total Downloads")
+![Latest Version](https://img.shields.io/packagist/v/ramadan/easy-model?style=flat-square&logo=packagist)
+![Total Downloads](https://img.shields.io/packagist/dt/ramadan/easy-model?style=flat-square)
+![PHP](https://img.shields.io/badge/php-%5E8.2-777BB4?logo=php&style=flat-square)
+![Laravel](https://img.shields.io/badge/laravel-%5E10.0%7C%5E11.0%7C%5E12.0%7C%5E13.0-FF2D20?logo=laravel&style=flat-square)
+![License](https://img.shields.io/packagist/l/ramadan/easy-model?style=flat-square)
 
  - - -
 
