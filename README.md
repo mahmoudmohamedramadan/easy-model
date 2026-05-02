@@ -42,7 +42,7 @@ What makes this package featured?
 - And more...
 
 > [!IMPORTANT]  
-> Additional features are currently in progress and being prepared on the [development branch](https://github.com/mahmoudmohamedramadan/custom-fresh/tree/development).
+> Additional features are currently in progress and being prepared on the [development branch](https://github.com/mahmoudmohamedramadan/easy-model/tree/development).
 
 ## Installation
 
