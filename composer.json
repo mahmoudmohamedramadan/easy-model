@@ -11,7 +11,6 @@
         "mysql",
         "pgsql",
         "postgresql",
-        "oracle",
         "pdo",
         "queryobject",
         "sql",
@@ -36,6 +35,19 @@
     "autoload": {
         "psr-4": {
             "Ramadan\\EasyModel\\": "src/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Ramadan\\EasyModel\\EasyModelServiceProvider"
+            ],
+            "aliases": {
+                "EasyModel": "Ramadan\\EasyModel\\Facades\\EasyModel"
+            }
         }
     },
     "minimum-stability": "dev",

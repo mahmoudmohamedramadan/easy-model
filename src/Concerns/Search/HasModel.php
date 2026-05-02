@@ -4,8 +4,9 @@ namespace Ramadan\EasyModel\Concerns\Search;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Scope;
-use Ramadan\EasyModel\Exceptions\InvalidModel;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Ramadan\EasyModel\Exceptions\InvalidModel;
 
 trait HasModel
 {
@@ -40,11 +41,8 @@ trait HasModel
      */
     public function setSearchableModel($model)
     {
-        if (!is_string($model) && !is_a($model, Model::class, true)) {
-            throw new InvalidModel(sprintf(
-                "The model must be string or instance of \Illuminate\Database\Eloquent\Model. Given [%s].",
-                gettype($model)
-            ));
+        if (! is_string($model) && ! is_a($model, Model::class, true)) {
+            throw InvalidModel::notAModelClass($model);
         }
 
         $this->searchableModel = $model;
@@ -97,7 +95,7 @@ trait HasModel
         // We will check if the model has been set using the "setSearchableModel" method
         // as a manual setting is more of a priority otherwise it means the developer uses
         // the "Searchable" trait in the model itself.
-        if (!empty($this->getSearchableModel())) {
+        if (! empty($this->getSearchableModel())) {
             return;
         }
 
@@ -106,7 +104,7 @@ trait HasModel
             return;
         }
 
-        throw new InvalidModel("Cannot resolve the searchable model.");
+        throw InvalidModel::unresolvable();
     }
 
     /**
@@ -131,7 +129,7 @@ trait HasModel
             }
         }
 
-        if (!empty($localScopes)) {
+        if (! empty($localScopes)) {
             $this->eloquentBuilder = $this->getSearchableEloquentBuilder()->scopes($localScopes);
         }
 
@@ -148,7 +146,7 @@ trait HasModel
      */
     public function ignoreGlobalScopes(?array $scopes = null)
     {
-        $this->getSearchableEloquentBuilder()->withoutGlobalScopes($scopes);
+        $this->eloquentBuilder = $this->getSearchableEloquentBuilder()->withoutGlobalScopes($scopes);
 
         return $this;
     }
@@ -162,7 +160,13 @@ trait HasModel
      */
     public function includeSoftDeleted()
     {
-        $this->getSearchableEloquentBuilder()->withoutGlobalScope(SoftDeletingScope::class);
+        $model = $this->getSearchableModel();
+
+        if (! in_array(SoftDeletes::class, class_uses_recursive($model), true)) {
+            throw InvalidModel::softDeletesNotUsed(get_class($model));
+        }
+
+        $this->eloquentBuilder = $this->getSearchableEloquentBuilder()->withoutGlobalScope(SoftDeletingScope::class);
 
         return $this;
     }
@@ -176,11 +180,11 @@ trait HasModel
      */
     protected function resolveModelOrRelation($givenRelationship = null, $givenModel = null)
     {
-        if (!empty($this->modelOrRelation)) {
+        if (! empty($this->modelOrRelation)) {
             return $this->modelOrRelation;
         }
 
-        if (!empty($givenRelationship) && !empty($givenModel)) {
+        if (! empty($givenRelationship) && ! empty($givenModel)) {
             return $givenModel->{$givenRelationship}()->getRelated();
         }
 

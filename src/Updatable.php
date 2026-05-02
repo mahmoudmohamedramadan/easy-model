@@ -37,7 +37,7 @@ trait Updatable
     protected function getUpdatableEloquentBuilder($relationship = null)
     {
         if (empty($this->getUpdatableModel())) {
-            throw new InvalidModel("You must set the updatable model first.");
+            throw InvalidModel::updatableNotSet();
         }
 
         return empty($relationship) ?
@@ -102,7 +102,7 @@ trait Updatable
 
         // If a model has been created or updated, it takes precedence. In such cases,
         // we will increment the values of its columns.
-        if (!empty($this->modelForUpdate)) {
+        if (! empty($this->modelForUpdate)) {
             foreach ($attributes as $column => $value) {
                 $this->modelForUpdate->{$column} += $value;
             }
@@ -115,7 +115,7 @@ trait Updatable
         /**
          * @see https://php.net/manual/en/closure.call.php
          */
-        $extra = !$usingQueryBuilder ?
+        $extra = ! $usingQueryBuilder ?
             (fn($args) => $this->addUpdatedAtColumn($args))->call($this->getSearchOrUpdateBuilder(), []) :
             [];
 
@@ -139,7 +139,7 @@ trait Updatable
 
         // If a model has been created or updated, it takes precedence. In such cases,
         // we will decrement the values of its columns.
-        if (!empty($this->modelForUpdate)) {
+        if (! empty($this->modelForUpdate)) {
             foreach ($attributes as $column => $value) {
                 $this->modelForUpdate->{$column} -= $value;
             }
@@ -152,7 +152,7 @@ trait Updatable
         /**
          * @see https://php.net/manual/en/closure.call.php
          */
-        $extra = !$usingQueryBuilder ?
+        $extra = ! $usingQueryBuilder ?
             (fn($args) => $this->addUpdatedAtColumn($args))->call($this->getSearchOrUpdateBuilder(), []) :
             [];
 
@@ -176,7 +176,7 @@ trait Updatable
 
         // If a model has been created or updated, it takes precedence. In such cases,
         // we will zero out the values of its columns.
-        if (!empty($this->modelForUpdate)) {
+        if (! empty($this->modelForUpdate)) {
             $this->modelForUpdate->update(array_fill_keys($attributes, 0));
 
             return $this;
@@ -202,10 +202,10 @@ trait Updatable
 
         // If a model has been created or updated, it takes precedence. In such cases,
         // we will toggle the values of its columns.
-        if (!empty($this->modelForUpdate)) {
+        if (! empty($this->modelForUpdate)) {
             $columns = $this->modelForUpdate->only($attributes);
 
-            $toggle = array_map(fn($value) => !$value, $columns);
+            $toggle = array_map(fn($value) => ! $value, $columns);
 
             $this->modelForUpdate->update($toggle);
 
@@ -234,7 +234,7 @@ trait Updatable
     {
         // If the "setRelationship" method exists, it means the request is coming
         // from the "Searchable" context since the "Updatable" trait is used there.
-        if (!empty($relationship) && method_exists($this, 'setRelationship')) {
+        if (! empty($relationship) && method_exists($this, 'setRelationship')) {
             $this->setRelationship($relationship);
         }
 
@@ -262,7 +262,7 @@ trait Updatable
         $model = $this->getUpdatableModel();
 
         // If the developer has set a model for update, it takes precedence.
-        if (!empty($model) && $model->exists) {
+        if (! empty($model) && $model->exists) {
             $this->modelForUpdate = $model;
         } elseif (empty($this->searchOrUpdateQuery)) {
             $this->searchOrUpdateQuery = $this->getSearchOrUpdateBuilder(isQueryBuilder: $usingQueryBuilder);
@@ -277,11 +277,22 @@ trait Updatable
      */
     public function setUpdatableQuery(QueryBuilder|EloquentBuilder|null $query = null)
     {
-        if ($query instanceof QueryBuilder) {
+        if ($query instanceof EloquentBuilder || $query instanceof QueryBuilder) {
             $this->searchOrUpdateQuery = $query;
-        } elseif ($query instanceof EloquentBuilder) {
-            $this->searchOrUpdateQuery = $query->getQuery();
         }
+
+        return $this;
+    }
+
+    /**
+     * Reset the internal updatable state.
+     *
+     * @return $this
+     */
+    public function flushUpdatable()
+    {
+        $this->searchOrUpdateQuery = null;
+        $this->modelForUpdate      = null;
 
         return $this;
     }
