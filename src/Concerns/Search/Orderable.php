@@ -61,8 +61,6 @@ trait Orderable
     /**
      * Add an "order by" clause that orders by the count of a given relationship.
      *
-     * Example: ->addOrderByCount('posts', 'desc')
-     *
      * @param  string  $relation
      * @param  string  $direction
      * @return $this
@@ -76,10 +74,7 @@ trait Orderable
     }
 
     /**
-     * Add an "order by" clause that orders by an aggregate (count/sum/avg/min/max)
-     * over a relationship column.
-     *
-     * Example: ->addOrderByAggregate('posts', 'views', 'sum', 'desc')
+     * Add an "order by" clause that orders by an aggregate over a relationship column.
      *
      * @param  string  $relation
      * @param  string  $column

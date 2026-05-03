@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Ramadan\EasyModel\Concerns\Search\HasModel as SearchableModel;
 use Ramadan\EasyModel\Concerns\Search\Orderable;
-use Ramadan\EasyModel\Exceptions\InvalidArrayStructure;
 use Ramadan\EasyModel\Exceptions\InvalidModel;
 
 trait Searchable
@@ -57,8 +56,6 @@ trait Searchable
 
     /**
      * Add a "where in" clause to the query for one or more columns.
-     *
-     * Each entry must be a [column, values[]] pair, e.g. [['id', [1, 2, 3]]].
      *
      * @param  array  $wheres
      * @param  \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|null  $query
@@ -419,33 +416,5 @@ trait Searchable
         return $iNeedEloquentBuilderInstance
             ? $this->getSearchableEloquentBuilder()
             : $this->getSearchableQueryBuilder();
-    }
-
-    /**
-     * Apply a where method (e.g. whereIn, whereBetween) for each [column, value] pair.
-     *
-     * @param  array  $wheres
-     * @param  string  $method
-     * @param  \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|null  $query
-     * @return $this
-     *
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
-     */
-    protected function applyMassWhere(array $wheres, string $method, QueryBuilder|EloquentBuilder|null $query = null)
-    {
-        $builder = $this->setSearchableQuery($query)->getSearchableQueryBuilder();
-
-        foreach ($wheres as $where) {
-            if (! is_array($where) || count($where) !== 2) {
-                throw InvalidArrayStructure::invalidColumnValuesTuple($method);
-            }
-
-            $builder->{$method}($where[0], $where[1]);
-        }
-
-        $this->queryBuilder = $builder;
-
-        return $this;
     }
 }

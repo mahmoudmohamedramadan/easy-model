@@ -191,10 +191,6 @@ trait ShouldBuildQueries
     /**
      * Prepare conditions to be inserted into the "where" clause.
      *
-     * Defers to the public {@see \Illuminate\Database\Query\Builder::where()} API so that
-     * special values (null, arrays, expressions, sub-selects, ...) are normalised by Laravel
-     * itself instead of being mutated into `$queryBuilder->wheres[]` by hand.
-     *
      * @param  array  $where
      * @param  \Illuminate\Database\Query\Builder  $queryBuilder
      * @param  string  $method
@@ -274,5 +270,36 @@ trait ShouldBuildQueries
             'operator' => $operator,
             'value'    => $value,
         ];
+    }
+
+    /**
+     * Apply a where method (e.g. whereIn, whereBetween) for each [column => values[]] pair.
+     *
+     * @param  array  $wheres
+     * @param  string  $method
+     * @param  \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|null  $query
+     * @return $this
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
+     */
+    protected function applyMassWhere(array $wheres, string $method, $query = null)
+    {
+        $builder = $this->setSearchableQuery($query)->getSearchableQueryBuilder();
+
+        foreach ($wheres as $where) {
+            $column = array_keys($where)[0];
+            $values = array_values($where)[0];
+
+            if (! is_string($column) || ! is_array($values)) {
+                throw InvalidArrayStructure::invalidColumnValuesTuple($method);
+            }
+
+            $builder->{$method}($column, $values);
+        }
+
+        $this->queryBuilder = $builder;
+
+        return $this;
     }
 }
