@@ -12,6 +12,7 @@
   - [Chainable Methods](#chainable-methods)
   - [Models](#models)
 - [Establish Query](#establish-query)
+- [Facade](#facade)
 
 ## Controllers / Services Context
 
@@ -68,6 +69,31 @@ public function index()
 
 > [!IMPORTANT]
 > You must provide an array of arrays or closures to these methods since the first element of the array refers to the `column` and the second to the `operator` (default value is `=` in case you do not provide this element), and the third to the `value` in the array structure.
+
+On top of the generic `addWheres` clause, you can use specialized helpers for common conditions: `addWhereIn`, `addWhereNotIn`, `addWhereBetween`, `addWhereNull`, `addWhereNotNull`, and `addKeywordSearch`.
+
+Suppose you want to load only the verified users that belong to a known set of countries:
+
+```PHP
+/**
+ * Display a listing of the resource.
+ */
+public function index()
+{
+    return $this
+        ->setSearchableModel(User::class)
+        ->addWhereIn([
+            ['country_id' => [1, 2, 3]],
+            // ['plan_id' => Plan::active()->pluck('id')->all()],
+        ])
+        ->addWhereNotNull(['email_verified_at'])
+        ->execute()
+        ->get();
+}
+```
+
+> [!IMPORTANT]
+> Each entry passed to `addWhereIn`, `addWhereNotIn`, and `addWhereBetween` must be a `[column => values]` pair. Pass as many pairs as you like; they are combined with `AND`.
 
 Also, you can search in the model relationships using the `addWhereHas`, and `addWhereDoesntHave` methods:
 
@@ -213,6 +239,41 @@ public function index()
 
 > [!NOTE]
 > By default, this method resolves the issue of ambiguous columns by assuming that you need to order by the **searchable model** (e.g., `Influencer::class`). However, you can modify this behavior if necessary.
+
+In addition, you can rank records by the **count** of a relationship using the `addOrderByCount` method — perfect for "most active", "top contributors", or "most engaged" listings:
+
+```PHP
+/**
+ * Display a listing of the resource.
+ */
+public function index()
+{
+    return $this
+        ->setSearchableModel(Influencer::class)
+        ->addOrderByCount('articles', 'desc')
+        ->execute()
+        ->get();
+}
+```
+
+For more advanced ranking, the `addOrderByAggregate` method lets you order by any aggregate (`count`, `sum`, `avg`, `min`, or `max`) over a column on a related table. The example below ranks influencers by the **total share count** across all their articles:
+
+```PHP
+/**
+ * Display a listing of the resource.
+ */
+public function index()
+{
+    return $this
+        ->setSearchableModel(Influencer::class)
+        ->addOrderByAggregate('articles', 'share_count', 'sum', 'desc')
+        ->execute()
+        ->get();
+}
+```
+
+> [!IMPORTANT]
+> Both methods rely on Laravel's `withCount` / `withAggregate` under the hood, so the aggregate value is exposed on each result as a column alias (e.g., `articles_count` or `articles_sum_share_count`) and can be re-used in your views or API responses.
 
 ### Scopes
 
@@ -397,3 +458,26 @@ public function update()
         ->fetch();
 }
 ```
+
+## Facade
+
+For ad-hoc usage outside a controller — for example, inside a console command, queued job, route closure, or anywhere you would rather not pull the `Searchable` trait in — the package ships with the `EasyModel` Facade that exposes the exact same fluent API on top of any model:
+
+```PHP
+use App\Models\Order;
+use Ramadan\EasyModel\Facades\EasyModel;
+
+return EasyModel::for(Order::class)
+    ->addWhereBetween([
+        ['total' => [100, 1000]],
+        ['placed_at' => ['2026-01-01', '2026-01-31']],
+    ])
+    ->addOrderBy([
+        ['placed_at' => 'desc'],
+    ])
+    ->execute()
+    ->paginate(15);
+```
+
+> [!NOTE]
+> `EasyModel::for($model)` returns a fresh, single-use builder instance, so you do not need to worry about state leaking between unrelated queries — every call starts clean.

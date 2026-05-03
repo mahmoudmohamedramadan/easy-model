@@ -8,6 +8,7 @@
 - [Other Contexts](#other-contexts)
   - [Chainable Methods](#chainable-methods)
 - [Establish Query](#establish-query)
+- [Facade](#facade)
 
 ## Controllers / Services Context
 
@@ -140,3 +141,25 @@ public function update()
         ->fetch();
 }
 ```
+
+## Facade
+
+For ad-hoc usage outside a controller — for example, inside a queued job, scheduled command, webhook handler, or anywhere you would rather not pull the `Updatable` trait in — the package ships with the `EasyModel` Facade that exposes the exact same fluent API on top of any model:
+
+```PHP
+use App\Models\Article;
+use Ramadan\EasyModel\Facades\EasyModel;
+
+return EasyModel::for(Article::class)
+    ->addWheres([
+        ['published', true],
+    ])
+    ->addWhereBetween([
+        ['published_at' => [now()->startOfDay(), now()->endOfDay()]],
+    ])
+    ->incrementEach(['views' => 1])
+    ->fetch();
+```
+
+> [!NOTE]
+> `EasyModel::for($model)` returns a fresh, single-use builder instance, so you do not need to worry about state leaking between unrelated update operations — every call starts clean.
