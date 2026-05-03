@@ -223,113 +223,174 @@ trait Orderable
      */
     protected function joinRelationship($queryBuilder, $parentModel, $relation)
     {
+        match (true) {
+            $relation instanceof MorphTo => $this->joinMorphToRelationship(),
+            $relation instanceof MorphToMany => $this->joinMorphToManyRelationship($queryBuilder, $parentModel, $relation),
+            $relation instanceof BelongsToMany => $this->joinBelongsToManyRelationship($queryBuilder, $parentModel, $relation),
+            $relation instanceof BelongsTo => $this->joinBelongsToRelationship($queryBuilder, $parentModel, $relation),
+            $relation instanceof HasManyThrough => $this->joinHasManyThroughRelationship($queryBuilder, $parentModel, $relation),
+            $relation instanceof MorphOneOrMany => $this->joinMorphOneOrManyRelationship($queryBuilder, $parentModel, $relation),
+            $relation instanceof HasOneOrMany => $this->joinHasOneOrManyRelationship($queryBuilder, $parentModel, $relation),
+            default => throw InvalidOrderableRelationship::unsupportedRelation($relation),
+        };
+    }
+
+    /**
+     * MorphTo cannot be joined: the related table is not statically known.
+     *
+     * @return never
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidOrderableRelationship
+     */
+    protected function joinMorphToRelationship(): void
+    {
+        throw InvalidOrderableRelationship::morphToCannotBeJoined();
+    }
+
+    /**
+     * Join a BelongsToMany (non-polymorphic) relation via the pivot table.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $queryBuilder
+     * @param  \Illuminate\Database\Eloquent\Model  $parentModel
+     * @return void
+     */
+    protected function joinBelongsToManyRelationship($queryBuilder, $parentModel, BelongsToMany $relation): void
+    {
+        $relatedTable = $relation->getRelated()->getTable();
+        $parentTable  = $parentModel->getTable();
+        $pivotTable   = $relation->getTable();
+
+        $queryBuilder->leftJoin(
+            $pivotTable,
+            "{$parentTable}.{$relation->getParentKeyName()}",
+            '=',
+            "{$pivotTable}.{$relation->getForeignPivotKeyName()}"
+        );
+
+        $queryBuilder->leftJoin(
+            $relatedTable,
+            "{$pivotTable}.{$relation->getRelatedPivotKeyName()}",
+            '=',
+            "{$relatedTable}.{$relation->getRelatedKeyName()}"
+        );
+    }
+
+    /**
+     * Join a MorphToMany relation via the pivot table and morph type constraint.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $queryBuilder
+     * @param  \Illuminate\Database\Eloquent\Model  $parentModel
+     * @return void
+     */
+    protected function joinMorphToManyRelationship($queryBuilder, $parentModel, MorphToMany $relation): void
+    {
+        $this->joinBelongsToManyRelationship($queryBuilder, $parentModel, $relation);
+
+        $pivotTable = $relation->getTable();
+
+        $queryBuilder->where(
+            "{$pivotTable}.{$relation->getMorphType()}",
+            '=',
+            $relation->getMorphClass()
+        );
+    }
+
+    /**
+     * Join a BelongsTo relation.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $queryBuilder
+     * @param  \Illuminate\Database\Eloquent\Model  $parentModel
+     * @return void
+     */
+    protected function joinBelongsToRelationship($queryBuilder, $parentModel, BelongsTo $relation): void
+    {
         $relatedTable = $relation->getRelated()->getTable();
         $parentTable  = $parentModel->getTable();
 
-        // MorphTo can't be joined: the related table is not statically known.
-        if ($relation instanceof MorphTo) {
-            throw InvalidOrderableRelationship::morphToCannotBeJoined();
+        $queryBuilder->leftJoin(
+            $relatedTable,
+            "{$parentTable}.{$relation->getForeignKeyName()}",
+            '=',
+            "{$relatedTable}.{$relation->getOwnerKeyName()}"
+        );
+    }
+
+    /**
+     * Join HasOneThrough / HasManyThrough via the intermediate model.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $queryBuilder
+     * @param  \Illuminate\Database\Eloquent\Model  $parentModel
+     * @return void
+     */
+    protected function joinHasManyThroughRelationship($queryBuilder, $parentModel, HasManyThrough $relation): void
+    {
+        $relatedTable = $relation->getRelated()->getTable();
+        $parentTable  = $parentModel->getTable();
+        $through      = $relation->getParent();
+        $throughTable = $through->getTable();
+
+        if (! isset($this->joinedRelationshipTables['__through:' . $throughTable])) {
+            $queryBuilder->leftJoin(
+                $throughTable,
+                "{$parentTable}.{$relation->getLocalKeyName()}",
+                '=',
+                "{$throughTable}.{$relation->getFirstKeyName()}"
+            );
+
+            $this->joinedRelationshipTables['__through:' . $throughTable] = $throughTable;
         }
 
-        // MorphToMany / BelongsToMany - join through the pivot table.
-        if ($relation instanceof BelongsToMany) {
-            $pivotTable = $relation->getTable();
+        $queryBuilder->leftJoin(
+            $relatedTable,
+            "{$throughTable}.{$relation->getSecondLocalKeyName()}",
+            '=',
+            "{$relatedTable}.{$relation->getForeignKeyName()}"
+        );
+    }
 
-            $queryBuilder->leftJoin(
-                $pivotTable,
-                "{$parentTable}.{$relation->getParentKeyName()}",
-                '=',
-                "{$pivotTable}.{$relation->getForeignPivotKeyName()}"
-            );
+    /**
+     * Join MorphOne / MorphMany with a morph type filter on the related table.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $queryBuilder
+     * @param  \Illuminate\Database\Eloquent\Model  $parentModel
+     * @return void
+     */
+    protected function joinMorphOneOrManyRelationship($queryBuilder, $parentModel, MorphOneOrMany $relation): void
+    {
+        $relatedTable = $relation->getRelated()->getTable();
 
-            $queryBuilder->leftJoin(
-                $relatedTable,
-                "{$pivotTable}.{$relation->getRelatedPivotKeyName()}",
-                '=',
-                "{$relatedTable}.{$relation->getRelatedKeyName()}"
-            );
-
-            if ($relation instanceof MorphToMany) {
-                $queryBuilder->where(
-                    "{$pivotTable}.{$relation->getMorphType()}",
+        $queryBuilder->leftJoin($relatedTable, function ($join) use ($parentModel, $relation, $relatedTable) {
+            $join
+                ->on(
+                    "{$parentModel->getTable()}.{$relation->getLocalKeyName()}",
+                    '=',
+                    "{$relatedTable}.{$relation->getForeignKeyName()}"
+                )
+                ->where(
+                    "{$relatedTable}.{$relation->getMorphType()}",
                     '=',
                     $relation->getMorphClass()
                 );
-            }
+        });
+    }
 
-            return;
-        }
+    /**
+     * Join HasOne / HasMany from the parent's local key to the related foreign key.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $queryBuilder
+     * @param  \Illuminate\Database\Eloquent\Model  $parentModel
+     * @return void
+     */
+    protected function joinHasOneOrManyRelationship($queryBuilder, $parentModel, HasOneOrMany $relation): void
+    {
+        $relatedTable = $relation->getRelated()->getTable();
+        $parentTable  = $parentModel->getTable();
 
-        if ($relation instanceof BelongsTo) {
-            $queryBuilder->leftJoin(
-                $relatedTable,
-                "{$parentTable}.{$relation->getForeignKeyName()}",
-                '=',
-                "{$relatedTable}.{$relation->getOwnerKeyName()}"
-            );
-
-            return;
-        }
-
-        // HasOneThrough / HasManyThrough - need two joins through the intermediate model.
-        // The "far parent" is the model the relationship is defined on, i.e. our $parentModel
-        // here; the "through" parent is exposed via getParent() on the relation.
-        if ($relation instanceof HasManyThrough) {
-            $through      = $relation->getParent();
-            $throughTable = $through->getTable();
-
-            if (! isset($this->joinedRelationshipTables['__through:' . $throughTable])) {
-                $queryBuilder->leftJoin(
-                    $throughTable,
-                    "{$parentTable}.{$relation->getLocalKeyName()}",
-                    '=',
-                    "{$throughTable}.{$relation->getFirstKeyName()}"
-                );
-
-                $this->joinedRelationshipTables['__through:' . $throughTable] = $throughTable;
-            }
-
-            $queryBuilder->leftJoin(
-                $relatedTable,
-                "{$throughTable}.{$relation->getSecondLocalKeyName()}",
-                '=',
-                "{$relatedTable}.{$relation->getForeignKeyName()}"
-            );
-
-            return;
-        }
-
-        // MorphOne / MorphMany - join with morph type filter on related table.
-        if ($relation instanceof MorphOneOrMany) {
-            $queryBuilder->leftJoin($relatedTable, function ($join) use ($parentModel, $relation, $relatedTable) {
-                $join
-                    ->on(
-                        "{$parentModel->getTable()}.{$relation->getLocalKeyName()}",
-                        '=',
-                        "{$relatedTable}.{$relation->getForeignKeyName()}"
-                    )
-                    ->where(
-                        "{$relatedTable}.{$relation->getMorphType()}",
-                        '=',
-                        $relation->getMorphClass()
-                    );
-            });
-
-            return;
-        }
-
-        // HasOne / HasMany - simple join from parent's local key to related's foreign key.
-        if ($relation instanceof HasOneOrMany) {
-            $queryBuilder->leftJoin(
-                $relatedTable,
-                "{$parentTable}.{$relation->getLocalKeyName()}",
-                '=',
-                "{$relatedTable}.{$relation->getForeignKeyName()}"
-            );
-
-            return;
-        }
-
-        throw InvalidOrderableRelationship::unsupportedRelation($relation);
+        $queryBuilder->leftJoin(
+            $relatedTable,
+            "{$parentTable}.{$relation->getLocalKeyName()}",
+            '=',
+            "{$relatedTable}.{$relation->getForeignKeyName()}"
+        );
     }
 }
