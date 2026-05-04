@@ -7,7 +7,7 @@ use Illuminate\Support\ServiceProvider;
 class EasyModelServiceProvider extends ServiceProvider
 {
     /**
-     * Register any package services.
+     * Register any application services.
      *
      * @return void
      */
