@@ -37,9 +37,6 @@
             "Ramadan\\EasyModel\\": "src/"
         }
     },
-    "config": {
-        "sort-packages": true
-    },
     "extra": {
         "laravel": {
             "providers": [
