@@ -252,6 +252,7 @@ trait Orderable
      *
      * @param  \Illuminate\Database\Query\Builder  $queryBuilder
      * @param  \Illuminate\Database\Eloquent\Model  $parentModel
+     * @param  \Illuminate\Database\Eloquent\Relations\BelongsToMany  $relation
      * @return void
      */
     protected function joinBelongsToManyRelationship($queryBuilder, $parentModel, BelongsToMany $relation)
@@ -280,6 +281,7 @@ trait Orderable
      *
      * @param  \Illuminate\Database\Query\Builder  $queryBuilder
      * @param  \Illuminate\Database\Eloquent\Model  $parentModel
+     * @param  \Illuminate\Database\Eloquent\Relations\MorphToMany  $relation
      * @return void
      */
     protected function joinMorphToManyRelationship($queryBuilder, $parentModel, MorphToMany $relation)
@@ -300,6 +302,7 @@ trait Orderable
      *
      * @param  \Illuminate\Database\Query\Builder  $queryBuilder
      * @param  \Illuminate\Database\Eloquent\Model  $parentModel
+     * @param  \Illuminate\Database\Eloquent\Relations\BelongsTo  $relation
      * @return void
      */
     protected function joinBelongsToRelationship($queryBuilder, $parentModel, BelongsTo $relation)
@@ -320,6 +323,7 @@ trait Orderable
      *
      * @param  \Illuminate\Database\Query\Builder  $queryBuilder
      * @param  \Illuminate\Database\Eloquent\Model  $parentModel
+     * @param  \Illuminate\Database\Eloquent\Relations\HasManyThrough  $relation
      * @return void
      */
     protected function joinHasManyThroughRelationship($queryBuilder, $parentModel, HasManyThrough $relation)
@@ -353,6 +357,7 @@ trait Orderable
      *
      * @param  \Illuminate\Database\Query\Builder  $queryBuilder
      * @param  \Illuminate\Database\Eloquent\Model  $parentModel
+     * @param  \Illuminate\Database\Eloquent\Relations\MorphOneOrMany  $relation
      * @return void
      */
     protected function joinMorphOneOrManyRelationship($queryBuilder, $parentModel, MorphOneOrMany $relation)
@@ -379,6 +384,7 @@ trait Orderable
      *
      * @param  \Illuminate\Database\Query\Builder  $queryBuilder
      * @param  \Illuminate\Database\Eloquent\Model  $parentModel
+     * @param  \Illuminate\Database\Eloquent\Relations\HasOneOrMany  $relation
      * @return void
      */
     protected function joinHasOneOrManyRelationship($queryBuilder, $parentModel, HasOneOrMany $relation)
