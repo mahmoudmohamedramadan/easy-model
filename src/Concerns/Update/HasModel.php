@@ -24,7 +24,7 @@ trait HasModel
      */
     public function setUpdatableModel($model)
     {
-        if (! is_string($model) && ! is_a($model, Model::class, true)) {
+        if (! is_a($model, Model::class, true)) {
             throw InvalidModel::notAModelClass($model);
         }
 
