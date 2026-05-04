@@ -121,8 +121,11 @@ trait HasModel
 
         foreach ($scopes as $scope => $parameters) {
             if (is_a($parameters, Scope::class, true)) {
-                $identifier = is_string($parameters) ? $parameters : get_class($parameters);
-                $scope      = is_string($parameters) ? new $parameters : $parameters;
+                $isClass = is_string($parameters);
+
+                $identifier = $isClass ? $parameters : get_class($parameters);
+                $scope      = $isClass ? new $parameters : $parameters;
+
                 $this->eloquentBuilder = $this->getSearchableEloquentBuilder()->withGlobalScope($identifier, $scope);
             } else {
                 $localScopes[$scope] = $parameters;

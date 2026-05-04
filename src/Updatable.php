@@ -20,9 +20,9 @@ trait Updatable
     protected $modelForUpdate;
 
     /**
-     * The search or update builder.
+     * The underlying queryable instance.
      *
-     * @var \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder
+     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Query\Builder
      */
     protected $searchOrUpdateQuery;
 
@@ -30,19 +30,23 @@ trait Updatable
      * Get an updatable eloquent builder.
      *
      * @param  string|null  $relationship
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Builder
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
     protected function getUpdatableEloquentBuilder($relationship = null)
     {
-        if (empty($this->getUpdatableModel())) {
+        $model = $this->getUpdatableModel();
+
+        if (empty($model)) {
             throw InvalidModel::updatableNotSet();
         }
 
-        return empty($relationship) ?
-            $this->getUpdatableModel()->newQuery() :
-            $this->getUpdatableModel()->{$relationship}()->getQuery();
+        if ($model->exists) {
+            return $model;
+        }
+
+        return empty($relationship) ? $model->newQuery() : $model->{$relationship}()->getQuery();
     }
 
     /**
@@ -115,9 +119,9 @@ trait Updatable
         /**
          * @see https://php.net/manual/en/closure.call.php
          */
-        $extra = ! $usingQueryBuilder ?
-            (fn($args) => $this->addUpdatedAtColumn($args))->call($this->getSearchOrUpdateBuilder(), []) :
-            [];
+        $extra = ! $usingQueryBuilder
+            ? (fn($args) => $this->addUpdatedAtColumn($args))->call($this->getSearchOrUpdateBuilder(), [])
+            : [];
 
         $this->searchOrUpdateQuery->incrementEach($attributes, $extra);
 
@@ -152,9 +156,9 @@ trait Updatable
         /**
          * @see https://php.net/manual/en/closure.call.php
          */
-        $extra = ! $usingQueryBuilder ?
-            (fn($args) => $this->addUpdatedAtColumn($args))->call($this->getSearchOrUpdateBuilder(), []) :
-            [];
+        $extra = ! $usingQueryBuilder
+            ? (fn($args) => $this->addUpdatedAtColumn($args))->call($this->getSearchOrUpdateBuilder(), [])
+            : [];
 
         $this->searchOrUpdateQuery->decrementEach($attributes, $extra);
 
@@ -226,7 +230,7 @@ trait Updatable
      *
      * @param  string|null  $relationship
      * @param  bool  $isQueryBuilder
-     * @return \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder
+     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Query\Builder
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
@@ -301,7 +305,7 @@ trait Updatable
      * Fetch the builder instance.
      *
      * @param  bool  $isQueryBuilder
-     * @return \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder
+     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Query\Builder
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */

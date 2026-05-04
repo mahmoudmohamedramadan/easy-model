@@ -318,7 +318,7 @@ trait Searchable
     /**
      * Start building a new eloquent builder or chain the existing one.
      *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Builder
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
@@ -326,7 +326,12 @@ trait Searchable
     {
         $this->resolveModel();
 
-        $model        = $this->getSearchableModel();
+        $model = $this->getSearchableModel();
+
+        if (! empty($model) && empty($this->eloquentBuilder) && empty($this->queryBuilder)) {
+            return $model;
+        }
+
         $relationship = $this->getRelationship();
 
         // There is no ability to search when providing a relationship
@@ -407,7 +412,7 @@ trait Searchable
      * Execute the query.
      *
      * @param  bool  $iNeedEloquentBuilderInstance
-     * @return \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder
+     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Query\Builder
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
