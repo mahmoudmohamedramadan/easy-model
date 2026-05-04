@@ -242,7 +242,7 @@ trait Orderable
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidOrderableRelationship
      */
-    protected function joinMorphToRelationship(): void
+    protected function joinMorphToRelationship()
     {
         throw InvalidOrderableRelationship::morphToCannotBeJoined();
     }
@@ -254,7 +254,7 @@ trait Orderable
      * @param  \Illuminate\Database\Eloquent\Model  $parentModel
      * @return void
      */
-    protected function joinBelongsToManyRelationship($queryBuilder, $parentModel, BelongsToMany $relation): void
+    protected function joinBelongsToManyRelationship($queryBuilder, $parentModel, BelongsToMany $relation)
     {
         $relatedTable = $relation->getRelated()->getTable();
         $parentTable  = $parentModel->getTable();
@@ -282,7 +282,7 @@ trait Orderable
      * @param  \Illuminate\Database\Eloquent\Model  $parentModel
      * @return void
      */
-    protected function joinMorphToManyRelationship($queryBuilder, $parentModel, MorphToMany $relation): void
+    protected function joinMorphToManyRelationship($queryBuilder, $parentModel, MorphToMany $relation)
     {
         $this->joinBelongsToManyRelationship($queryBuilder, $parentModel, $relation);
 
@@ -302,7 +302,7 @@ trait Orderable
      * @param  \Illuminate\Database\Eloquent\Model  $parentModel
      * @return void
      */
-    protected function joinBelongsToRelationship($queryBuilder, $parentModel, BelongsTo $relation): void
+    protected function joinBelongsToRelationship($queryBuilder, $parentModel, BelongsTo $relation)
     {
         $relatedTable = $relation->getRelated()->getTable();
         $parentTable  = $parentModel->getTable();
@@ -322,7 +322,7 @@ trait Orderable
      * @param  \Illuminate\Database\Eloquent\Model  $parentModel
      * @return void
      */
-    protected function joinHasManyThroughRelationship($queryBuilder, $parentModel, HasManyThrough $relation): void
+    protected function joinHasManyThroughRelationship($queryBuilder, $parentModel, HasManyThrough $relation)
     {
         $relatedTable = $relation->getRelated()->getTable();
         $parentTable  = $parentModel->getTable();
@@ -355,7 +355,7 @@ trait Orderable
      * @param  \Illuminate\Database\Eloquent\Model  $parentModel
      * @return void
      */
-    protected function joinMorphOneOrManyRelationship($queryBuilder, $parentModel, MorphOneOrMany $relation): void
+    protected function joinMorphOneOrManyRelationship($queryBuilder, $parentModel, MorphOneOrMany $relation)
     {
         $relatedTable = $relation->getRelated()->getTable();
 
@@ -381,7 +381,7 @@ trait Orderable
      * @param  \Illuminate\Database\Eloquent\Model  $parentModel
      * @return void
      */
-    protected function joinHasOneOrManyRelationship($queryBuilder, $parentModel, HasOneOrMany $relation): void
+    protected function joinHasOneOrManyRelationship($queryBuilder, $parentModel, HasOneOrMany $relation)
     {
         $relatedTable = $relation->getRelated()->getTable();
         $parentTable  = $parentModel->getTable();

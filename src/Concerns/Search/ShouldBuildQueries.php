@@ -285,7 +285,9 @@ trait ShouldBuildQueries
      */
     protected function applyMassWhere(array $wheres, string $method, $query = null)
     {
-        $builder = $this->setSearchableQuery($query)->getSearchableQueryBuilder();
+        $builder = $this
+            ->setSearchableQuery($query)
+            ->getSearchableQueryBuilder();
 
         foreach ($wheres as $where) {
             $column = array_keys($where)[0];
