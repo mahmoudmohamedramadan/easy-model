@@ -4,23 +4,23 @@
 
 ## [v1.2.0](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.2.0)
 
-- [1.x] Adds an `EasyModelException` marker interface implemented by every exception thrown by the package, so consumers can `catch (EasyModelException $e)` to handle any package error in one block.
-- [1.x] Adds named constructors to all three exceptions (`InvalidModel::notAModelClass()`, `InvalidModel::softDeletesNotUsed()`, `InvalidArrayStructure::invalidWhereTuple()`, `InvalidOrderableRelationship::morphToCannotBeJoined()`, etc.) for centralized, consistent error messages.
-- [1.x] `InvalidModel` and `InvalidOrderableRelationship` now extend `\LogicException`; `InvalidArrayStructure` now extends `\InvalidArgumentException`. All three remain catchable by their original FQCN — this is a non-breaking enrichment.
-- [1.x] Adds `EasyModelServiceProvider` with Laravel auto-discovery, a publishable `config/easy-model.php`, and an `EasyModel` Facade so the package can be consumed without dragging the trait into a controller (`EasyModel::for(User::class)->...`).
-- [1.x] Adds `addOrderByCount()` and `addOrderByAggregate()` helpers (count / sum / avg / min / max) for ordering by a relationship aggregate.
-- [1.x] Adds `addKeywordSearch($keyword, $columns, $strict)` for grouped multi-column `LIKE` / `=` searches.
+- [1.x] Adds an `EasyModelException` marker interface implemented by every package exception for unified error handling.
+- [1.x] Adds named constructors to all exceptions for centralized, consistent error messages.
+- [1.x] Rebases the package exceptions on top of standard SPL types (`\LogicException` / `\InvalidArgumentException`) — non-breaking.
+- [1.x] Adds `addOrderByCount()` and `addOrderByAggregate()` helpers for ordering by relationship aggregates.
+- [1.x] Adds `addKeywordSearch()` for grouped multi-column `LIKE` / `=` searches.
 - [1.x] Adds `addWhereIn`, `addWhereNotIn`, `addWhereNull`, `addWhereNotNull`, and `addWhereBetween` array-driven helpers.
 - [1.x] Adds first-class join support in `addOrderBy` for `MorphOne`, `MorphMany`, `MorphToMany`, `HasOneThrough`, and `HasManyThrough` relationships.
-- [1.x] Adds `flushSearchable()` / `flushUpdatable()` to reset internal trait state for safe reuse within the same request.
-- [1.x] Adds an Eloquent / Query Builder `keywordSearch()` macro and `orderByCountRelation()` / `orderByAggregateRelation()` macros.
-- [1.x] Fixes a `reset()` reference bug in `prepareWhereConditions` that warned (and silently kept only the first array value) when an array was passed as a `where` value. The method now defers to the public `Builder::where()` API which natively handles arrays, nulls, expressions, and sub-selects.
-- [1.x] Fixes wrong foreign-key resolution for `BelongsTo` ordering (now uses `getForeignKeyName()` / `getOwnerKeyName()` instead of the related model's conventional default).
-- [1.x] Fixes `BelongsToMany` ordering, which previously generated invalid SQL by skipping the pivot table; the package now emits the correct `parent → pivot → related` joins, including the morph type filter for `MorphToMany`.
-- [1.x] Fixes silent row-loss when ordering by a relationship: joins now default to `LEFT JOIN`, the base table's columns are explicitly selected (`SELECT {base}.*`) so child columns do not overwrite parent ones, and identical relationship paths are deduplicated within the same chain.
-- [1.x] Fixes `match` without a `default` arm in `buildQueryUsingWheres`; an `InvalidArrayStructure` exception is now thrown with a helpful message.
-- [1.x] Fixes `setSearchableQuery(EloquentBuilder)` / `setUpdatableQuery(EloquentBuilder)` silently downgrading to a `QueryBuilder` and losing observers, global scopes, casts, and timestamps.
-- [1.x] Fixes `includeSoftDeleted()` silently no-oping when the model doesn't use the `SoftDeletes` trait — it now throws `InvalidModel` with a clear message.
+- [1.x] Adds `flushSearchable()` / `flushUpdatable()` to reset internal trait state for safe reuse.
+- [1.x] Adds the ability to get a single model instance directly from the searchable pipeline.
+- [1.x] Extends the fix for updating a single model instance to the `Updatable` trait's own pipeline.
+- [1.x] Fixes a `reset()` reference bug in `prepareWhereConditions` when passing an array as a `where` value.
+- [1.x] Fixes wrong foreign-key resolution for `BelongsTo` ordering.
+- [1.x] Fixes `BelongsToMany` and `MorphToMany` ordering by emitting the correct `parent → pivot → related` joins.
+- [1.x] Fixes silent row-loss when ordering by a relationship via `LEFT JOIN`, explicit base-table selection, and join deduplication.
+- [1.x] Fixes a missing `default` arm in `buildQueryUsingWheres` by throwing `InvalidArrayStructure` instead.
+- [1.x] Fixes `setSearchableQuery` / `setUpdatableQuery` silently downgrading an `EloquentBuilder` to a `QueryBuilder`.
+- [1.x] Fixes `includeSoftDeleted()` silently no-oping when the model doesn't use the `SoftDeletes` trait — it now throws `InvalidModel`.
 
 ## [v1.1.9](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.1.9)
 
