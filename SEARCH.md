@@ -461,21 +461,32 @@ public function update()
 
 ## Facade
 
-For ad-hoc usage outside a controller — for example, inside a console command, queued job, route closure, or anywhere you would rather not pull the `Searchable` trait in — the package ships with the `EasyModel` Facade that exposes the exact same fluent API on top of any model:
+For ad-hoc usage outside a controller — console commands, queued jobs, route closures, etc. — the `EasyModel` Facade exposes the same fluent API on any model:
 
 ```PHP
 use App\Models\Order;
 use Ramadan\EasyModel\Facades\EasyModel;
 
 return EasyModel::for(Order::class)
+    ->addWhereHas(['items'])
+    ->addWheres([
+        function ($query) {
+            $query
+                ->whereNull('paid_at')
+                ->orWhere('reference', 'LIKE', '%PRIORITY-%');
+        },
+    ])
     ->addWhereBetween([
-        ['total' => [100, 1000]],
+        ['total'     => [100, 1000]],
         ['placed_at' => ['2026-01-01', '2026-01-31']],
     ])
-    ->addOrderBy([
-        ['placed_at' => 'desc'],
-    ])
+    ->addKeywordSearch('john', ['customer_name', 'customer_email'])
+    // ->addOrderBy([
+    //     ['placed_at' => 'desc'],
+    // ])
+    ->addOrderByCount('items', 'desc')
     ->execute()
+    ->with('items')
     ->paginate(15);
 ```
 

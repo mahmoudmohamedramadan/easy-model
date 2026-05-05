@@ -144,7 +144,7 @@ public function update()
 
 ## Facade
 
-For ad-hoc usage outside a controller — for example, inside a queued job, scheduled command, webhook handler, or anywhere you would rather not pull the `Updatable` trait in — the package ships with the `EasyModel` Facade that exposes the exact same fluent API on top of any model:
+For ad-hoc usage outside a controller — queued jobs, scheduled commands, webhook handlers, etc. — the `EasyModel` Facade exposes the same fluent API on any model:
 
 ```PHP
 use App\Models\Article;
