@@ -143,7 +143,6 @@ trait Searchable
      * @param  bool  $strict
      * @return $this
      *
-     * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
     public function addKeywordSearch(?string $keyword, array $columns, bool $strict = false)
