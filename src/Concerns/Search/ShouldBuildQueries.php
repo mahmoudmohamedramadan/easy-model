@@ -40,9 +40,9 @@ trait ShouldBuildQueries
                 $this->prepareNestedWhereClosure($where, $queryBuilder, $method);
             } elseif (is_array($where)) {
                 $this->prepareWhereConditions($where, $queryBuilder, $method);
+            } else {
+                throw InvalidArrayStructure::invalidWhereEntry(__METHOD__, $where);
             }
-
-            throw InvalidArrayStructure::invalidWhereEntry(__METHOD__, $where);
         }
 
         $this->queryBuilder = $queryBuilder;
