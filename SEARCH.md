@@ -1,6 +1,7 @@
 # Search Features
 
 - [Controllers / Services Context](#controllers--services-context)
+  - [Single Model](#single-model)
   - [Where Clauses](#where-clauses)
   - [Relations](#relations)
   - [Order Results](#order-results)
@@ -12,11 +13,12 @@
   - [Chainable Methods](#chainable-methods)
   - [Models](#models)
 - [Establish Query](#establish-query)
+- [Reset State](#reset-state)
 - [Facade](#facade)
 
 ## Controllers / Services Context
 
-In the beginning, you can specify the **Searchable Model** in the `constructor` method:
+Start by registering the **Searchable Model** in the `constructor` method:
 
 ```PHP
 use App\Models\User;
@@ -33,15 +35,31 @@ class UserController extends Controller
      */
     public function __construct()
     {
-        // $this->setSearchableModel(User::first());
+        // $this->setSearchableModel(User::class);
         $this->setSearchableModel(new User);
     }
 }
 ```
 
+### Single Model
+
+Beyond collections, the searchable pipeline can also hand back a single model instance — handy for `show()` actions:
+
+```PHP
+/**
+ * Display the specified resource.
+ */
+public function show(string $id)
+{
+    return $this
+        ->setSearchableModel(User::findOrFail($id))
+        ->execute();
+}
+```
+
 ### Where Clauses
 
-After that, you can search in the model using the `addWheres`, and `addOrWheres` methods:
+Once the model is registered, you can filter records with the `addWheres` and `addOrWheres` methods:
 
 ```PHP
 /**
@@ -70,7 +88,7 @@ public function index()
 > [!IMPORTANT]
 > You must provide an array of arrays or closures to these methods since the first element of the array refers to the `column` and the second to the `operator` (default value is `=` in case you do not provide this element), and the third to the `value` in the array structure.
 
-On top of the generic `addWheres` clause, you can use specialized helpers for common conditions: `addWhereIn`, `addWhereNotIn`, `addWhereBetween`, `addWhereNull`, `addWhereNotNull`, and `addKeywordSearch`.
+For common conditions, reach for the specialized helpers: `addWhereIn`, `addWhereNotIn`, `addWhereBetween`, `addWhereNull`, `addWhereNotNull`, and `addKeywordSearch`.
 
 Suppose you want to load only the verified users that belong to a known set of countries:
 
@@ -95,7 +113,7 @@ public function index()
 > [!IMPORTANT]
 > Each entry passed to `addWhereIn`, `addWhereNotIn`, and `addWhereBetween` must be a `[column => values]` pair. Pass as many pairs as you like; they are combined with `AND`.
 
-Also, you can search in the model relationships using the `addWhereHas`, and `addWhereDoesntHave` methods:
+To filter by relationship existence, use the `addWhereHas` and `addWhereDoesntHave` methods:
 
 ```PHP
 /**
@@ -119,7 +137,7 @@ public function index()
 > [!IMPORTANT]
 > You must provide an array to these methods since you can pass just the relationship name as a string, in addition, you can suffix the relationship name with the operator and count to specify the relationship count that the model must have also, you can pass the relationship as the key and a closure as a value.
 
-In addition, you can use the `addWhereRelation` and `addOrWhereRelation`:
+To filter by columns inside a relationship, use the `addWhereRelation` and `addOrWhereRelation` methods:
 
 ```PHP
 /**
@@ -142,7 +160,7 @@ public function index()
 > [!IMPORTANT]
 > Using the previous methods you can provide the relationship name as a key and a closure as a value or you can pass an array with four elements pointing to the `relationship` and the second to the `column` and the third to the `operator` (default value is `=` in case you do not provide this element), and fourth to the `value`.
 
-Furthermore, you can use the previous methods one time by passing a list of arrays to the `addRelationConditions` and `addOrRelationConditions` methods:
+To combine all of the above in a single call, pass a list of arrays to the `addRelationConditions` or `addOrRelationConditions` methods:
 
 ```PHP
 /**
@@ -166,7 +184,7 @@ public function index()
 
 ### Relations
 
-It enables you also to search in the model relationship using the `setRelationship` method:
+To search within a specific relationship, use the `setRelationship` method:
 
 ```PHP
 /**
@@ -190,7 +208,7 @@ public function index()
 
 ### Order Results
 
-Moreover, you can order the result by using the `addOrderBy` method:
+To sort the result, use the `addOrderBy` method:
 
 ```PHP
 /**
@@ -212,10 +230,10 @@ public function index()
 }
 ```
 
-> [!IMPORTANT]
+> [!NOTE]
 > The `addOrderBy` method accepts the column you need to be used in the order query (default direction is `ASC`) and agrees with an array where the key is the column and the value is the direction.
 
-Besides, you can amazingly order the model by its relationships:
+You can also order the model by one of its relationships:
 
 ```PHP
 /**
@@ -240,7 +258,7 @@ public function index()
 > [!NOTE]
 > By default, this method resolves the issue of ambiguous columns by assuming that you need to order by the **searchable model** (e.g., `Influencer::class`). However, you can modify this behavior if necessary.
 
-In addition, you can rank records by the **count** of a relationship using the `addOrderByCount` method — perfect for "most active", "top contributors", or "most engaged" listings:
+To rank records by the **count** of a relationship — perfect for "most active", "top contributors", or "most engaged" listings — use the `addOrderByCount` method:
 
 ```PHP
 /**
@@ -272,12 +290,12 @@ public function index()
 }
 ```
 
-> [!IMPORTANT]
+> [!TIP]
 > Both methods rely on Laravel's `withCount` / `withAggregate` under the hood, so the aggregate value is exposed on each result as a column alias (e.g., `articles_count` or `articles_sum_share_count`) and can be re-used in your views or API responses.
 
 ### Scopes
 
-According to **Scopes**, it enables you to use the Local and Global Scopes together in an extremely awesome approach via the `usingScopes` method:
+To apply Local and Global Scopes together in a single call, use the `usingScopes` method:
 
 ```PHP
 /**
@@ -292,8 +310,8 @@ public function index()
         ])
         ->usingScopes([
             HasManyUpvotesScope::class,
-            // 'isActive', // Local Scope does not require additional parameters
-            'askQuestions' => [true, fn($q) => $q->has('answers')], // Local Scope requires additional parameters
+            // 'isActive', // local scope does not require additional parameters
+            'askQuestions' => [true, fn($q) => $q->has('answers')], // local scope requires additional parameters
         ])
         ->execute()
         ->get();
@@ -303,7 +321,7 @@ public function index()
 > [!NOTE]
 > The `usingScopes` method never overrides the [Global Scopes](https://laravel.com/docs/11.x/eloquent#applying-global-scopes) you already use in the model.
 
-Furthermore, you can ignore specific Global Scopes using the `ignoreGlobalScopes` method:
+To ignore specific Global Scopes, use the `ignoreGlobalScopes` method:
 
 ```PHP
 /**
@@ -348,7 +366,7 @@ public function index()
 
 ### Laravel Methods
 
-On top of that, you can seamlessly take advantage of all Laravel methods:
+You can also fall back to any native Laravel method on the underlying builder:
 
 ```PHP
 /**
@@ -394,7 +412,7 @@ public function destroy()
 
 ### Chainable Methods
 
-On the other hand, if you do not like to specify the model over the whole **Controller / Service** you can do so in each method separately:
+If you'd rather not pin the model at the **Controller / Service** level, set it inside each method instead:
 
 ```PHP
 /**
@@ -414,7 +432,7 @@ public function index()
 
 ### Models
 
-At last, you have control over these methods directly within the model, allowing you to use them in contexts such as [Local Scopes](https://laravel.com/docs/11.x/eloquent#local-scopes) methods:
+You can also use these methods directly inside a model — for example, from a [Local Scope](https://laravel.com/docs/11.x/eloquent#local-scopes):
 
 ```PHP
 class Post extends Model
@@ -438,7 +456,7 @@ class Post extends Model
 
 ## Establish Query
 
-As an added bonus, you can effortlessly set a eloquent or query builder instance to begin building by using the `setSearchableQuery` method:
+You can also start from an existing eloquent or query builder by passing it to the `setSearchableQuery` method:
 
 ```PHP
 /**
@@ -459,6 +477,24 @@ public function update()
 }
 ```
 
+## Reset State
+
+To safely reuse the same instance across unrelated queries, call `flushSearchable` to clear any leftover state:
+
+```PHP
+use Ramadan\EasyModel\Searchable;
+
+class OrderService
+{
+    use Searchable;
+
+    public function reset()
+    {
+        $this->flushSearchable();
+    }
+}
+```
+
 ## Facade
 
 For ad-hoc usage outside a controller — console commands, queued jobs, route closures, etc. — the `EasyModel` Facade exposes the same fluent API on any model:
@@ -468,7 +504,12 @@ use App\Models\Order;
 use Ramadan\EasyModel\Facades\EasyModel;
 
 return EasyModel::for(Order::class)
-    ->addWhereHas(['items'])
+    // ->addWhereHas(['items'])
+    ->usingScopes([
+        'hasItems', // local scope defined on the "order" model
+    ])
+    ->ignoreGlobalScopes() // ignore all global scopes on the "order" model
+    // ->ignoreGlobalScopes([ActiveOrdersScope::class])
     ->addWheres([
         function ($query) {
             $query

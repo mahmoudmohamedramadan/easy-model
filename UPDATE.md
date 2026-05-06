@@ -8,11 +8,12 @@
 - [Other Contexts](#other-contexts)
   - [Chainable Methods](#chainable-methods)
 - [Establish Query](#establish-query)
+- [Reset State](#reset-state)
 - [Facade](#facade)
 
 ## Controllers / Services Context
 
-As well as the **Searchable** trait, you can specify the **Updatable Model** in the `constructor` method:
+Just like the **Searchable** trait, register the **Updatable Model** in the `constructor` method:
 
 ```PHP
 use App\Models\Car;
@@ -36,7 +37,7 @@ class CarController extends Controller
 
 ### Flipping
 
-If you have boolean columns and you need to toggle them simply, you can use the `toggleColumns` method:
+To toggle boolean columns, use the `toggleColumns` method:
 
 ```PHP
 /**
@@ -52,7 +53,7 @@ public function update()
 
 ### Increment / Decrement
 
-In addition, you can adjust the models using the `incrementEach` and `decrementEach` methods:
+To adjust numeric columns, use the `incrementEach` and `decrementEach` methods:
 
 ```PHP
 /**
@@ -69,7 +70,7 @@ public function update()
 
 ### Reset
 
-Also, you can easily reset them to zero using the `zeroOutColumns` method:
+To reset numeric columns to zero, use the `zeroOutColumns` method:
 
 ```PHP
 /**
@@ -85,7 +86,7 @@ public function update()
 
 ### Laravel Methods
 
-As a bonus, you can effortlessly leverage all the built-in Laravel methods:
+You can also fall back to any native Laravel method on the underlying builder:
 
 ```PHP
 /**
@@ -107,7 +108,7 @@ public function store()
 
 ### Chainable Methods
 
-Alternatively, if you prefer not to define the model at the class level, you can do so in each method separately:
+If you'd rather not pin the model at the class level, set it inside each method instead:
 
 ```PHP
 /**
@@ -122,9 +123,23 @@ public function update()
 }
 ```
 
+You can also update a single model instance directly via `performUpdateQuery`:
+
+```PHP
+/**
+ * Update the specified resource in storage.
+ */
+public function update()
+{
+    return $this
+        ->setUpdatableModel(Car::find(4))
+        ->performUpdateQuery(['color' => 'black']);
+}
+```
+
 ## Establish Query
 
-Additionally, you can easily configure either an eloquent or query builder instance to start building by using the `setUpdatableQuery` method:
+You can also start from an existing eloquent or query builder by passing it to the `setUpdatableQuery` method:
 
 ```PHP
 /**
@@ -139,6 +154,24 @@ public function update()
         ->setUpdatableQuery($query)
         ->incrementEach(['prs' => 3])
         ->fetch();
+}
+```
+
+## Reset State
+
+To safely reuse the same instance across unrelated update operations, call `flushUpdatable` to clear any leftover state:
+
+```PHP
+use Ramadan\EasyModel\Updatable;
+
+class OrderService
+{
+    use Updatable;
+
+    public function reset()
+    {
+        $this->flushUpdatable();
+    }
 }
 ```
 
