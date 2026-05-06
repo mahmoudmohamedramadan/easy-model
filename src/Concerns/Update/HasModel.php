@@ -24,11 +24,8 @@ trait HasModel
      */
     public function setUpdatableModel($model)
     {
-        if (!is_string($model) && !is_a($model, Model::class, true)) {
-            throw new InvalidModel(sprintf(
-                "The model must be string or instance of \Illuminate\Database\Eloquent\Model. Given [%s].",
-                gettype($model)
-            ));
+        if (! is_a($model, Model::class, true)) {
+            throw InvalidModel::notAModelClass($model);
         }
 
         $this->updatableModel = $model;

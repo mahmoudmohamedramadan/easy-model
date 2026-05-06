@@ -2,23 +2,22 @@
 
 namespace Ramadan\EasyModel\Concerns\Search;
 
+use Closure;
 use Ramadan\EasyModel\Exceptions\InvalidArrayStructure;
-use Illuminate\Contracts\Database\Query\Expression as ExpressionContract;
-use Illuminate\Support\Arr;
 
 trait ShouldBuildQueries
 {
     /**
      * The search query builder.
      *
-     * @var \Illuminate\Database\Query\Builder
+     * @var \Illuminate\Database\Query\Builder|null
      */
     protected $queryBuilder;
 
     /**
      * The search eloquent builder.
      *
-     * @var \Illuminate\Database\Eloquent\Builder
+     * @var \Illuminate\Database\Eloquent\Builder|null
      */
     protected $eloquentBuilder;
 
@@ -29,17 +28,23 @@ trait ShouldBuildQueries
      * @param  string  $method
      * @return $this
      *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
      */
     protected function buildQueryUsingWheres($wheres, $method = 'where')
     {
         $queryBuilder = $this->getSearchableQueryBuilder();
+
         foreach ($wheres as $where) {
-            $this->{(match (gettype($where)) {
-                'object' => 'prepareNestedWhereClosure',
-                'array'  => 'prepareWhereConditions',
-            })}($where, $queryBuilder, $method);
+            if ($where instanceof Closure) {
+                $this->prepareNestedWhereClosure($where, $queryBuilder, $method);
+            } elseif (is_array($where)) {
+                $this->prepareWhereConditions($where, $queryBuilder, $method);
+            } else {
+                throw InvalidArrayStructure::invalidWhereEntry(__METHOD__, $where);
+            }
         }
+
         $this->queryBuilder = $queryBuilder;
 
         return $this;
@@ -63,15 +68,15 @@ trait ShouldBuildQueries
         $relation = [],
         $method = 'where'
     ) {
-        if (!empty($has)) {
+        if (! empty($has)) {
             $this->buildQueryUsingWhereHasAndDoesntHave($has, "{$method}Has");
         }
 
-        if (!empty($doesntHave)) {
+        if (! empty($doesntHave)) {
             $this->buildQueryUsingWhereHasAndDoesntHave($doesntHave, "{$method}DoesntHave");
         }
 
-        if (!empty($relation)) {
+        if (! empty($relation)) {
             $this->buildQueryUsingWhereRelation($relation, "{$method}Relation");
         }
 
@@ -91,19 +96,19 @@ trait ShouldBuildQueries
     protected function buildQueryUsingWhereHasAndDoesntHave($wheres, $method = 'whereHas')
     {
         foreach ($wheres as $relation => $closure) {
-            if (!is_string($closure) && (!is_string($relation) && !is_callable($closure))) {
-                throw new InvalidArrayStructure(sprintf("The [%s] method must be well defined.", __METHOD__));
+            if (! is_string($closure) && (! is_string($relation) && ! is_callable($closure))) {
+                throw InvalidArrayStructure::methodMustBeWellDefined(__METHOD__);
             }
 
-            $paramters = $this->prepareWhereHasAndDoesntHaveQueryParameters(
+            $parameters = $this->prepareWhereHasAndDoesntHaveQueryParameters(
                 is_string($closure) ? $closure : $relation,
                 $method
             );
 
             $this->queryBuilder = $this->buildQueryUsingHas(
-                relation: $paramters['relation'],
-                operator: $paramters['operator'],
-                count: $paramters['count'],
+                relation: $parameters['relation'],
+                operator: $parameters['operator'],
+                count: $parameters['count'],
                 boolean: str_starts_with($method, 'orWhere') ? 'or' : 'and',
                 closure: is_callable($closure) ? $closure : null
             );
@@ -125,20 +130,20 @@ trait ShouldBuildQueries
     protected function buildQueryUsingWhereRelation($wheres, $method = 'whereRelation')
     {
         foreach ($wheres as $relation => $closure) {
-            if ((!is_string($relation) && !is_callable($closure)) && !is_array($closure)) {
-                throw new InvalidArrayStructure(sprintf("The [%s] method must be well defined.", __METHOD__));
+            if ((! is_string($relation) && ! is_callable($closure)) && ! is_array($closure)) {
+                throw InvalidArrayStructure::methodMustBeWellDefined(__METHOD__);
             }
 
-            $paramters = $this->prepareWhereRelationQueryParameters($relation, $closure);
+            $parameters = $this->prepareWhereRelationQueryParameters($relation, $closure);
 
             $this->queryBuilder = $this->buildQueryUsingHas(
-                relation: $paramters['relation'],
+                relation: $parameters['relation'],
                 boolean: str_starts_with($method, 'orWhere') ? 'or' : 'and',
-                closure: function ($query) use ($paramters) {
-                    if (is_callable($column = $paramters['column'])) {
+                closure: function ($query) use ($parameters) {
+                    if (is_callable($column = $parameters['column'])) {
                         $column($query);
                     } else {
-                        $query->where($paramters['column'], $paramters['operator'], $paramters['value']);
+                        $query->where($parameters['column'], $parameters['operator'], $parameters['value']);
                     }
                 }
             );
@@ -170,9 +175,9 @@ trait ShouldBuildQueries
     /**
      * Prepare a nested of "where" clauses using the given closure.
      *
-     * @param \Closure  $where
-     * @param \Illuminate\Database\Query\Builder  $queryBuilder
-     * @param string  $method
+     * @param  \Closure  $where
+     * @param  \Illuminate\Database\Query\Builder  $queryBuilder
+     * @param  string  $method
      * @return void
      */
     protected function prepareNestedWhereClosure($where, $queryBuilder, $method = 'where')
@@ -186,25 +191,27 @@ trait ShouldBuildQueries
     /**
      * Prepare conditions to be inserted into the "where" clause.
      *
-     * @param array  $where
-     * @param \Illuminate\Database\Query\Builder  $queryBuilder
-     * @param string  $method
+     * @param  array  $where
+     * @param  \Illuminate\Database\Query\Builder  $queryBuilder
+     * @param  string  $method
      * @return void
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      */
     protected function prepareWhereConditions($where, $queryBuilder, $method = 'where')
     {
-        $type = 'Basic';
+        $count = count($where);
 
-        $column   = $where[0];
-        $operator = count($where) === 3 ? $where[1] : '=';
-        $value    = count($where) === 3 ? $where[2] : $where[1];
-        $boolean  = $method === 'where' ? 'and' : 'or';
-
-        if (!($value instanceof ExpressionContract)) {
-            $queryBuilder->addBinding(is_array($value) ? reset(Arr::flatten($value)) : $value, 'where');
+        if ($count < 2 || $count > 3) {
+            throw InvalidArrayStructure::invalidWhereTuple(__METHOD__, $count);
         }
 
-        $queryBuilder->wheres[] = compact('type', 'column', 'operator', 'value', 'boolean');
+        $column   = $where[0];
+        $operator = $count === 3 ? $where[1] : '=';
+        $value    = $count === 3 ? $where[2] : $where[1];
+        $boolean  = $method === 'where' ? 'and' : 'or';
+
+        $queryBuilder->where($column, $operator, $value, $boolean);
     }
 
     /**
@@ -230,7 +237,7 @@ trait ShouldBuildQueries
         return [
             'relation' => $matches[0],
             'operator' => array_key_exists(0, $operator) ? $operator[0] : '>=',
-            'count'    => array_key_exists(1, $matches) ? $matches[1] : 1,
+            'count'    => array_key_exists(1, $matches) ? (int) $matches[1] : 1,
         ];
     }
 
@@ -248,7 +255,7 @@ trait ShouldBuildQueries
                 'relation' => $relation,
                 'column'   => $closure,
                 'operator' => '>=',
-                'value'    => 1
+                'value'    => 1,
             ];
         }
 
@@ -261,7 +268,40 @@ trait ShouldBuildQueries
             'relation' => $relation,
             'column'   => $column,
             'operator' => $operator,
-            'value'    => $value
+            'value'    => $value,
         ];
+    }
+
+    /**
+     * Apply a where method (e.g. whereIn, whereBetween) for each [column => values[]] pair.
+     *
+     * @param  array  $wheres
+     * @param  string  $method
+     * @param  \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|null  $query
+     * @return $this
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
+     */
+    protected function applyMassWhere(array $wheres, string $method, $query = null)
+    {
+        $builder = $this
+            ->setSearchableQuery($query)
+            ->getSearchableQueryBuilder();
+
+        foreach ($wheres as $where) {
+            $column = array_keys($where)[0];
+            $values = array_values($where)[0];
+
+            if (! is_string($column) || ! is_array($values)) {
+                throw InvalidArrayStructure::invalidColumnValuesTuple($method);
+            }
+
+            $builder->{$method}($column, $values);
+        }
+
+        $this->queryBuilder = $builder;
+
+        return $this;
     }
 }

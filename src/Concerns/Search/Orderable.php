@@ -5,13 +5,26 @@ namespace Ramadan\EasyModel\Concerns\Search;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOneOrMany;
+use Illuminate\Database\Eloquent\Relations\MorphOneOrMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Ramadan\EasyModel\Exceptions\InvalidArrayStructure;
 use Ramadan\EasyModel\Exceptions\InvalidOrderableRelationship;
 
 trait Orderable
 {
+    /**
+     * Tables that have already been joined for the current order-by chain.
+     *
+     * Tracks aliases by full path (e.g. "users.posts.comments") so the same
+     * relationship is never joined twice in a single query.
+     *
+     * @var array<string, string>
+     */
+    protected array $joinedRelationshipTables = [];
+
     /**
      * Add an "order by" clause to the query.
      *
@@ -26,19 +39,80 @@ trait Orderable
     public function addOrderBy(array $orders, ?Builder $query = null)
     {
         $queryBuilder = $this->getSearchableQueryBuilder($query);
+
         foreach ($orders as $order) {
-            if (!is_string($order) && !is_array($order)) {
-                throw new InvalidArrayStructure(sprintf("The [%s] method must be well defined.", __METHOD__));
+            if (! is_string($order) && ! is_array($order)) {
+                throw InvalidArrayStructure::methodMustBeWellDefined(__METHOD__);
             }
 
-            $paramters = $this->prepareOrderByQueryParamters($order, $queryBuilder);
+            $parameters = $this->prepareOrderByQueryParameters($order, $queryBuilder);
 
             $queryBuilder->{$queryBuilder->unions ? 'unionOrders' : 'orders'}[] = [
-                'column'    => $paramters['column'],
-                'direction' => $paramters['direction'],
+                'column'    => $parameters['column'],
+                'direction' => $parameters['direction'],
             ];
         }
+
         $this->queryBuilder = $queryBuilder;
+
+        return $this;
+    }
+
+    /**
+     * Add an "order by" clause that orders by the count of a given relationship.
+     *
+     * @param  string  $relation
+     * @param  string  $direction
+     * @return $this
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
+     */
+    public function addOrderByCount(string $relation, string $direction = 'asc')
+    {
+        return $this->addOrderByAggregate($relation, '*', 'count', $direction);
+    }
+
+    /**
+     * Add an "order by" clause that orders by an aggregate over a relationship column.
+     *
+     * @param  string  $relation
+     * @param  string  $column
+     * @param  string  $aggregate
+     * @param  string  $direction
+     * @return $this
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
+     */
+    public function addOrderByAggregate(string $relation, string $column, string $aggregate, string $direction = 'asc')
+    {
+        $aggregate = strtolower($aggregate);
+        $direction = strtolower($direction);
+
+        if (! in_array($aggregate, ['count', 'sum', 'avg', 'min', 'max'], true)) {
+            throw InvalidArrayStructure::invalidAggregate();
+        }
+
+        if (! in_array($direction, ['asc', 'desc'], true)) {
+            throw InvalidArrayStructure::invalidDirection();
+        }
+
+        $eloquent = $this->getSearchableEloquentBuilder();
+
+        $eloquent->withAggregate($relation, $column, $aggregate);
+
+        $alias = sprintf(
+            '%s_%s%s',
+            str_replace('.', '_', $relation),
+            $aggregate,
+            $aggregate === 'count' && $column === '*' ? '' : '_' . $column
+        );
+
+        $eloquent->orderBy($alias, $direction);
+
+        $this->eloquentBuilder = $eloquent;
+        $this->queryBuilder    = $eloquent->getQuery();
 
         return $this;
     }
@@ -53,7 +127,7 @@ trait Orderable
      * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
      * @throws \Ramadan\EasyModel\Exceptions\InvalidOrderableRelationship
      */
-    protected function prepareOrderByQueryParamters($order, $queryBuilder)
+    protected function prepareOrderByQueryParameters($order, $queryBuilder)
     {
         $currentModel = $this->resolveModelOrRelation();
 
@@ -62,45 +136,29 @@ trait Orderable
         // be applied to a relationship. In this case, we need to split the string to separate the
         // relationship and the column by which the model should be ordered.
         if (is_string($order)) {
-            $parts = explode('.', $order);
-
-            // If the developer attempts to order by the same column from both the model and its relationship,
-            // an "Ambiguous Exception" will be thrown. To resolve this, we explicitly use the searchable model
-            // for ordering by its given column. However, this behavior can be overridden if needed.
-            // Example usage of "addOrderBy" method:
-            // ->setSearchableModel(User::class)
-            // ->addOrderBy([
-            //     ['created_at' => 'desc'], // This will trigger an "order by `created_at`" on the searchable model
-            //     'posts.created_at' // You can also specify which relationship to use for ordering by its column
-            // ])
+            $parts     = explode('.', $order);
             $column    = "{$currentModel->getTable()}.{$order}";
             $direction = 'asc';
-        } elseif (is_array($order)) {
-            $key   = array_key_first($order);
-            $parts = explode('.', $key);
-
+        } else {
+            $key       = array_key_first($order);
+            $parts     = explode('.', $key);
             $column    = "{$currentModel->getTable()}.{$key}";
             $direction = strtolower(array_values($order)[0]);
-        }
-
-        if (in_array(strtolower($column), ['asc', 'desc'], true)) {
-            throw new InvalidArrayStructure("Provide correct orderable column.");
         }
 
         if (count($parts) > 1) {
             // If the order is based on model relationships, we need to retrieve the last relationship
             // and the column to be ordered by (e.g., "post.comments.created_at").
-            // In this case, the column is "created_at" and the relationship is "comments".
             $column = $this->performRelationshipsJoins($currentModel, $parts, $queryBuilder);
         }
 
-        if (!in_array($direction, ['asc', 'desc'], true)) {
-            throw new InvalidArrayStructure('Order direction must be "asc" or "desc".');
+        if (! in_array($direction, ['asc', 'desc'], true)) {
+            throw InvalidArrayStructure::invalidDirection();
         }
 
         return [
             'column'    => $column,
-            'direction' => $direction
+            'direction' => $direction,
         ];
     }
 
@@ -116,53 +174,229 @@ trait Orderable
      */
     protected function performRelationshipsJoins($currentModel, $relationships, $queryBuilder)
     {
-        for ($i = 0; $i < count($relationships) - 1; $i++) {
-            $currentRelationship = $currentModel->{$relationships[$i]}();
-            $relatedModel        = $currentRelationship->getModel();
+        // Make sure the parent columns are not duplicated when we join children. We
+        // pin the SELECT to the base table once and let downstream code add aliased
+        // aggregate columns if needed.
+        if (empty($queryBuilder->columns)) {
+            $queryBuilder->select("{$currentModel->getTable()}.*");
+        }
 
-            // At first let's pretend that the current model is "App\Models\User" which is the parent and it has
-            // one or many child models (e.g., "profile", "accounts") in this case, the foreign key of the current
-            // model is "user_id" and must be exists in the child table(s).
-            if (in_array(get_class($currentRelationship), [HasOne::class, HasMany::class])) {
-                $currentTableName = $currentModel->getTable();
-                $relatedTableName = $relatedModel->getTable();
+        $pathSoFar = $currentModel->getTable();
 
-                $currentForeignKey      = $currentModel->getForeignKey();
-                $currentTablePrimaryKey = $currentModel->getKeyName();
+        for ($i = 0, $last = count($relationships) - 1; $i < $last; $i++) {
+            $relationName = $relationships[$i];
+
+            if (! method_exists($currentModel, $relationName)) {
+                throw InvalidOrderableRelationship::relationNotDefined($currentModel, $relationName);
             }
 
-            // But, in case the current model is "App\Models\Comment" which is the child and it belongs to a
-            // parent model (e.g., "App\Models\Post") the foreign key "post_id" must exists in the table of the
-            // current related model "comments".
-            elseif (in_array(get_class($currentRelationship), [BelongsTo::class, BelongsToMany::class])) {
-                $currentTableName = $relatedModel->getTable();
-                $relatedTableName = $currentModel->getTable();
+            $currentRelationship = $currentModel->{$relationName}();
+            $relatedModel        = $currentRelationship->getRelated();
+            $pathSoFar           = "{$pathSoFar}.{$relationName}";
 
-                $currentForeignKey      = $relatedModel->getForeignKey();
-                $currentTablePrimaryKey = $currentModel->getKeyName();
+            if (isset($this->joinedRelationshipTables[$pathSoFar])) {
+                $currentModel = $relatedModel;
+                continue;
             }
 
-            if (empty($currentTableName) || empty($relatedTableName)) {
-                throw new InvalidOrderableRelationship(
-                    sprintf("The orderable relationship [%s] is unsupported.", get_class($currentRelationship))
-                );
-            }
+            $this->joinRelationship($queryBuilder, $currentModel, $currentRelationship);
 
-            // Perform the join
-            $queryBuilder->join(
-                table: $relatedModel->getTable(),
-                first: "{$currentTableName}.{$currentTablePrimaryKey}",
-                operator: '=',
-                second: "{$relatedTableName}.{$currentForeignKey}"
-            );
+            $this->joinedRelationshipTables[$pathSoFar] = $relatedModel->getTable();
 
-            // Now, let's move to the next model (the current one will be the related model). If the current
-            // model is "users," then the current model in the next iteration will be "posts".
             $currentModel = $relatedModel;
         }
 
         // The "$currentModel" always contains the latest relationship
         // that you need to use for performing the order.
         return "{$currentModel->getTable()}." . end($relationships);
+    }
+
+    /**
+     * Append the appropriate join(s) to the query builder for a single relationship hop.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $queryBuilder
+     * @param  \Illuminate\Database\Eloquent\Model  $parentModel
+     * @param  \Illuminate\Database\Eloquent\Relations\Relation  $relation
+     * @return void
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidOrderableRelationship
+     */
+    protected function joinRelationship($queryBuilder, $parentModel, $relation)
+    {
+        match (true) {
+            $relation instanceof MorphTo => $this->joinMorphToRelationship(),
+            $relation instanceof MorphToMany => $this->joinMorphToManyRelationship($queryBuilder, $parentModel, $relation),
+            $relation instanceof BelongsToMany => $this->joinBelongsToManyRelationship($queryBuilder, $parentModel, $relation),
+            $relation instanceof BelongsTo => $this->joinBelongsToRelationship($queryBuilder, $parentModel, $relation),
+            $relation instanceof HasManyThrough => $this->joinHasManyThroughRelationship($queryBuilder, $parentModel, $relation),
+            $relation instanceof MorphOneOrMany => $this->joinMorphOneOrManyRelationship($queryBuilder, $parentModel, $relation),
+            $relation instanceof HasOneOrMany => $this->joinHasOneOrManyRelationship($queryBuilder, $parentModel, $relation),
+            default => throw InvalidOrderableRelationship::unsupportedRelation($relation),
+        };
+    }
+
+    /**
+     * MorphTo cannot be joined: the related table is not statically known.
+     *
+     * @return never
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidOrderableRelationship
+     */
+    protected function joinMorphToRelationship()
+    {
+        throw InvalidOrderableRelationship::morphToCannotBeJoined();
+    }
+
+    /**
+     * Join a BelongsToMany (non-polymorphic) relation via the pivot table.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $queryBuilder
+     * @param  \Illuminate\Database\Eloquent\Model  $parentModel
+     * @param  \Illuminate\Database\Eloquent\Relations\BelongsToMany  $relation
+     * @return void
+     */
+    protected function joinBelongsToManyRelationship($queryBuilder, $parentModel, BelongsToMany $relation)
+    {
+        $relatedTable = $relation->getRelated()->getTable();
+        $parentTable  = $parentModel->getTable();
+        $pivotTable   = $relation->getTable();
+
+        $queryBuilder->leftJoin(
+            $pivotTable,
+            "{$parentTable}.{$relation->getParentKeyName()}",
+            '=',
+            "{$pivotTable}.{$relation->getForeignPivotKeyName()}"
+        );
+
+        $queryBuilder->leftJoin(
+            $relatedTable,
+            "{$pivotTable}.{$relation->getRelatedPivotKeyName()}",
+            '=',
+            "{$relatedTable}.{$relation->getRelatedKeyName()}"
+        );
+    }
+
+    /**
+     * Join a MorphToMany relation via the pivot table and morph type constraint.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $queryBuilder
+     * @param  \Illuminate\Database\Eloquent\Model  $parentModel
+     * @param  \Illuminate\Database\Eloquent\Relations\MorphToMany  $relation
+     * @return void
+     */
+    protected function joinMorphToManyRelationship($queryBuilder, $parentModel, MorphToMany $relation)
+    {
+        $this->joinBelongsToManyRelationship($queryBuilder, $parentModel, $relation);
+
+        $pivotTable = $relation->getTable();
+
+        $queryBuilder->where(
+            "{$pivotTable}.{$relation->getMorphType()}",
+            '=',
+            $relation->getMorphClass()
+        );
+    }
+
+    /**
+     * Join a BelongsTo relation.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $queryBuilder
+     * @param  \Illuminate\Database\Eloquent\Model  $parentModel
+     * @param  \Illuminate\Database\Eloquent\Relations\BelongsTo  $relation
+     * @return void
+     */
+    protected function joinBelongsToRelationship($queryBuilder, $parentModel, BelongsTo $relation)
+    {
+        $relatedTable = $relation->getRelated()->getTable();
+        $parentTable  = $parentModel->getTable();
+
+        $queryBuilder->leftJoin(
+            $relatedTable,
+            "{$parentTable}.{$relation->getForeignKeyName()}",
+            '=',
+            "{$relatedTable}.{$relation->getOwnerKeyName()}"
+        );
+    }
+
+    /**
+     * Join HasOneThrough / HasManyThrough via the intermediate model.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $queryBuilder
+     * @param  \Illuminate\Database\Eloquent\Model  $parentModel
+     * @param  \Illuminate\Database\Eloquent\Relations\HasManyThrough  $relation
+     * @return void
+     */
+    protected function joinHasManyThroughRelationship($queryBuilder, $parentModel, HasManyThrough $relation)
+    {
+        $relatedTable = $relation->getRelated()->getTable();
+        $parentTable  = $parentModel->getTable();
+        $through      = $relation->getParent();
+        $throughTable = $through->getTable();
+
+        if (! isset($this->joinedRelationshipTables['__through:' . $throughTable])) {
+            $queryBuilder->leftJoin(
+                $throughTable,
+                "{$parentTable}.{$relation->getLocalKeyName()}",
+                '=',
+                "{$throughTable}.{$relation->getFirstKeyName()}"
+            );
+
+            $this->joinedRelationshipTables['__through:' . $throughTable] = $throughTable;
+        }
+
+        $queryBuilder->leftJoin(
+            $relatedTable,
+            "{$throughTable}.{$relation->getSecondLocalKeyName()}",
+            '=',
+            "{$relatedTable}.{$relation->getForeignKeyName()}"
+        );
+    }
+
+    /**
+     * Join MorphOne / MorphMany with a morph type filter on the related table.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $queryBuilder
+     * @param  \Illuminate\Database\Eloquent\Model  $parentModel
+     * @param  \Illuminate\Database\Eloquent\Relations\MorphOneOrMany  $relation
+     * @return void
+     */
+    protected function joinMorphOneOrManyRelationship($queryBuilder, $parentModel, MorphOneOrMany $relation)
+    {
+        $relatedTable = $relation->getRelated()->getTable();
+
+        $queryBuilder->leftJoin($relatedTable, function ($join) use ($parentModel, $relation, $relatedTable) {
+            $join
+                ->on(
+                    "{$parentModel->getTable()}.{$relation->getLocalKeyName()}",
+                    '=',
+                    "{$relatedTable}.{$relation->getForeignKeyName()}"
+                )
+                ->where(
+                    "{$relatedTable}.{$relation->getMorphType()}",
+                    '=',
+                    $relation->getMorphClass()
+                );
+        });
+    }
+
+    /**
+     * Join HasOne / HasMany from the parent's local key to the related foreign key.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $queryBuilder
+     * @param  \Illuminate\Database\Eloquent\Model  $parentModel
+     * @param  \Illuminate\Database\Eloquent\Relations\HasOneOrMany  $relation
+     * @return void
+     */
+    protected function joinHasOneOrManyRelationship($queryBuilder, $parentModel, HasOneOrMany $relation)
+    {
+        $relatedTable = $relation->getRelated()->getTable();
+        $parentTable  = $parentModel->getTable();
+
+        $queryBuilder->leftJoin(
+            $relatedTable,
+            "{$parentTable}.{$relation->getLocalKeyName()}",
+            '=',
+            "{$relatedTable}.{$relation->getForeignKeyName()}"
+        );
     }
 }

@@ -1,6 +1,26 @@
 # Release Notes for 1.x
 
-## [Unreleased](https://github.com/mahmoudmohamedramadan/easy-model/compare/v1.1.9...1.x)
+## [Unreleased](https://github.com/mahmoudmohamedramadan/easy-model/compare/v1.2.0...1.x)
+
+## [v1.2.0](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.2.0)
+
+- [1.x] Adds an `EasyModelException` marker interface implemented by every package exception for unified error handling.
+- [1.x] Adds named constructors to all exceptions for centralized, consistent error messages.
+- [1.x] Rebases the package exceptions on top of standard SPL types (`\LogicException` / `\InvalidArgumentException`) — non-breaking.
+- [1.x] Adds `addOrderByCount()` and `addOrderByAggregate()` helpers for ordering by relationship aggregates.
+- [1.x] Adds `addKeywordSearch()` for grouped multi-column `LIKE` / `=` searches.
+- [1.x] Adds `addWhereIn`, `addWhereNotIn`, `addWhereNull`, `addWhereNotNull`, and `addWhereBetween` array-driven helpers.
+- [1.x] Adds first-class join support in `addOrderBy` for `MorphOne`, `MorphMany`, `MorphToMany`, `HasOneThrough`, and `HasManyThrough` relationships.
+- [1.x] Adds `flushSearchable()` / `flushUpdatable()` to reset internal trait state for safe reuse.
+- [1.x] Adds the ability to get a single model instance directly from the searchable pipeline.
+- [1.x] Extends the fix for updating a single model instance to the `Updatable` trait's own pipeline.
+- [1.x] Fixes a `reset()` reference bug in `prepareWhereConditions` when passing an array as a `where` value.
+- [1.x] Fixes wrong foreign-key resolution for `BelongsTo` ordering.
+- [1.x] Fixes `BelongsToMany` and `MorphToMany` ordering by emitting the correct `parent → pivot → related` joins.
+- [1.x] Fixes silent row-loss when ordering by a relationship via `LEFT JOIN`, explicit base-table selection, and join deduplication.
+- [1.x] Fixes a missing `default` arm in `buildQueryUsingWheres` by throwing `InvalidArrayStructure` instead.
+- [1.x] Fixes `setSearchableQuery` / `setUpdatableQuery` silently downgrading an `EloquentBuilder` to a `QueryBuilder`.
+- [1.x] Fixes `includeSoftDeleted()` silently no-oping when the model doesn't use the `SoftDeletes` trait — it now throws `InvalidModel`.
 
 ## [v1.1.9](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.1.9)
 

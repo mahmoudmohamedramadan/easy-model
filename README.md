@@ -37,7 +37,19 @@ What makes this package featured?
   - Easily order results by model relationships (`HasOne`, `HasMany`, `BelongsTo`, `BelongsToMany`) without referring to manual joins. Check out [Order Results](SEARCH.md#order-results) to learn more.
 
 - **Streamline Batch Updates:**
-  - Effortlessly perform multiple updates using concise methods, consult [update.md](UPDATE.md).
+  - Effortlessly perform multiple updates using concise methods, consult [UPDATE.md](UPDATE.md).
+
+- **Polymorphic & Through Relationship Ordering:**
+  - First-class support for ordering by `MorphOne`, `MorphMany`, `MorphToMany`, `HasOneThrough`, and `HasManyThrough` relationships — with safe `LEFT JOIN`s and per-query join deduplication.
+
+- **Aggregate Ordering Helpers:**
+  - Order results by `COUNT`, `SUM`, `AVG`, `MIN`, or `MAX` of a related relationship via `addOrderByCount` / `addOrderByAggregate`.
+
+- **Keyword Search Across Columns:**
+  - Run a single grouped `LIKE`/`=` search across multiple columns with `addKeywordSearch`.
+
+- **Drop-in Facade:**
+  - Skip the trait entirely and use `EasyModel::for(User::class)->...` from anywhere.
 
 - And more...
 
@@ -57,7 +69,7 @@ composer require ramadan/easy-model
 > [!WARNING]
 > Do not use both traits together, as doing so may lead to unexpected output. However, if you do, the highest priority will be given to the **Searchable** trait.
 
-For comprehensive examples and in-depth usage guidelines, check out [search.md](SEARCH.md) and [update.md](UPDATE.md).
+For comprehensive examples and in-depth usage guidelines, check out [SEARCH.md](SEARCH.md) and [UPDATE.md](UPDATE.md).
 
 ## Credits
 
