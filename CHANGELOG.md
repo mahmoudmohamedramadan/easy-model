@@ -57,7 +57,7 @@
 - [1.x] Removes the `updateOrCreateModel` and `updateOrCreateRelationship` methods.
 - [1.x] Removes the `setChainableModel` method.
 - [1.x] Updates the return type of the `setUpdatableModel` method.
-- [1.x] Fixes updating an empty array of togglable columns.
+- [1.x] Fixes updating an empty array of toggleable columns.
 - [1.x] Fixes the model serialization issue encountered in the `toggleColumns` method.
 - [1.x] Fixes populating the `updated_at` column when incrementing and decrementing values.
 - [1.x] Fixes toggling many columns at a bunch of records.
