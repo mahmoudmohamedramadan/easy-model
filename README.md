@@ -12,6 +12,7 @@
 
 - [Overview](#overview)
 - [Installation](#installation)
+- [Testing the upcoming release](#testing-the-upcoming-release)
 - [Usage](#usage)
 - [Credits](#credits)
 - [Support Me](#support-me)
@@ -60,6 +61,16 @@ Install the package by using [Composer](https://getcomposer.org/):
 ```SHELL
 composer require ramadan/easy-model
 ```
+
+## Testing the upcoming release
+
+Try the upcoming line in a Laravel app alongside your existing code paths:
+
+```SHELL
+composer require ramadan/easy-model:1.2.0-alpha.1
+```
+
+See the **[v1.2.0-alpha.1](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.2.0-alpha.1)** release notes in [CHANGELOG.md](CHANGELOG.md) for included changes.
 
 ## Usage
 
