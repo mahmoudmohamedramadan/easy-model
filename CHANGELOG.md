@@ -38,7 +38,7 @@
 
 ## [v1.1.6](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.1.6)
 
-- [1.x] Adds the compatibility to support **Laravel v12**.
+- [1.x] Adds compatibility to support **Laravel v12**.
 
 ## [v1.1.5](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.1.5)
 
@@ -53,7 +53,7 @@
 - [1.x] Adds the `fetchBuilder` method.
 - [1.x] Adds the `setSearchableQuery` method.
 - [1.x] Adds the `setUpdatableQuery` method.
-- [1.x] Adds the ability to specify the builder type that is getting back.
+- [1.x] Adds the ability to specify the builder type that is returned.
 - [1.x] Removes the `updateOrCreateModel` and `updateOrCreateRelationship` methods.
 - [1.x] Removes the `setChainableModel` method.
 - [1.x] Updates the return type of the `setUpdatableModel` method.
@@ -148,7 +148,7 @@
 
 ## [v1.0.0 (alpha.3)](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.0-alpha.3)
 
-- [1.x] Renames the method that adds all relationships checking to `addAllWheres` and `addAllOrWheres` methods.
+- [1.x] Renames the method that adds all relationship checks to `addAllWheres` and `addAllOrWheres` methods.
 - [1.x] Adds the ability to search within the models and their relationships using `addWheres` and `addOrWheres` methods.
 
 ## [v1.0.0 (alpha.2)](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.0-alpha.2)
@@ -157,4 +157,4 @@
 
 ## [v1.0.0 (alpha.1)](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.0.0-alpha.1)
 
-- [1.x] Initials pre-release.
+- [1.x] Initial pre-release.
