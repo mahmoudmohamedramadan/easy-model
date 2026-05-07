@@ -1,8 +1,8 @@
 # Release Notes for 1.x
 
-## [Unreleased](https://github.com/mahmoudmohamedramadan/easy-model/compare/v1.2.0...1.x)
+## [Unreleased](https://github.com/mahmoudmohamedramadan/easy-model/compare/v2.0.0-beta.1...1.x)
 
-## [v1.2.0](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.2.0)
+## [v2.0.0-beta.1](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v2.0.0-beta.1)
 
 - [1.x] Adds an `EasyModelException` marker interface implemented by every package exception for unified error handling.
 - [1.x] Adds named constructors to all exceptions for centralized, consistent error messages.
