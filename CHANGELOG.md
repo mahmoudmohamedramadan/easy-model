@@ -13,7 +13,6 @@
 - [1.x] Adds first-class join support in `addOrderBy` for `MorphOne`, `MorphMany`, `MorphToMany`, `HasOneThrough`, and `HasManyThrough` relationships.
 - [1.x] Adds `flushSearchable()` / `flushUpdatable()` to reset internal trait state for safe reuse.
 - [1.x] Adds the ability to get a single model instance directly from the searchable pipeline.
-- [1.x] Extends the fix for updating a single model instance to the `Updatable` trait's own pipeline.
 - [1.x] Fixes a `reset()` reference bug in `prepareWhereConditions` when passing an array as a `where` value.
 - [1.x] Fixes wrong foreign-key resolution for `BelongsTo` ordering.
 - [1.x] Fixes `BelongsToMany` and `MorphToMany` ordering by emitting the correct `parent → pivot → related` joins.
@@ -21,6 +20,7 @@
 - [1.x] Fixes a missing `default` arm in `buildQueryUsingWheres` by throwing `InvalidArrayStructure` instead.
 - [1.x] Fixes `setSearchableQuery` / `setUpdatableQuery` silently downgrading an `EloquentBuilder` to a `QueryBuilder`.
 - [1.x] Fixes `includeSoftDeleted()` silently no-oping when the model doesn't use the `SoftDeletes` trait — it now throws `InvalidModel`.
+- [1.x] Extends the fix for updating a single model instance to the `Updatable` trait's own pipeline.
 
 ## [v1.1.9](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.1.9)
 
