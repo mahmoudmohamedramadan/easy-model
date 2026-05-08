@@ -41,7 +41,7 @@ What makes this package featured?
   - Effortlessly perform multiple updates using concise methods, consult [UPDATE.md](UPDATE.md).
 
 - **Polymorphic & Through Relationship Ordering:**
-  - First-class support for ordering by `MorphOne`, `MorphMany`, `MorphToMany`, `HasOneThrough`, and `HasManyThrough` relationships — with safe `LEFT JOIN`s and per-query join deduplication.
+  - Adds first-class ordering support for `MorphOne`, `MorphMany`, `MorphToMany`, `HasOneThrough`, and `HasManyThrough` relationships using safe `LEFT JOIN` handling and automatic per-query join deduplication.
 
 - **Aggregate Ordering Helpers:**
   - Order results by `COUNT`, `SUM`, `AVG`, `MIN`, or `MAX` of a related relationship via `addOrderByCount` / `addOrderByAggregate`.
