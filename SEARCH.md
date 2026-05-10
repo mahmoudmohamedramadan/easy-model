@@ -1,8 +1,8 @@
 # Search Features
 
 - [Controllers / Services Context](#controllers--services-context)
-  - [Single Model](#single-model)
   - [Where Clauses](#where-clauses)
+  - [Single Model](#single-model)
   - [Relations](#relations)
   - [Order Results](#order-results)
   - [Scopes](#scopes)
@@ -38,22 +38,6 @@ class UserController extends Controller
         // $this->setSearchableModel(User::class);
         $this->setSearchableModel(new User);
     }
-}
-```
-
-### Single Model
-
-Beyond collections, the searchable pipeline can also hand back a single model instance — handy for `show()` actions:
-
-```PHP
-/**
- * Display the specified resource.
- */
-public function show(string $id)
-{
-    return $this
-        ->setSearchableModel(User::findOrFail($id))
-        ->execute();
 }
 ```
 
@@ -179,6 +163,22 @@ public function index()
         )
         ->execute()
         ->get();
+}
+```
+
+### Single Model
+
+Beyond collections, the searchable pipeline can also hand back a single model instance — handy for `show()` actions:
+
+```PHP
+/**
+ * Display the specified resource.
+ */
+public function show(string $id)
+{
+    return $this
+        ->setSearchableModel(User::findOrFail($id))
+        ->execute();
 }
 ```
 
