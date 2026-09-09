@@ -2,9 +2,12 @@
 
 - [Controllers / Services Context](#controllers--services-context)
   - [Where Clauses](#where-clauses)
+  - [Request Filters](#request-filters)
+  - [Conditional Chaining](#conditional-chaining)
   - [Single Model](#single-model)
   - [Relations](#relations)
   - [Order Results](#order-results)
+  - [Eager Loading & Pagination](#eager-loading--pagination)
   - [Scopes](#scopes)
   - [Soft Deletes](#soft-deletes)
   - [Laravel Methods](#laravel-methods)
@@ -72,7 +75,34 @@ public function index()
 > [!IMPORTANT]
 > You must provide an array of arrays or closures to these methods since the first element of the array refers to the `column` and the second to the `operator` (default value is `=` in case you do not provide this element), and the third to the `value` in the array structure.
 
-For common conditions, reach for the specialized helpers: `addWhereIn`, `addWhereNotIn`, `addWhereBetween`, `addWhereNull`, `addWhereNotNull`, and `addKeywordSearch`.
+For common conditions, reach for the specialized helpers: `addWhereIn`, `addWhereNotIn`, `addWhereBetween`, `addWhereNull`, `addWhereNotNull`, `addWhereDate`, `addWherePeriod`, `addWhereJsonContains`, and `addKeywordSearch`.
+
+`addKeywordSearch` also accepts dotted columns, so a single term can match the model **and** its relations:
+
+```PHP
+return $this
+    ->setSearchableModel(User::class)
+    ->addKeywordSearch($request->q, ['name', 'email', 'posts.title'])
+    ->paginate();
+```
+
+Date and JSON columns have their own helpers:
+
+```PHP
+return $this
+    ->setSearchableModel(Post::class)
+    ->addWhereDate([
+        ['published_at', '>=', '2026-01-01'],
+    ])
+    ->addWherePeriod(
+        'created_at', now()->startOfMonth(), now()->endOfMonth()
+    )
+    ->addWhereJsonContains([
+        ['meta->tags' => 'laravel'],
+    ])
+    ->execute()
+    ->get();
+```
 
 Suppose you want to load only the verified users that belong to a known set of countries:
 
@@ -96,6 +126,56 @@ public function index()
 
 > [!IMPORTANT]
 > Each entry passed to `addWhereIn`, `addWhereNotIn`, and `addWhereBetween` must be a `[column => values]` pair. Pass as many pairs as you like; they are combined with `AND`.
+
+### Request Filters
+
+Hydrate filters, sorts, includes, and a keyword search from the incoming request. Keys that are not on the allowlist are ignored:
+
+```PHP
+/**
+ * Display a listing of the resource.
+ */
+public function index(Request $request)
+{
+    return EasyModel::for(User::class)
+        ->fromRequest($request)
+        ->allowedFilters(['name', 'email', 'country_id', 'posts.title'])
+        ->allowedSorts(['created_at', 'name', 'posts.created_at'])
+        ->allowedIncludes(['posts', 'roles'])
+        ->allowedSearch(['name', 'email', 'posts.title'])
+        ->paginate();
+}
+```
+
+Query string conventions:
+
+- `filter[name]=Alice` — equality (`=`). If the value contains `%`, it becomes `LIKE`.
+- `filter[country_id][]=1&filter[country_id][]=2` — `whereIn`.
+- `filter[posts.title]=%Easy%` — relation constraint.
+- `sort=-created_at,name` — comma-separated sorts; a leading `-` means `desc`.
+- `include=posts,roles` — eager loads (must also be allowlisted).
+- `search=john` — `addKeywordSearch` across `allowedSearch` columns.
+
+You can pass an array instead of an HTTP request (useful in jobs and tests): `fromRequest(['filter' => ['name' => 'Alice']])`.
+
+### Conditional Chaining
+
+Wrap any step in `when` / `unless` so optional request input does not break the fluent chain:
+
+```PHP
+/**
+ * Display a listing of the resource.
+ */
+public function index(Request $request)
+{
+    return $this
+        ->setSearchableModel(User::class)
+        ->when($request->filled('q'), fn($q) => $q->addKeywordSearch($request->q, ['name', 'email']))
+        ->when($request->filled('country_id'), fn($q) => $q->addWheres([['country_id', $request->country_id]]))
+        ->unless($request->boolean('include_drafts'), fn($q) => $q->addWheres([['published', true]]))
+        ->paginate();
+}
+```
 
 To filter by relationship existence, use the `addWhereHas` and `addWhereDoesntHave` methods:
 
@@ -293,6 +373,30 @@ public function index()
 > [!TIP]
 > Both methods rely on Laravel's `withCount` / `withAggregate` under the hood, so the aggregate value is exposed on each result as a column alias (e.g., `articles_count` or `articles_sum_share_count`) and can be re-used in your views or API responses.
 
+When two relations point at the same table (`author` and `editor` both on `users`), `addOrderBy` assigns unique join aliases (`users`, `users_2`, ...) so the query stays valid.
+
+### Eager Loading & Pagination
+
+Keep eager loads, column selection, and pagination on the same fluent builder — no need to call `execute()` first:
+
+```PHP
+/**
+ * Display a listing of the resource.
+ */
+public function index()
+{
+    return $this
+        ->setSearchableModel(User::class)
+        ->addWhereHas(['posts'])
+        ->addWith(['posts', 'roles'])
+        ->addWithCount(['posts'])
+        ->addSelect(['id', 'name', 'email'])
+        ->paginate(15);
+}
+```
+
+`simplePaginate()` and `cursorPaginate()` are also available. To inspect the SQL without running it, call `toSql()` (pass `true` to inline bindings when your Laravel version supports `toRawSql()`).
+
 ### Scopes
 
 To apply Local and Global Scopes together in a single call, use the `usingScopes` method:
@@ -345,7 +449,7 @@ public function index()
 
 ### Soft Deletes
 
-By default, the result excludes soft-deleted records. However, you can explicitly include them by using the `includeSoftDeleted` method:
+By default, the result excludes soft-deleted records. However, you can explicitly include them by using the `includeSoftDeleted` method, or restrict the query to deleted rows with `onlyTrashed`:
 
 ```PHP
 /**
@@ -359,10 +463,13 @@ public function index()
             ['email', 'LIKE', '%.net']
         ])
         ->includeSoftDeleted()
+        // ->onlyTrashed()
         ->execute()
         ->get();
 }
 ```
+
+Use `restore()` and `forceDelete()` from the update pipeline to bring rows back or permanently remove them. Combine `onlyTrashed()` with `restore()` so the query actually matches deleted records.
 
 ### Laravel Methods
 

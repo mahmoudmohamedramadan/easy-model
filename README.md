@@ -46,7 +46,13 @@ What makes this package featured?
   - Order results by `COUNT`, `SUM`, `AVG`, `MIN`, or `MAX` of a related relationship via `addOrderByCount` / `addOrderByAggregate`.
 
 - **Keyword Search Across Columns:**
-  - Run a single grouped `LIKE`/`=` search across multiple columns with `addKeywordSearch`.
+  - Run a single grouped `LIKE`/`=` search across multiple columns — including dotted relation paths such as `posts.title` — with `addKeywordSearch`.
+
+- **Request-Driven Queries:**
+  - Hydrate allowlisted `filter`, `sort`, `include`, and `search` query parameters via `fromRequest()`.
+
+- **Eager Loading & Pagination:**
+  - `addWith`, `addWithCount`, `addSelect`, `paginate`, `simplePaginate`, and `cursorPaginate` stay on the same fluent builder.
 
 - **Drop-in Facade:**
   - Skip the trait entirely and use `EasyModel::for(User::class)->...` from anywhere.

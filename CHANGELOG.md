@@ -2,11 +2,19 @@
 
 ## [Unreleased](https://github.com/mahmoudmohamedramadan/easy-model/compare/v2.0.0...2.x)
 
+- [2.x] Adds request-driven queries with `fromRequest()`, `allowedFilters()`, `allowedSorts()`, `allowedIncludes()`, and `allowedSearch()`.
+- [2.x] Adds `when()` / `unless()` conditional chaining.
+- [2.x] Adds `addWith()`, `addWithCount()`, `addSelect()`, `paginate()`, `simplePaginate()`, `cursorPaginate()`, and `toSql()`.
+- [2.x] Extends `addKeywordSearch()` to dotted relation columns (e.g. `posts.title`).
+- [2.x] Adds `addWhereDate()`, `addWherePeriod()`, and `addWhereJsonContains()`.
+- [2.x] Adds `onlyTrashed()`, `restore()`, and `forceDelete()` for the full soft-delete surface.
+- [2.x] Adds `performInsert()`, `performUpsert()`, and `usingModelEvents()` so mass writes can still fire observers.
+- [2.x] Aliases relationship joins in `addOrderBy` when two relations share the same table.
+- [2.x] Adds an Orchestra Testbench / PHPUnit suite.
+
 ## [v2.0.0](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v2.0.0)
 
 - [2.x] Replaces the direct dependency on `laravel/framework` with specific `illuminate/*` components to support Laravel versions 10.0 through 13.0.
-
----
 
 ## [v1.2.0](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v1.2.0)
 

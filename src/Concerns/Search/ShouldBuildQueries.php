@@ -273,6 +273,43 @@ trait ShouldBuildQueries
     }
 
     /**
+     * Add tuple-style where clauses that share the `[column, value]` / `[column, operator, value]` shape.
+     *
+     * @param  array  $wheres
+     * @param  string  $method
+     * @return $this
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
+     */
+    protected function buildQueryUsingTupleWheres($wheres, $method = 'whereDate')
+    {
+        $queryBuilder = $this->getSearchableQueryBuilder();
+
+        foreach ($wheres as $where) {
+            if (! is_array($where)) {
+                throw InvalidArrayStructure::invalidWhereEntry(__METHOD__, $where);
+            }
+
+            $count = count($where);
+
+            if ($count < 2 || $count > 3) {
+                throw InvalidArrayStructure::invalidWhereTuple(__METHOD__, $count);
+            }
+
+            $column   = $where[0];
+            $operator = $count === 3 ? $where[1] : '=';
+            $value    = $count === 3 ? $where[2] : $where[1];
+
+            $queryBuilder->{$method}($column, $operator, $value);
+        }
+
+        $this->queryBuilder = $queryBuilder;
+
+        return $this;
+    }
+
+    /**
      * Apply a where method (e.g. whereIn, whereBetween) for each [column => values[]] pair.
      *
      * @param  array  $wheres

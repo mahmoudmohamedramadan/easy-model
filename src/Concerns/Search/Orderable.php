@@ -181,7 +181,8 @@ trait Orderable
             $queryBuilder->select("{$currentModel->getTable()}.*");
         }
 
-        $pathSoFar = $currentModel->getTable();
+        $pathSoFar    = $currentModel->getTable();
+        $currentAlias = $currentModel->getTable();
 
         for ($i = 0, $last = count($relationships) - 1; $i < $last; $i++) {
             $relationName = $relationships[$i];
@@ -195,20 +196,25 @@ trait Orderable
             $pathSoFar           = "{$pathSoFar}.{$relationName}";
 
             if (isset($this->joinedRelationshipTables[$pathSoFar])) {
+                $currentAlias = $this->joinedRelationshipTables[$pathSoFar];
                 $currentModel = $relatedModel;
                 continue;
             }
 
-            $this->joinRelationship($queryBuilder, $currentModel, $currentRelationship);
-
-            $this->joinedRelationshipTables[$pathSoFar] = $relatedModel->getTable();
+            $currentAlias = $this->joinRelationship(
+                $queryBuilder,
+                $currentModel,
+                $currentRelationship,
+                $currentAlias,
+                $pathSoFar
+            );
 
             $currentModel = $relatedModel;
         }
 
-        // The "$currentModel" always contains the latest relationship
+        // The "$currentAlias" always points at the latest relationship
         // that you need to use for performing the order.
-        return "{$currentModel->getTable()}." . end($relationships);
+        return "{$currentAlias}." . end($relationships);
     }
 
     /**
@@ -217,22 +223,74 @@ trait Orderable
      * @param  \Illuminate\Database\Query\Builder  $queryBuilder
      * @param  \Illuminate\Database\Eloquent\Model  $parentModel
      * @param  \Illuminate\Database\Eloquent\Relations\Relation  $relation
-     * @return void
+     * @param  string  $parentAlias
+     * @param  string  $path
+     * @return string
      *
      * @throws \Ramadan\EasyModel\Exceptions\InvalidOrderableRelationship
      */
-    protected function joinRelationship($queryBuilder, $parentModel, $relation)
+    protected function joinRelationship($queryBuilder, $parentModel, $relation, $parentAlias, $path)
     {
-        match (true) {
+        return match (true) {
             $relation instanceof MorphTo => $this->joinMorphToRelationship(),
-            $relation instanceof MorphToMany => $this->joinMorphToManyRelationship($queryBuilder, $parentModel, $relation),
-            $relation instanceof BelongsToMany => $this->joinBelongsToManyRelationship($queryBuilder, $parentModel, $relation),
-            $relation instanceof BelongsTo => $this->joinBelongsToRelationship($queryBuilder, $parentModel, $relation),
-            $relation instanceof HasManyThrough => $this->joinHasManyThroughRelationship($queryBuilder, $parentModel, $relation),
-            $relation instanceof MorphOneOrMany => $this->joinMorphOneOrManyRelationship($queryBuilder, $parentModel, $relation),
-            $relation instanceof HasOneOrMany => $this->joinHasOneOrManyRelationship($queryBuilder, $parentModel, $relation),
+            $relation instanceof MorphToMany => $this->joinMorphToManyRelationship($queryBuilder, $parentModel, $relation, $parentAlias, $path),
+            $relation instanceof BelongsToMany => $this->joinBelongsToManyRelationship($queryBuilder, $parentModel, $relation, $parentAlias, $path),
+            $relation instanceof BelongsTo => $this->joinBelongsToRelationship($queryBuilder, $parentModel, $relation, $parentAlias, $path),
+            $relation instanceof HasManyThrough => $this->joinHasManyThroughRelationship($queryBuilder, $parentModel, $relation, $parentAlias, $path),
+            $relation instanceof MorphOneOrMany => $this->joinMorphOneOrManyRelationship($queryBuilder, $parentModel, $relation, $parentAlias, $path),
+            $relation instanceof HasOneOrMany => $this->joinHasOneOrManyRelationship($queryBuilder, $parentModel, $relation, $parentAlias, $path),
             default => throw InvalidOrderableRelationship::unsupportedRelation($relation),
         };
+    }
+
+    /**
+     * Resolve a unique table alias for the given join path.
+     *
+     * Reuses the existing alias when the same relationship path is joined twice.
+     * Otherwise suffixes the table name (`users_2`, `users_3`, ...) whenever the
+     * table is already in the FROM/JOIN list — including the searchable model's
+     * own table, so `author` and `editor` (both `users`) can coexist.
+     *
+     * @param  string  $table
+     * @param  string  $path
+     * @return string
+     */
+    protected function makeJoinAlias($table, $path)
+    {
+        if (isset($this->joinedRelationshipTables[$path])) {
+            return $this->joinedRelationshipTables[$path];
+        }
+
+        $used = array_values($this->joinedRelationshipTables);
+        $base = $this->resolveModelOrRelation()->getTable();
+
+        if (! in_array($base, $used, true)) {
+            $used[] = $base;
+        }
+
+        $alias  = $table;
+        $suffix = 2;
+
+        while (in_array($alias, $used, true)) {
+            $alias = "{$table}_{$suffix}";
+            $suffix++;
+        }
+
+        $this->joinedRelationshipTables[$path] = $alias;
+
+        return $alias;
+    }
+
+    /**
+     * Build a JOIN table expression, aliasing only when the alias differs from the table name.
+     *
+     * @param  string  $table
+     * @param  string  $alias
+     * @return string
+     */
+    protected function joinTableName($table, $alias)
+    {
+        return $alias === $table ? $table : "{$table} as {$alias}";
     }
 
     /**
@@ -253,27 +311,32 @@ trait Orderable
      * @param  \Illuminate\Database\Query\Builder  $queryBuilder
      * @param  \Illuminate\Database\Eloquent\Model  $parentModel
      * @param  \Illuminate\Database\Eloquent\Relations\BelongsToMany  $relation
-     * @return void
+     * @param  string  $parentAlias
+     * @param  string  $path
+     * @return string
      */
-    protected function joinBelongsToManyRelationship($queryBuilder, $parentModel, BelongsToMany $relation)
+    protected function joinBelongsToManyRelationship($queryBuilder, $parentModel, BelongsToMany $relation, $parentAlias, $path)
     {
         $relatedTable = $relation->getRelated()->getTable();
-        $parentTable  = $parentModel->getTable();
         $pivotTable   = $relation->getTable();
+        $pivotAlias   = $this->makeJoinAlias($pivotTable, $path . '._pivot');
+        $relatedAlias = $this->makeJoinAlias($relatedTable, $path);
 
         $queryBuilder->leftJoin(
-            $pivotTable,
-            "{$parentTable}.{$relation->getParentKeyName()}",
+            $this->joinTableName($pivotTable, $pivotAlias),
+            "{$parentAlias}.{$relation->getParentKeyName()}",
             '=',
-            "{$pivotTable}.{$relation->getForeignPivotKeyName()}"
+            "{$pivotAlias}.{$relation->getForeignPivotKeyName()}"
         );
 
         $queryBuilder->leftJoin(
-            $relatedTable,
-            "{$pivotTable}.{$relation->getRelatedPivotKeyName()}",
+            $this->joinTableName($relatedTable, $relatedAlias),
+            "{$pivotAlias}.{$relation->getRelatedPivotKeyName()}",
             '=',
-            "{$relatedTable}.{$relation->getRelatedKeyName()}"
+            "{$relatedAlias}.{$relation->getRelatedKeyName()}"
         );
+
+        return $relatedAlias;
     }
 
     /**
@@ -282,19 +345,22 @@ trait Orderable
      * @param  \Illuminate\Database\Query\Builder  $queryBuilder
      * @param  \Illuminate\Database\Eloquent\Model  $parentModel
      * @param  \Illuminate\Database\Eloquent\Relations\MorphToMany  $relation
-     * @return void
+     * @param  string  $parentAlias
+     * @param  string  $path
+     * @return string
      */
-    protected function joinMorphToManyRelationship($queryBuilder, $parentModel, MorphToMany $relation)
+    protected function joinMorphToManyRelationship($queryBuilder, $parentModel, MorphToMany $relation, $parentAlias, $path)
     {
-        $this->joinBelongsToManyRelationship($queryBuilder, $parentModel, $relation);
-
-        $pivotTable = $relation->getTable();
+        $relatedAlias = $this->joinBelongsToManyRelationship($queryBuilder, $parentModel, $relation, $parentAlias, $path);
+        $pivotAlias   = $this->joinedRelationshipTables[$path . '._pivot'];
 
         $queryBuilder->where(
-            "{$pivotTable}.{$relation->getMorphType()}",
+            "{$pivotAlias}.{$relation->getMorphType()}",
             '=',
             $relation->getMorphClass()
         );
+
+        return $relatedAlias;
     }
 
     /**
@@ -303,19 +369,23 @@ trait Orderable
      * @param  \Illuminate\Database\Query\Builder  $queryBuilder
      * @param  \Illuminate\Database\Eloquent\Model  $parentModel
      * @param  \Illuminate\Database\Eloquent\Relations\BelongsTo  $relation
-     * @return void
+     * @param  string  $parentAlias
+     * @param  string  $path
+     * @return string
      */
-    protected function joinBelongsToRelationship($queryBuilder, $parentModel, BelongsTo $relation)
+    protected function joinBelongsToRelationship($queryBuilder, $parentModel, BelongsTo $relation, $parentAlias, $path)
     {
         $relatedTable = $relation->getRelated()->getTable();
-        $parentTable  = $parentModel->getTable();
+        $relatedAlias = $this->makeJoinAlias($relatedTable, $path);
 
         $queryBuilder->leftJoin(
-            $relatedTable,
-            "{$parentTable}.{$relation->getForeignKeyName()}",
+            $this->joinTableName($relatedTable, $relatedAlias),
+            "{$parentAlias}.{$relation->getForeignKeyName()}",
             '=',
-            "{$relatedTable}.{$relation->getOwnerKeyName()}"
+            "{$relatedAlias}.{$relation->getOwnerKeyName()}"
         );
+
+        return $relatedAlias;
     }
 
     /**
@@ -324,32 +394,36 @@ trait Orderable
      * @param  \Illuminate\Database\Query\Builder  $queryBuilder
      * @param  \Illuminate\Database\Eloquent\Model  $parentModel
      * @param  \Illuminate\Database\Eloquent\Relations\HasManyThrough  $relation
-     * @return void
+     * @param  string  $parentAlias
+     * @param  string  $path
+     * @return string
      */
-    protected function joinHasManyThroughRelationship($queryBuilder, $parentModel, HasManyThrough $relation)
+    protected function joinHasManyThroughRelationship($queryBuilder, $parentModel, HasManyThrough $relation, $parentAlias, $path)
     {
-        $relatedTable = $relation->getRelated()->getTable();
-        $parentTable  = $parentModel->getTable();
-        $through      = $relation->getParent();
-        $throughTable = $through->getTable();
+        $relatedTable  = $relation->getRelated()->getTable();
+        $throughTable  = $relation->getParent()->getTable();
+        $throughPath   = $path . '._through';
+        $alreadyJoined = isset($this->joinedRelationshipTables[$throughPath]);
+        $throughAlias  = $this->makeJoinAlias($throughTable, $throughPath);
+        $relatedAlias  = $this->makeJoinAlias($relatedTable, $path);
 
-        if (! isset($this->joinedRelationshipTables['__through:' . $throughTable])) {
+        if (! $alreadyJoined) {
             $queryBuilder->leftJoin(
-                $throughTable,
-                "{$parentTable}.{$relation->getLocalKeyName()}",
+                $this->joinTableName($throughTable, $throughAlias),
+                "{$parentAlias}.{$relation->getLocalKeyName()}",
                 '=',
-                "{$throughTable}.{$relation->getFirstKeyName()}"
+                "{$throughAlias}.{$relation->getFirstKeyName()}"
             );
-
-            $this->joinedRelationshipTables['__through:' . $throughTable] = $throughTable;
         }
 
         $queryBuilder->leftJoin(
-            $relatedTable,
-            "{$throughTable}.{$relation->getSecondLocalKeyName()}",
+            $this->joinTableName($relatedTable, $relatedAlias),
+            "{$throughAlias}.{$relation->getSecondLocalKeyName()}",
             '=',
-            "{$relatedTable}.{$relation->getForeignKeyName()}"
+            "{$relatedAlias}.{$relation->getForeignKeyName()}"
         );
+
+        return $relatedAlias;
     }
 
     /**
@@ -358,25 +432,30 @@ trait Orderable
      * @param  \Illuminate\Database\Query\Builder  $queryBuilder
      * @param  \Illuminate\Database\Eloquent\Model  $parentModel
      * @param  \Illuminate\Database\Eloquent\Relations\MorphOneOrMany  $relation
-     * @return void
+     * @param  string  $parentAlias
+     * @param  string  $path
+     * @return string
      */
-    protected function joinMorphOneOrManyRelationship($queryBuilder, $parentModel, MorphOneOrMany $relation)
+    protected function joinMorphOneOrManyRelationship($queryBuilder, $parentModel, MorphOneOrMany $relation, $parentAlias, $path)
     {
         $relatedTable = $relation->getRelated()->getTable();
+        $relatedAlias = $this->makeJoinAlias($relatedTable, $path);
 
-        $queryBuilder->leftJoin($relatedTable, function ($join) use ($parentModel, $relation, $relatedTable) {
+        $queryBuilder->leftJoin($this->joinTableName($relatedTable, $relatedAlias), function ($join) use ($parentAlias, $relation, $relatedAlias) {
             $join
                 ->on(
-                    "{$parentModel->getTable()}.{$relation->getLocalKeyName()}",
+                    "{$parentAlias}.{$relation->getLocalKeyName()}",
                     '=',
-                    "{$relatedTable}.{$relation->getForeignKeyName()}"
+                    "{$relatedAlias}.{$relation->getForeignKeyName()}"
                 )
                 ->where(
-                    "{$relatedTable}.{$relation->getMorphType()}",
+                    "{$relatedAlias}.{$relation->getMorphType()}",
                     '=',
                     $relation->getMorphClass()
                 );
         });
+
+        return $relatedAlias;
     }
 
     /**
@@ -385,18 +464,22 @@ trait Orderable
      * @param  \Illuminate\Database\Query\Builder  $queryBuilder
      * @param  \Illuminate\Database\Eloquent\Model  $parentModel
      * @param  \Illuminate\Database\Eloquent\Relations\HasOneOrMany  $relation
-     * @return void
+     * @param  string  $parentAlias
+     * @param  string  $path
+     * @return string
      */
-    protected function joinHasOneOrManyRelationship($queryBuilder, $parentModel, HasOneOrMany $relation)
+    protected function joinHasOneOrManyRelationship($queryBuilder, $parentModel, HasOneOrMany $relation, $parentAlias, $path)
     {
         $relatedTable = $relation->getRelated()->getTable();
-        $parentTable  = $parentModel->getTable();
+        $relatedAlias = $this->makeJoinAlias($relatedTable, $path);
 
         $queryBuilder->leftJoin(
-            $relatedTable,
-            "{$parentTable}.{$relation->getLocalKeyName()}",
+            $this->joinTableName($relatedTable, $relatedAlias),
+            "{$parentAlias}.{$relation->getLocalKeyName()}",
             '=',
-            "{$relatedTable}.{$relation->getForeignKeyName()}"
+            "{$relatedAlias}.{$relation->getForeignKeyName()}"
         );
+
+        return $relatedAlias;
     }
 }

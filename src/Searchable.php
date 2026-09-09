@@ -4,14 +4,19 @@ namespace Ramadan\EasyModel;
 
 use Ramadan\EasyModel\Concerns\Search\ShouldBuildQueries;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder as QueryBuilder;
+use Illuminate\Support\Traits\Conditionable;
 use Ramadan\EasyModel\Concerns\Search\HasModel as SearchableModel;
+use Ramadan\EasyModel\Concerns\Search\InteractsWithRequest;
 use Ramadan\EasyModel\Concerns\Search\Orderable;
+use Ramadan\EasyModel\Concerns\Search\PresentsResults;
+use Ramadan\EasyModel\Exceptions\InvalidArrayStructure;
 use Ramadan\EasyModel\Exceptions\InvalidModel;
 
 trait Searchable
 {
-    use SearchableModel, Orderable, ShouldBuildQueries, Updatable;
+    use SearchableModel, Orderable, ShouldBuildQueries, InteractsWithRequest, PresentsResults, Conditionable, Updatable;
 
     /**
      * Regular expression pattern used to match relational operators (e.g., >, <, =, >=, <=).
@@ -138,6 +143,8 @@ trait Searchable
     /**
      * Search for a keyword across multiple columns using a single grouped OR/LIKE clause.
      *
+     * Dotted columns (e.g. `posts.title`) are matched against the related table via `orWhereHas`.
+     *
      * @param  string|null  $keyword
      * @param  array  $columns
      * @param  bool  $strict
@@ -151,15 +158,109 @@ trait Searchable
             return $this;
         }
 
-        $builder = $this->getSearchableQueryBuilder();
+        $eloquent = $this->getSearchableEloquentBuilder();
 
-        $builder->where(function ($inner) use ($keyword, $columns, $strict) {
+        if ($eloquent instanceof Model) {
+            $eloquent = $eloquent->newQuery();
+        }
+
+        $eloquent->where(function ($inner) use ($keyword, $columns, $strict) {
             foreach ($columns as $column) {
+                if (str_contains($column, '.')) {
+                    $segments = explode('.', $column);
+                    $field    = array_pop($segments);
+                    $relation = implode('.', $segments);
+
+                    $inner->orWhereHas($relation, function ($query) use ($field, $keyword, $strict) {
+                        $strict
+                            ? $query->where($field, '=', $keyword)
+                            : $query->where($field, 'LIKE', '%' . $keyword . '%');
+                    });
+
+                    continue;
+                }
+
                 $strict
                     ? $inner->orWhere($column, '=', $keyword)
                     : $inner->orWhere($column, 'LIKE', '%' . $keyword . '%');
             }
         });
+
+        $this->eloquentBuilder = $eloquent;
+        $this->queryBuilder    = $eloquent->getQuery();
+
+        return $this;
+    }
+
+    /**
+     * Add a "where date" clause to the query for one or more columns.
+     *
+     * Each entry must be `[column, value]` or `[column, operator, value]`.
+     *
+     * @param  array  $wheres
+     * @param  \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|null  $query
+     * @return $this
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
+     */
+    public function addWhereDate(array $wheres, QueryBuilder|EloquentBuilder|null $query = null)
+    {
+        return $this
+            ->setSearchableQuery($query)
+            ->buildQueryUsingTupleWheres($wheres, 'whereDate');
+    }
+
+    /**
+     * Constrain a column to a closed date/time period.
+     *
+     * @param  string  $column
+     * @param  mixed  $from
+     * @param  mixed  $to
+     * @param  \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|null  $query
+     * @return $this
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
+     */
+    public function addWherePeriod(string $column, mixed $from, mixed $to, QueryBuilder|EloquentBuilder|null $query = null)
+    {
+        $builder = $this->setSearchableQuery($query)->getSearchableQueryBuilder();
+        $builder->whereBetween($column, [$from, $to]);
+        $this->queryBuilder = $builder;
+
+        return $this;
+    }
+
+    /**
+     * Add a "where JSON contains" clause to the query for one or more columns.
+     *
+     * Each entry must be a `[column => value]` pair.
+     *
+     * @param  array  $wheres
+     * @param  \Illuminate\Database\Query\Builder|\Illuminate\Database\Eloquent\Builder|null  $query
+     * @return $this
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidArrayStructure
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
+     */
+    public function addWhereJsonContains(array $wheres, QueryBuilder|EloquentBuilder|null $query = null)
+    {
+        $builder = $this->setSearchableQuery($query)->getSearchableQueryBuilder();
+
+        foreach ($wheres as $where) {
+            if (! is_array($where) || $where === []) {
+                throw InvalidArrayStructure::invalidColumnValuesTuple('whereJsonContains');
+            }
+
+            $column = array_key_first($where);
+            $value  = $where[$column];
+
+            if (! is_string($column)) {
+                throw InvalidArrayStructure::invalidColumnValuesTuple('whereJsonContains');
+            }
+
+            $builder->whereJsonContains($column, $value);
+        }
 
         $this->queryBuilder = $builder;
 
@@ -327,7 +428,7 @@ trait Searchable
 
         $model = $this->getSearchableModel();
 
-        if (! empty($model) && empty($this->eloquentBuilder) && empty($this->queryBuilder)) {
+        if (! empty($model) && $model->exists && empty($this->eloquentBuilder) && empty($this->queryBuilder)) {
             return $model;
         }
 
@@ -403,6 +504,10 @@ trait Searchable
         $this->joinedRelationshipTables = [];
         $this->searchOrUpdateQuery      = null;
         $this->modelForUpdate           = null;
+        $this->usingModelEvents         = false;
+
+        $this->flushRequestState();
+        $this->flushPresentationState();
 
         return $this;
     }
@@ -417,8 +522,12 @@ trait Searchable
      */
     public function execute(bool $iNeedEloquentBuilderInstance = true)
     {
-        return $iNeedEloquentBuilderInstance
-            ? $this->getSearchableEloquentBuilder()
-            : $this->getSearchableQueryBuilder();
+        $this->applyRequestConstraints();
+
+        if (! $iNeedEloquentBuilderInstance) {
+            return $this->getSearchableQueryBuilder();
+        }
+
+        return $this->applyEloquentExtras($this->getSearchableEloquentBuilder());
     }
 }

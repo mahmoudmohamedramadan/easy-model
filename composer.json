@@ -33,9 +33,18 @@
         "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
         "ext-pdo": "*"
     },
+    "require-dev": {
+        "orchestra/testbench": "^8.31|^9.0|^10.0|^11.0",
+        "phpunit/phpunit": "^10.5|^11.0|^12.0"
+    },
     "autoload": {
         "psr-4": {
             "Ramadan\\EasyModel\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Ramadan\\EasyModel\\Tests\\": "tests/"
         }
     },
     "extra": {
@@ -50,6 +59,9 @@
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
+    "scripts": {
+        "test": "phpunit --colors=always"
+    },
     "funding": [
         {
             "type": "paypal",
