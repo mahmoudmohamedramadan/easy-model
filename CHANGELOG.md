@@ -1,6 +1,8 @@
 # Release Notes for 2.x
 
-## [Unreleased](https://github.com/mahmoudmohamedramadan/easy-model/compare/v2.0.0...2.x)
+## [Unreleased](https://github.com/mahmoudmohamedramadan/easy-model/compare/v2.1.0...2.x)
+
+## [v2.1.0](https://github.com/mahmoudmohamedramadan/easy-model/releases/tag/v2.1.0)
 
 - [2.x] Adds request-driven queries with `fromRequest()`, `allowedFilters()`, `allowedSorts()`, `allowedIncludes()`, and `allowedSearch()`.
 - [2.x] Adds `when()` / `unless()` conditional chaining.
@@ -30,7 +32,7 @@
 - [1.x] Fixes a `reset()` reference bug in `prepareWhereConditions` when passing an array as a `where` value.
 - [1.x] Fixes wrong foreign-key resolution for `BelongsTo` ordering.
 - [1.x] Fixes `BelongsToMany` and `MorphToMany` ordering by emitting the correct `parent → pivot → related` joins.
-- [1.x] Fixes silent row-loss when ordering by a relationship via `LEFT JOIN`, explicit base-table selection, and join deduplication.
+- [1.x] Fixes silent row loss when ordering by a relationship via `LEFT JOIN`, explicit base-table selection, and join deduplication.
 - [1.x] Fixes a missing `default` arm in `buildQueryUsingWheres` by throwing `InvalidArrayStructure` instead.
 - [1.x] Fixes `setSearchableQuery` / `setUpdatableQuery` silently downgrading an `EloquentBuilder` to a `QueryBuilder`.
 - [1.x] Fixes `includeSoftDeleted()` silently no-oping when the model doesn't use the `SoftDeletes` trait — it now throws `InvalidModel`.
