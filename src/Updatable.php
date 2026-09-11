@@ -4,6 +4,7 @@ namespace Ramadan\EasyModel;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 use Ramadan\EasyModel\Concerns\Update\HasModel as UpdatableModel;
 use Ramadan\EasyModel\Exceptions\InvalidModel;
@@ -25,6 +26,13 @@ trait Updatable
      * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Query\Builder
      */
     protected $searchOrUpdateQuery;
+
+    /**
+     * Whether mass writes should load models and persist them so observers / casts fire.
+     *
+     * @var bool
+     */
+    protected bool $usingModelEvents = false;
 
     /**
      * Get an updatable eloquent builder.
@@ -63,6 +71,20 @@ trait Updatable
     }
 
     /**
+     * Persist mass writes through individual model instances so observers, casts, and
+     * mutators run. Query-builder updates skip those by default.
+     *
+     * @param  bool  $using
+     * @return $this
+     */
+    public function usingModelEvents(bool $using = true)
+    {
+        $this->usingModelEvents = $using;
+
+        return $this;
+    }
+
+    /**
      * Update records in the database.
      *
      * @param  array  $values
@@ -73,7 +95,102 @@ trait Updatable
      */
     public function performUpdateQuery(array $values, bool $usingQueryBuilder = false)
     {
+        if ($this->usingModelEvents) {
+            return $this->eachMatchingModel(function ($model) use ($values) {
+                $model->update($values);
+            });
+        }
+
         return $this->getSearchOrUpdateBuilder(isQueryBuilder: $usingQueryBuilder)->update($values);
+    }
+
+    /**
+     * Insert a single row (Eloquent `create`) or many rows (`insert`).
+     *
+     * A list of associative arrays is treated as a bulk insert. A single associative
+     * array is created through Eloquent unless `$usingQueryBuilder` is true.
+     *
+     * @param  array  $values
+     * @param  bool  $usingQueryBuilder
+     * @return \Illuminate\Database\Eloquent\Model|bool
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
+     */
+    public function performInsert(array $values, bool $usingQueryBuilder = false)
+    {
+        $builder = $this->getSearchOrUpdateBuilder(isQueryBuilder: $usingQueryBuilder);
+        $isMany  = array_is_list($values) && isset($values[0]) && is_array($values[0]);
+
+        if ($isMany && $this->usingModelEvents) {
+            $eloquent = $builder instanceof Model ? $builder->newQuery() : $builder;
+
+            foreach ($values as $row) {
+                $eloquent->create($row);
+            }
+
+            return true;
+        }
+
+        if ($usingQueryBuilder || $isMany) {
+            $query = $builder instanceof Model
+                ? $builder->newQuery()->getQuery()
+                : ($builder instanceof EloquentBuilder ? $builder->getQuery() : $builder);
+
+            return $query->insert($values);
+        }
+
+        $eloquent = $builder instanceof Model ? $builder->newQuery() : $builder;
+        $model    = $eloquent->create($values);
+
+        $this->modelForUpdate = $model;
+
+        return $model;
+    }
+
+    /**
+     * Insert or update records using unique columns to match existing rows.
+     *
+     * When `usingModelEvents()` is enabled, each row is persisted via `updateOrCreate`.
+     *
+     * @param  array  $values
+     * @param  array  $uniqueBy
+     * @param  array|null  $update
+     * @return int
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
+     */
+    public function performUpsert(array $values, array $uniqueBy, ?array $update = null)
+    {
+        $rows = array_is_list($values) && isset($values[0]) && is_array($values[0])
+            ? $values
+            : [$values];
+
+        $builder = $this->getSearchOrUpdateBuilder();
+
+        if ($this->usingModelEvents) {
+            $eloquent = $builder instanceof Model ? $builder->newQuery() : $builder;
+
+            foreach ($rows as $row) {
+                $match = [];
+
+                foreach ($uniqueBy as $column) {
+                    $match[$column] = $row[$column] ?? null;
+                }
+
+                $payload = $update === null ? $row : array_merge(
+                    array_intersect_key($row, array_flip($update)),
+                    $match
+                );
+
+                $eloquent->updateOrCreate($match, $payload);
+            }
+
+            return count($rows);
+        }
+
+        $query = $builder instanceof Model ? $builder->newQuery() : $builder;
+
+        return $query->upsert($rows, $uniqueBy, $update);
     }
 
     /**
@@ -88,7 +205,69 @@ trait Updatable
      */
     public function performDeleteQuery(bool $usingQueryBuilder = false)
     {
+        if ($this->usingModelEvents) {
+            return $this->eachMatchingModel(function ($model) {
+                $model->delete();
+            });
+        }
+
         return $this->getSearchOrUpdateBuilder(isQueryBuilder: $usingQueryBuilder)->delete();
+    }
+
+    /**
+     * Restore soft-deleted records. Combine with `onlyTrashed()` to target deleted rows.
+     *
+     * @return int
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
+     */
+    public function restore()
+    {
+        if (method_exists($this, 'assertUsesSoftDeletes')) {
+            $this->assertUsesSoftDeletes();
+        }
+
+        if ($this->usingModelEvents) {
+            return $this->eachMatchingModel(function ($model) {
+                $model->restore();
+            });
+        }
+
+        $builder = $this->getSearchOrUpdateBuilder();
+
+        if ($builder instanceof Model) {
+            return $builder->restore() ? 1 : 0;
+        }
+
+        return (int) $builder->restore();
+    }
+
+    /**
+     * Permanently delete records, bypassing soft deletes.
+     *
+     * @return int
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
+     */
+    public function forceDelete()
+    {
+        if (method_exists($this, 'assertUsesSoftDeletes')) {
+            $this->assertUsesSoftDeletes();
+        }
+
+        if ($this->usingModelEvents) {
+            return $this->eachMatchingModel(function ($model) {
+                $model->forceDelete();
+            });
+        }
+
+        $builder = $this->getSearchOrUpdateBuilder();
+
+        if ($builder instanceof Model) {
+            return $builder->forceDelete() ? 1 : 0;
+        }
+
+        return (int) $builder->forceDelete();
     }
 
     /**
@@ -112,6 +291,18 @@ trait Updatable
             }
 
             $this->modelForUpdate->save();
+
+            return $this;
+        }
+
+        if ($this->usingModelEvents) {
+            $this->eachMatchingModel(function ($model) use ($attributes) {
+                foreach ($attributes as $column => $value) {
+                    $model->{$column} += $value;
+                }
+
+                $model->save();
+            });
 
             return $this;
         }
@@ -153,6 +344,18 @@ trait Updatable
             return $this;
         }
 
+        if ($this->usingModelEvents) {
+            $this->eachMatchingModel(function ($model) use ($attributes) {
+                foreach ($attributes as $column => $value) {
+                    $model->{$column} -= $value;
+                }
+
+                $model->save();
+            });
+
+            return $this;
+        }
+
         /**
          * @see https://php.net/manual/en/closure.call.php
          */
@@ -182,6 +385,14 @@ trait Updatable
         // we will zero out the values of its columns.
         if (! empty($this->modelForUpdate)) {
             $this->modelForUpdate->update(array_fill_keys($attributes, 0));
+
+            return $this;
+        }
+
+        if ($this->usingModelEvents) {
+            $this->eachMatchingModel(function ($model) use ($attributes) {
+                $model->update(array_fill_keys($attributes, 0));
+            });
 
             return $this;
         }
@@ -216,6 +427,16 @@ trait Updatable
             return $this;
         }
 
+        if ($this->usingModelEvents) {
+            $this->eachMatchingModel(function ($model) use ($attributes) {
+                $columns = $model->only($attributes);
+
+                $model->update(array_map(fn($value) => ! $value, $columns));
+            });
+
+            return $this;
+        }
+
         $columns = collect($attributes)
             ->mapWithKeys(fn($attribute) => [$attribute => DB::raw("NOT $attribute")])
             ->toArray();
@@ -236,6 +457,10 @@ trait Updatable
      */
     protected function getSearchOrUpdateBuilder($relationship = null, $isQueryBuilder = false)
     {
+        if (method_exists($this, 'applyRequestConstraints')) {
+            $this->applyRequestConstraints();
+        }
+
         // If the "setRelationship" method exists, it means the request is coming
         // from the "Searchable" context since the "Updatable" trait is used there.
         if (! empty($relationship) && method_exists($this, 'setRelationship')) {
@@ -297,8 +522,43 @@ trait Updatable
     {
         $this->searchOrUpdateQuery = null;
         $this->modelForUpdate      = null;
+        $this->usingModelEvents    = false;
 
         return $this;
+    }
+
+    /**
+     * Walk matching eloquent models and persist changes through the model instance.
+     *
+     * @param  callable(\Illuminate\Database\Eloquent\Model): void  $callback
+     * @return int
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
+     */
+    protected function eachMatchingModel(callable $callback)
+    {
+        $builder = $this->getSearchOrUpdateBuilder(isQueryBuilder: false);
+
+        if ($builder instanceof Model) {
+            if ($builder->exists) {
+                $callback($builder);
+
+                return 1;
+            }
+
+            $builder = $builder->newQuery();
+        }
+
+        $count = 0;
+
+        $builder->chunkById(100, function ($models) use ($callback, &$count) {
+            foreach ($models as $model) {
+                $callback($model);
+                $count++;
+            }
+        });
+
+        return $count;
     }
 
     /**
@@ -311,7 +571,13 @@ trait Updatable
      */
     public function fetchBuilder(bool $isQueryBuilder = false)
     {
-        return $this->getSearchOrUpdateBuilder(isQueryBuilder: $isQueryBuilder);
+        $builder = $this->getSearchOrUpdateBuilder(isQueryBuilder: $isQueryBuilder);
+
+        if (! $isQueryBuilder && method_exists($this, 'applyEloquentExtras')) {
+            return $this->applyEloquentExtras($builder);
+        }
+
+        return $builder;
     }
 
     /**

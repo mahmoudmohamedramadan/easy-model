@@ -4,6 +4,8 @@
   - [Flipping](#flipping)
   - [Increment / Decrement](#increment--decrement)
   - [Reset](#reset)
+  - [Insert / Upsert](#insert--upsert)
+  - [Model Events](#model-events)
   - [Laravel Methods](#laravel-methods)
 - [Other Contexts](#other-contexts)
   - [Chainable Methods](#chainable-methods)
@@ -80,6 +82,65 @@ public function update()
 {
     return $this
         ->zeroOutColumns(['stock_count', 'discount_percentage'])
+        ->fetch();
+}
+```
+
+### Insert / Upsert
+
+Create a single row through Eloquent, bulk-insert a list of rows, or upsert by unique columns:
+
+```PHP
+public function store()
+{
+    return $this
+        ->setUpdatableModel(Car::class)
+        ->performInsert([
+            'make'  => 'Toyota',
+            'model' => 'Corolla',
+            'color' => 'red',
+        ]);
+}
+```
+
+```PHP
+public function sync()
+{
+    return $this
+        ->setUpdatableModel(Car::class)
+        ->performUpsert(
+            [
+                ['sku' => 'COROLLA', 'stock_count' => 12],
+                ['sku' => 'CIVIC', 'stock_count' => 4],
+            ],
+            ['sku']
+        );
+}
+```
+
+A list of associative arrays is treated as a bulk `insert`. A single associative array uses Eloquent `create`.
+
+To restore or permanently delete soft-deleted rows:
+
+```PHP
+$this->setSearchableModel(Car::class)->onlyTrashed()->restore();
+$this->setSearchableModel(Car::class)->addWheres([['id', 4]])->forceDelete();
+```
+
+### Model Events
+
+Mass `update` / `incrementEach` / `delete` queries skip model observers, casts, and mutators. Chain `usingModelEvents()` to walk matching rows in chunks and persist each through the model:
+
+```PHP
+public function update()
+{
+    return $this
+        ->setSearchableModel(Car::class)
+        ->addWheres([
+            ['make', 'Toyota'],
+        ])
+        ->usingModelEvents()
+        ->incrementEach(['stock_count' => 10])
         ->fetch();
 }
 ```

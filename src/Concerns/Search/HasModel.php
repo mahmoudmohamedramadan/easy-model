@@ -163,15 +163,45 @@ trait HasModel
      */
     public function includeSoftDeleted()
     {
+        $this->assertUsesSoftDeletes();
+
+        $this->eloquentBuilder = $this->getSearchableEloquentBuilder()->withoutGlobalScope(SoftDeletingScope::class);
+
+        return $this;
+    }
+
+    /**
+     * Restrict the query to only soft-deleted records.
+     *
+     * @return $this
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
+     */
+    public function onlyTrashed()
+    {
+        $this->assertUsesSoftDeletes();
+
+        $this->eloquentBuilder = $this->getSearchableEloquentBuilder()->onlyTrashed();
+
+        return $this;
+    }
+
+    /**
+     * Ensure the searchable model uses the SoftDeletes trait.
+     *
+     * @return \Illuminate\Database\Eloquent\Model
+     *
+     * @throws \Ramadan\EasyModel\Exceptions\InvalidModel
+     */
+    protected function assertUsesSoftDeletes()
+    {
         $model = $this->getSearchableModel();
 
         if (! in_array(SoftDeletes::class, class_uses_recursive($model), true)) {
             throw InvalidModel::softDeletesNotUsed(get_class($model));
         }
 
-        $this->eloquentBuilder = $this->getSearchableEloquentBuilder()->withoutGlobalScope(SoftDeletingScope::class);
-
-        return $this;
+        return $model;
     }
 
     /**
