@@ -1,12 +1,26 @@
 # Easy Model
 
-![Easy Model](/art/logo.png "Easy Model")
+<p align="center">
+    <img src="/art/logo.png" alt="Easy Model" width="350">
+</p>
 
-![Latest Version](https://img.shields.io/packagist/v/ramadan/easy-model?style=flat-square&logo=packagist)
-![Total Downloads](https://img.shields.io/packagist/dt/ramadan/easy-model?style=flat-square)
-![PHP](https://img.shields.io/badge/php-%5E8.2-777BB4?logo=php&style=flat-square)
-![Laravel](https://img.shields.io/badge/laravel-%5E10.0%7C%5E11.0%7C%5E12.0%7C%5E13.0-FF2D20?logo=laravel&style=flat-square)
-![License](https://img.shields.io/packagist/l/ramadan/easy-model?style=flat-square)
+<p align="center">
+    <a href="https://packagist.org/packages/ramadan/easy-model">
+        <img src="https://img.shields.io/packagist/v/ramadan/easy-model?style=flat-square&logo=packagist" alt="Latest Version">
+    </a>
+    <a href="https://packagist.org/packages/ramadan/easy-model">
+        <img src="https://img.shields.io/packagist/dt/ramadan/easy-model?style=flat-square" alt="Total Downloads">
+    </a>
+    <a href="https://www.php.net/">
+        <img src="https://img.shields.io/badge/php-%5E8.2-777BB4?logo=php&style=flat-square" alt="PHP">
+    </a>
+    <a href="https://laravel.com/">
+        <img src="https://img.shields.io/badge/laravel-%5E10.0%7C%5E11.0%7C%5E12.0%7C%5E13.0-FF2D20?logo=laravel&style=flat-square" alt="Laravel">
+    </a>
+    <a href="https://packagist.org/packages/ramadan/easy-model">
+        <img src="https://img.shields.io/packagist/l/ramadan/easy-model?style=flat-square" alt="License">
+    </a>
+</p>
 
  - - -
 
